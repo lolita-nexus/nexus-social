@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>NEXUS | Социальная платформа</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(139, 92, 246, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #ec489a);
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 24px;
+            border-radius: 40px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+        .input-glow {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 14px 18px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .input-glow:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            border-radius: 16px;
+            padding: 14px 24px;
+            z-index: 1100;
+            animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .avatar-wrapper {
+            background: linear-gradient(135deg, #8b5cf6, #ec489a);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 28px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .nav-btn.active {
+            background: linear-gradient(135deg, #8b5cf6, #ec489a);
+            color: white;
+        }
+        .notification-dropdown {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 380px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: rgba(20, 20, 40, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 200;
+            display: none;
+        }
+        .notification-dropdown.show { display: block; }
+        .notification-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+        }
+        .notification-item.unread {
+            background: rgba(139, 92, 246, 0.15);
+            border-left: 3px solid #8b5cf6;
+        }
+        .like-btn.liked { color: #ec489a; }
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        .like-btn.liked { animation: heartBeat 0.4s ease; }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        // ========== СОСТОЯНИЕ ==========
+        let state = {
+            currentUser: null,
+            users: [],
+            posts: [],
+            comments: [],
+            likes: [],
+            friends: [],
+            reposts: [],
+            notifications: [],
+            verificationRequests: [],
+            bannedUsers: [],
+            systemSettings: {
+                theme: 'dark',
+                notifications: true,
+                language: 'ru',
+                privacy: 'public'
+            },
+            adminId: null,
+            pendingEmailVerifications: {}
+        };
+
+        let unreadCount = 0;
+        let repostModalPostId = null;
+        let pendingRegistrationData = null;
+
+        const avatarPresets = [
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar1&backgroundColor=8b5cf6',
+            'https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar2&backgroundColor=ec489a'
+        ];
+
+        const coverPresets = [
+            'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800',
+            'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800'
+        ];
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="margin-right: 8px;"></i> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // ========== ОТПРАВКА КОДА (РЕАЛЬНАЯ) ==========
+        async function sendVerificationCode(email) {
+            const code = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiresAt = Date.now() + 10 * 60 * 1000;
+            
+            state.pendingEmailVerifications[email] = { code, expiresAt };
+            saveData();
+            
+            try {
+                const response = await fetch('/.netlify/functions/send-code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showToast(`Код отправлен на ${email}`, 'success');
+                    return true;
+                } else {
+                    showToast(data.error || 'Ошибка отправки письма', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                showToast('Ошибка соединения. Попробуйте позже.', 'error');
+                return false;
+            }
+        }
+        
+        function verifyEmailCode(email, code) {
+            const pending = state.pendingEmailVerifications[email];
+            if (!pending) {
+                showToast('Код не найден. Запросите новый', 'error');
+                return false;
+            }
+            if (Date.now() > pending.expiresAt) {
+                delete state.pendingEmailVerifications[email];
+                showToast('Код истек. Запросите новый', 'error');
+                return false;
+            }
+            if (pending.code === code) {
+                delete state.pendingEmailVerifications[email];
+                showToast('✅ Email подтвержден!', 'success');
+                return true;
+            }
+            showToast('Неверный код', 'error');
+            return false;
+        }
+
+        function saveData() {
+            localStorage.setItem('nexus_data', JSON.stringify({
+                users: state.users,
+                posts: state.posts,
+                comments: state.comments,
+                likes: state.likes,
+                friends: state.friends,
+                reposts: state.reposts,
+                notifications: state.notifications,
+                verificationRequests: state.verificationRequests,
+                bannedUsers: state.bannedUsers,
+                systemSettings: state.systemSettings,
+                currentUser: state.currentUser,
+                adminId: state.adminId,
+                pendingEmailVerifications: state.pendingEmailVerifications
+            }));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('nexus_data');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    state.users = data.users || [];
+                    state.posts = data.posts || [];
+                    state.comments = data.comments || [];
+                    state.likes = data.likes || [];
+                    state.friends = data.friends || [];
+                    state.reposts = data.reposts || [];
+                    state.notifications = data.notifications || [];
+                    state.verificationRequests = data.verificationRequests || [];
+                    state.bannedUsers = data.bannedUsers || [];
+                    state.systemSettings = data.systemSettings || { theme: 'dark', notifications: true, language: 'ru', privacy: 'public' };
+                    state.currentUser = data.currentUser || null;
+                    state.adminId = data.adminId || null;
+                    state.pendingEmailVerifications = data.pendingEmailVerifications || {};
+                    unreadCount = state.notifications.filter(n => !n.read && n.userId === state.currentUser?.id).length;
+                } catch(e) { console.error('Ошибка загрузки:', e); }
+            }
+        }
+
+        function initDemoData() {
+            if (state.users.length > 0) return;
+            state.users = [];
+            state.adminId = null;
+            saveData();
+        }
+
+        function getUserById(id) {
+            return state.users.find(u => u.id === id);
+        }
+
+        function isAdmin(userId) {
+            return state.adminId === userId;
+        }
+
+        function isBanned(userId) {
+            const ban = state.bannedUsers.find(b => b.userId === userId);
+            if (!ban) return false;
+            if (ban.expiresAt && ban.expiresAt < Date.now()) {
+                state.bannedUsers = state.bannedUsers.filter(b => b.userId !== userId);
+                saveData();
+                return false;
+            }
+            return true;
+        }
+
+        function addNotification(userId, type, data) {
+            const notification = {
+                id: 'n' + Date.now(),
+                userId: userId,
+                type: type,
+                data: data,
+                read: false,
+                timestamp: Date.now()
+            };
+            state.notifications.push(notification);
+            if (userId === state.currentUser?.id && state.systemSettings.notifications) {
+                unreadCount++;
+                const bell = document.getElementById('bellIcon');
+                if (bell) bell.classList.add('bell-ring');
+                setTimeout(() => bell?.classList.remove('bell-ring'), 500);
+            }
+            saveData();
+        }
+
+        async function registerUserWithEmail(name, username, email, password) {
+            if (!name || !username || !email || !password) {
+                showToast('Заполните все поля', 'error');
+                return false;
+            }
+            if (state.users.find(u => u.email === email)) {
+                showToast('Email уже используется', 'error');
+                return false;
+            }
+            if (state.users.find(u => u.username === username)) {
+                showToast('Username уже используется', 'error');
+                return false;
+            }
+            
+            pendingRegistrationData = { name, username, email, password };
+            const sent = await sendVerificationCode(email);
+            if (sent) {
+                return true;
+            }
+            pendingRegistrationData = null;
+            return false;
+        }
+        
+        function confirmRegistration(code) {
+            if (!pendingRegistrationData) {
+                showToast('Нет активной регистрации', 'error');
+                return false;
+            }
+            
+            const { name, username, email, password } = pendingRegistrationData;
+            
+            if (!verifyEmailCode(email, code)) {
+                return false;
+            }
+            
+            const isFirstUser = state.users.length === 0;
+            
+            const newUser = {
+                id: 'u' + Date.now(),
+                name: name,
+                username: username,
+                email: email,
+                password: password,
+                avatar: avatarPresets[0],
+                cover: coverPresets[0],
+                bio: '🌟 Новый пользователь NEXUS!',
+                city: '',
+                createdAt: new Date().toISOString(),
+                verified: false,
+                emailVerified: true
+            };
+            state.users.push(newUser);
+            state.currentUser = newUser;
+            
+            if (isFirstUser) {
+                state.adminId = newUser.id;
+                showToast('👑 Вы стали администратором NEXUS!', 'success');
+            }
+            
+            pendingRegistrationData = null;
+            saveData();
+            showToast('🎉 Добро пожаловать в NEXUS!', 'success');
+            return true;
+        }
+        
+        function loginUser(email, password) {
+            const user = state.users.find(u => u.email === email && u.password === password);
+            if (user) {
+                if (isBanned(user.id)) {
+                    showToast('❌ Вы заблокированы', 'error');
+                    return false;
+                }
+                state.currentUser = user;
+                unreadCount = state.notifications.filter(n => !n.read && n.userId === user.id).length;
+                saveData();
+                showToast(`👋 С возвращением, ${user.name}!`, 'success');
+                return true;
+            }
+            showToast('Неверный email или пароль', 'error');
+            return false;
+        }
+
+        function logout() {
+            state.currentUser = null;
+            saveData();
+            render();
+        }
+
+        // ========== НАВИГАЦИЯ ==========
+        let currentView = { type: 'feed', userId: null };
+        function navigateToFeed() { currentView = { type: 'feed' }; render(); }
+        function navigateToProfile(userId) { currentView = { type: 'profile', userId: userId }; render(); }
+        function navigateToFriends() { currentView = { type: 'friends' }; render(); }
+        function navigateToAdminPanel() { currentView = { type: 'admin' }; render(); }
+
+        // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
+        function getAllPosts() {
+            return [...state.posts].sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function getPostsByUser(userId) {
+            return state.posts.filter(p => p.userId === userId).sort((a, b) => b.timestamp - a.timestamp);
+        }
+
+        function createPost(content) {
+            if (!content.trim()) return false;
+            const newPost = {
+                id: 'p' + Date.now(),
+                userId: state.currentUser.id,
+                content: content.trim(),
+                timestamp: Date.now()
+            };
+            state.posts.unshift(newPost);
+            saveData();
+            showToast('✨ Пост опубликован!', 'success');
+            return true;
+        }
+
+        function deletePost(postId) {
+            const post = state.posts.find(p => p.id === postId);
+            if (post && (post.userId === state.currentUser.id || isAdmin(state.currentUser.id))) {
+                state.posts = state.posts.filter(p => p.id !== postId);
+                state.comments = state.comments.filter(c => c.postId !== postId);
+                state.likes = state.likes.filter(l => l.postId !== postId);
+                saveData();
+                showToast('🗑 Пост удален', 'success');
+                return true;
+            }
+            return false;
+        }
+
+        function addComment(postId, text) {
+            if (!text.trim()) return false;
+            const newComment = {
+                id: 'c' + Date.now(),
+                postId: postId,
+                userId: state.currentUser.id,
+                text: text.trim(),
+                timestamp: Date.now()
+            };
+            state.comments.push(newComment);
+            saveData();
+            showToast('💬 Комментарий добавлен', 'success');
+            return true;
+        }
+
+        function toggleLike(postId) {
+            const existing = state.likes.find(l => l.postId === postId && l.userId === state.currentUser.id);
+            if (existing) {
+                state.likes = state.likes.filter(l => l.id !== existing.id);
+            } else {
+                state.likes.push({
+                    id: 'l' + Date.now(),
+                    postId: postId,
+                    userId: state.currentUser.id,
+                    timestamp: Date.now()
+                });
+                showToast('❤️ Лайк добавлен!', 'success');
+            }
+            saveData();
+            render();
+        }
+
+        function getLikesCount(postId) {
+            return state.likes.filter(l => l.postId === postId).length;
+        }
+
+        function isLiked(postId, userId) {
+            return state.likes.some(l => l.postId === postId && l.userId === userId);
+        }
+
+        function getCommentsForPost(postId) {
+            return state.comments.filter(c => c.postId === postId).sort((a, b) => a.timestamp - b.timestamp);
+        }
+
+        function getFriends(userId) {
+            const friendships = state.friends.filter(f => 
+                (f.userId === userId && f.status === 'accepted') || 
+                (f.friendId === userId && f.status === 'accepted')
+            );
+            return friendships.map(f => {
+                const friendId = f.userId === userId ? f.friendId : f.userId;
+                return getUserById(friendId);
+            }).filter(Boolean);
+        }
+
+        function sendFriendRequest(userId) {
+            if (userId === state.currentUser.id) return;
+            const existing = state.friends.find(f => 
+                (f.userId === state.currentUser.id && f.friendId === userId) ||
+                (f.userId === userId && f.friendId === state.currentUser.id)
+            );
+            if (existing) {
+                showToast('Заявка уже отправлена', 'info');
+                return;
+            }
+            state.friends.push({
+                id: 'f' + Date.now(),
+                userId: state.currentUser.id,
+                friendId: userId,
+                status: 'pending'
+            });
+            saveData();
+            showToast('📨 Заявка отправлена!', 'success');
+        }
+
+        function acceptFriendRequest(requestId) {
+            const request = state.friends.find(f => f.id === requestId);
+            if (request) {
+                request.status = 'accepted';
+                saveData();
+                showToast('🎉 Теперь вы друзья!', 'success');
+            }
+        }
+
+        function updateProfile(updates) {
+            Object.assign(state.currentUser, updates);
+            const index = state.users.findIndex(u => u.id === state.currentUser.id);
+            if (index !== -1) state.users[index] = state.currentUser;
+            saveData();
+            showToast('✅ Профиль обновлен!', 'success');
+        }
+
+        // ========== РЕНДЕРИНГ ==========
+        function render() {
+            if (!state.currentUser) {
+                renderAuth();
+            } else {
+                renderMain();
+            }
+        }
+
+        function renderAuth() {
+            const app = document.getElementById('app');
+            let isLogin = true;
+            let showVerification = false;
+
+            function refresh() {
+                app.innerHTML = `
+                    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+                        <div class="glass" style="max-width: 480px; width: 100%; padding: 48px;">
+                            <div style="text-align: center; margin-bottom: 40px;">
+                                <div style="font-size: 64px;">✨</div>
+                                <h1 style="font-size: 42px; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #ec489a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">NEXUS</h1>
+                                <p style="color: rgba(255,255,255,0.7);">Социальная платформа будущего</p>
+                                <p style="color: #ec489a; font-size: 12px;">✉️ Подтверждение email</p>
+                            </div>
+
+                            ${!showVerification ? `
+                                <div style="display: flex; gap: 12px; margin-bottom: 32px;">
+                                    <button id="loginTab" style="flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; background: ${isLogin ? 'linear-gradient(135deg, #8b5cf6, #ec489a)' : 'rgba(255,255,255,0.1)'}; color: white;">Вход</button>
+                                    <button id="registerTab" style="flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; background: ${!isLogin ? 'linear-gradient(135deg, #8b5cf6, #ec489a)' : 'rgba(255,255,255,0.1)'}; color: white;">Регистрация</button>
+                                </div>
+
+                                <div id="authForm">
+                                    ${isLogin ? `
+                                        <input type="email" id="loginEmail" placeholder="Email" class="input-glow" style="margin-bottom: 16px;">
+                                        <input type="password" id="loginPassword" placeholder="Пароль" class="input-glow" style="margin-bottom: 24px;">
+                                        <button id="loginBtn" class="btn-primary" style="width: 100%;">Войти</button>
+                                    ` : `
+                                        <input type="text" id="regName" placeholder="Полное имя" class="input-glow" style="margin-bottom: 12px;">
+                                        <input type="text" id="regUsername" placeholder="Имя пользователя" class="input-glow" style="margin-bottom: 12px;">
+                                        <input type="email" id="regEmail" placeholder="Email" class="input-glow" style="margin-bottom: 12px;">
+                                        <input type="password" id="regPassword" placeholder="Пароль" class="input-glow" style="margin-bottom: 24px;">
+                                        <button id="registerBtn" class="btn-primary" style="width: 100%;">Зарегистрироваться</button>
+                                        <p style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 16px;">✉️ На почту придет код подтверждения</p>
+                                        <p style="text-align: center; font-size: 12px; color: #8b5cf6;">👑 Первый пользователь становится администратором</p>
+                                    `}
+                                </div>
+                            ` : `
+                                <div>
+                                    <h2 style="font-size: 20px; text-align: center; margin-bottom: 20px;">✉️ Подтверждение email</h2>
+                                    <p style="text-align: center; color: rgba(255,255,255,0.6); margin-bottom: 20px;">Код отправлен на <strong>${pendingRegistrationData?.email || ''}</strong></p>
+                                    <input type="text" id="verificationCode" placeholder="Введите код из письма" class="input-glow" style="margin-bottom: 16px; text-align: center; font-size: 20px;">
+                                    <button id="confirmCodeBtn" class="btn-primary" style="width: 100%; margin-bottom: 12px;">✅ Подтвердить</button>
+                                    <button id="resendCodeBtn" class="btn-secondary" style="width: 100%;">🔄 Отправить код повторно</button>
+                                    <button id="backToRegisterBtn" style="background: none; border: none; color: rgba(255,255,255,0.5); margin-top: 16px; cursor: pointer; width: 100%;">← Назад</button>
+                                </div>
+                            `}
+                        </div>
+                    </div>
+                `;
+
+                if (!showVerification) {
+                    document.getElementById('loginTab')?.addEventListener('click', () => { isLogin = true; showVerification = false; refresh(); });
+                    document.getElementById('registerTab')?.addEventListener('click', () => { isLogin = false; showVerification = false; refresh(); });
+                    
+                    if (isLogin) {
+                        document.getElementById('loginBtn')?.addEventListener('click', () => {
+                            const email = document.getElementById('loginEmail').value;
+                            const password = document.getElementById('loginPassword').value;
+                            if (loginUser(email, password)) render();
+                        });
+                    } else {
+                        document.getElementById('registerBtn')?.addEventListener('click', async () => {
+                            const name = document.getElementById('regName').value;
+                            const username = document.getElementById('regUsername').value;
+                            const email = document.getElementById('regEmail').value;
+                            const password = document.getElementById('regPassword').value;
+                            const success = await registerUserWithEmail(name, username, email, password);
+                            if (success) {
+                                showVerification = true;
+                                refresh();
+                            }
+                        });
+                    }
+                } else {
+                    document.getElementById('confirmCodeBtn')?.addEventListener('click', () => {
+                        const code = document.getElementById('verificationCode').value;
+                        if (confirmRegistration(code)) {
+                            render();
+                        }
+                    });
+                    document.getElementById('resendCodeBtn')?.addEventListener('click', async () => {
+                        if (pendingRegistrationData) {
+                            await sendVerificationCode(pendingRegistrationData.email);
+                            showToast('Код отправлен повторно', 'success');
+                        }
+                    });
+                    document.getElementById('backToRegisterBtn')?.addEventListener('click', () => {
+                        showVerification = false;
+                        pendingRegistrationData = null;
+                        refresh();
+                    });
+                }
+            }
+            refresh();
+        }
+
+        function renderMain() {
+            const app = document.getElementById('app');
+            const user = state.currentUser;
+            const isAdminUser = isAdmin(user.id);
+            const allPosts = getAllPosts();
+
+            app.innerHTML = `
+                <div style="min-height: 100vh;">
+                    <div style="position: sticky; top: 0; z-index: 100; background: rgba(15, 12, 41, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <div style="max-width: 1200px; margin: 0 auto; padding: 14px 24px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                                <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="window.navigateToFeedExternal()">
+                                    <span style="font-size: 32px;">✨</span>
+                                    <span style="font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #ec489a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">NEXUS</span>
+                                </div>
+                                
+                                <div style="display: flex; gap: 12px;">
+                                    <button id="navFeed" class="nav-btn ${currentView.type === 'feed' ? 'active' : ''}"><i class="fas fa-newspaper"></i> Лента</button>
+                                    <button id="navFriends" class="nav-btn ${currentView.type === 'friends' ? 'active' : ''}"><i class="fas fa-users"></i> Друзья</button>
+                                    <button id="navProfile" class="nav-btn ${currentView.type === 'profile' && currentView.userId === user.id ? 'active' : ''}"><i class="fas fa-user"></i> Профиль</button>
+                                    ${isAdminUser ? `<button id="navAdmin" class="nav-btn ${currentView.type === 'admin' ? 'active' : ''}"><i class="fas fa-crown"></i> Админка</button>` : ''}
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div class="avatar-wrapper" style="width: 44px; height: 44px; cursor: pointer;" onclick="window.navigateToProfileExternal('${user.id}')">
+                                        <img src="${user.avatar}" class="avatar-img" style="width: 44px; height: 44px;">
+                                    </div>
+                                    <button id="logoutBtn" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="max-width: 680px; margin: 0 auto; padding: 32px 24px;">
+                        ${currentView.type === 'feed' ? `
+                            <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                                <textarea id="postContent" rows="2" placeholder="Что у вас нового?" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 14px; color: white; resize: none; font-family: inherit;"></textarea>
+                                <div style="display: flex; justify-content: flex-end; margin-top: 12px;">
+                                    <button id="publishBtn" class="btn-primary">Опубликовать ✨</button>
+                                </div>
+                            </div>
+                            ${allPosts.map(post => {
+                                const author = getUserById(post.userId);
+                                if (!author) return '';
+                                const comments = getCommentsForPost(post.id);
+                                const likesCount = getLikesCount(post.id);
+                                const liked = isLiked(post.id, user.id);
+                                return `
+                                    <div class="glass-card" style="padding: 24px; margin-bottom: 20px;" id="post-${post.id}">
+                                        <div style="display: flex; gap: 12px; cursor: pointer; align-items: center;" onclick="window.navigateToProfileExternal('${author.id}')">
+                                            <div class="avatar-wrapper" style="width: 48px; height: 48px;">
+                                                <img src="${author.avatar}" class="avatar-img" style="width: 48px; height: 48px;">
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 600;">${escapeHtml(author.name)}</div>
+                                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">${new Date(post.timestamp).toLocaleString()}</div>
+                                            </div>
+                                        </div>
+                                        <div style="margin: 16px 0;"><p>${escapeHtml(post.content)}</p></div>
+                                        <div style="display: flex; gap: 20px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                            <button class="like-btn ${liked ? 'liked' : ''}" data-post="${post.id}" style="background: none; border: none; cursor: pointer; color: ${liked ? '#ec489a' : 'rgba(255,255,255,0.6)'};"><i class="fas fa-heart"></i> ${likesCount}</button>
+                                            <button onclick="window.toggleCommentsExternal('${post.id}')" style="background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.6);"><i class="fas fa-comment"></i> ${comments.length}</button>
+                                            ${(author.id === user.id || isAdminUser) ? `<button onclick="window.deletePostExternal('${post.id}')" style="background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.6);"><i class="fas fa-trash"></i></button>` : ''}
+                                        </div>
+                                        <div id="comments-${post.id}" style="margin-top: 16px;">
+                                            ${comments.map(comment => {
+                                                const commentUser = getUserById(comment.userId);
+                                                return `
+                                                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                                                        <div class="avatar-wrapper" style="width: 32px; height: 32px;" onclick="window.navigateToProfileExternal('${commentUser.id}')">
+                                                            <img src="${commentUser.avatar}" class="avatar-img" style="width: 32px; height: 32px;">
+                                                        </div>
+                                                        <div style="flex: 1; background: rgba(255,255,255,0.05); border-radius: 18px; padding: 8px 14px;">
+                                                            <span style="font-weight: 600; font-size: 13px; cursor: pointer;" onclick="window.navigateToProfileExternal('${commentUser.id}')">${escapeHtml(commentUser.name)}</span>
+                                                            <span style="font-size: 13px;"> ${escapeHtml(comment.text)}</span>
+                                                        </div>
+                                                    </div>
+                                                `;
+                                            }).join('')}
+                                            <div style="display: flex; gap: 10px; margin-top: 12px;">
+                                                <div class="avatar-wrapper" style="width: 32px; height: 32px;"><img src="${user.avatar}" class="avatar-img" style="width: 32px; height: 32px;"></div>
+                                                <div style="flex: 1; display: flex; gap: 8px;">
+                                                    <input type="text" id="commentInput-${post.id}" placeholder="Написать комментарий..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 10px 16px; color: white;">
+                                                    <button onclick="window.addCommentExternal('${post.id}', document.getElementById('commentInput-${post.id}').value)" style="background: linear-gradient(135deg, #8b5cf6, #ec489a); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;"><i class="fas fa-arrow-right"></i></button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                            ${allPosts.length === 0 ? '<div style="text-align: center; padding: 60px; color: rgba(255,255,255,0.5);">✨ Нет постов. Будьте первым!</div>' : ''}
+                        ` : currentView.type === 'profile' ? `
+                            <div class="glass-card" style="padding: 24px; text-align: center;">
+                                <div class="avatar-wrapper" style="width: 100px; height: 100px; margin: 0 auto 16px;">
+                                    <img src="${user.avatar}" class="avatar-img" style="width: 100px; height: 100px;">
+                                </div>
+                                <h2 style="font-size: 28px;">${escapeHtml(user.name)}</h2>
+                                <p style="color: rgba(255,255,255,0.6);">@${user.username}</p>
+                                <p style="margin-top: 16px;">${escapeHtml(user.bio)}</p>
+                                <button id="editProfileBtn" class="btn-secondary" style="margin-top: 20px;">Редактировать профиль</button>
+                            </div>
+                        ` : currentView.type === 'friends' ? `
+                            <div class="glass-card" style="padding: 24px;">
+                                <h2>👥 Друзья (${getFriends(user.id).length})</h2>
+                                ${getFriends(user.id).map(f => `<div style="padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">${escapeHtml(f.name)}</div>`).join('') || '<p>Нет друзей</p>'}
+                            </div>
+                        ` : `
+                            <div class="glass-card" style="padding: 24px;">
+                                <h2>👑 Админ-панель</h2>
+                                <p>Всего пользователей: ${state.users.length}</p>
+                                ${state.users.map(u => `<div>${escapeHtml(u.name)} (${u.email})</div>`).join('')}
+                            </div>
+                        `}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('navFeed')?.addEventListener('click', () => navigateToFeed());
+            document.getElementById('navFriends')?.addEventListener('click', () => navigateToFriends());
+            document.getElementById('navProfile')?.addEventListener('click', () => navigateToProfile(user.id));
+            document.getElementById('navAdmin')?.addEventListener('click', () => navigateToAdminPanel());
+            document.getElementById('logoutBtn')?.addEventListener('click', () => logout());
+            document.getElementById('publishBtn')?.addEventListener('click', () => {
+                const content = document.getElementById('postContent');
+                if (content?.value.trim()) {
+                    createPost(content.value);
+                    content.value = '';
+                    render();
+                }
+            });
+            document.getElementById('editProfileBtn')?.addEventListener('click', () => {
+                const newName = prompt('Новое имя:', user.name);
+                if (newName) updateProfile({ name: newName });
+            });
+        }
+
+        window.navigateToFeedExternal = () => navigateToFeed();
+        window.navigateToProfileExternal = (id) => navigateToProfile(id);
+        window.deletePostExternal = (id) => { deletePost(id); render(); };
+        window.addCommentExternal = (postId, text) => { addComment(postId, text); render(); };
+        window.toggleCommentsExternal = (postId) => {
+            const el = document.getElementById(`comments-${postId}`);
+            if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        };
+
+        document.addEventListener('click', (e) => {
+            const likeBtn = e.target.closest('.like-btn');
+            if (likeBtn) {
+                const postId = likeBtn.dataset.post;
+                if (postId) {
+                    toggleLike(postId);
+                }
+            }
+        });
+
+        loadData();
+        initDemoData();
+        render();
+    </script>
+</body>
+</html>
