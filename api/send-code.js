@@ -1,5 +1,4 @@
 module.exports = async (req, res) => {
-    // Разрешаем CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -16,14 +15,13 @@ module.exports = async (req, res) => {
     try {
         const { email, code } = req.body;
         
-        // Логируем для проверки
-        console.log('Received:', { email, code });
+        // Просто логируем и возвращаем успех (без отправки письма)
+        console.log(`[TEST] Код для ${email}: ${code}`);
         
-        // Возвращаем успех (письмо не отправляем)
         return res.status(200).set(headers).json({ 
             success: true, 
-            message: 'Test mode: code would be sent to ' + email,
-            code: code
+            testMode: true,
+            code: code 
         });
         
     } catch (error) {
