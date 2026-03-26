@@ -1,4 +1,5 @@
 module.exports = async (req, res) => {
+    // Разрешаем CORS
     const headers = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -14,41 +15,19 @@ module.exports = async (req, res) => {
     
     try {
         const { email, code } = req.body;
-        const RESEND_API_KEY = process.env.RESEND_API_KEY;
         
-        if (!RESEND_API_KEY) {
-            console.error('RESEND_API_KEY is missing');
-            return res.status(500).set(headers).json({ error: 'Server configuration error' });
-        }
+        // Логируем для проверки
+        console.log('Received:', { email, code });
         
-        console.log(`Sending code ${code} to ${email}`);
-        
-        const response = await fetch('https://api.resend.com/emails', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${RESEND_API_KEY}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                from: 'Nexus <noreply@nexusssocial.online>',
-                to: [email],
-                subject: 'Код подтверждения Nexus',
-                html: `<h1>Код: ${code}</h1><p>Введите его на сайте Nexus</p>`
-            })
+        // Возвращаем успех (письмо не отправляем)
+        return res.status(200).set(headers).json({ 
+            success: true, 
+            message: 'Test mode: code would be sent to ' + email,
+            code: code
         });
         
-        const data = await response.text();
-        
-        if (!response.ok) {
-            console.error('Resend API error:', data);
-            return res.status(500).set(headers).json({ error: data });
-        }
-        
-        console.log('Email sent successfully');
-        return res.status(200).set(headers).json({ success: true });
-        
     } catch (error) {
-        console.error('Function error:', error);
+        console.error('Error:', error);
         return res.status(500).set(headers).json({ error: error.message });
     }
 };
