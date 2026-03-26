@@ -452,6 +452,23 @@
             font-size: 12px;
             color: white;
         }
+
+        .search-input {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-input input {
+            padding-left: 40px;
+        }
+
+        .search-input i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+        }
     </style>
     <!-- Supabase -->
     <script type="importmap">
@@ -536,6 +553,9 @@
         let settingsOpen = false;
         let settingsTab = 'profile';
         let currentPostImage = null;
+        let searchQuery = '';
+
+        const ADMIN_EMAIL = 'sasalelem119@gmail.com'; // ТОЛЬКО ЭТОТ EMAIL - АДМИНИСТРАТОР
 
         const avatarPresets = [
             'https://api.dicebear.com/7.x/avataaars/svg?seed=Avatar1&backgroundColor=8b5cf6',
@@ -604,7 +624,9 @@
         }
 
         function isAdmin(userId) {
-            return state.adminId === userId;
+            if (!userId) return false;
+            const user = getUserById(userId);
+            return user && user.email === ADMIN_EMAIL;
         }
 
         function isBanned(userId) {
@@ -855,12 +877,7 @@
                     state.bannedUsers = data.bannedUsers || [];
                     state.systemSettings = data.systemSettings || { theme: 'dark', notifications: true, language: 'ru', privacy: 'public' };
                     state.currentUser = data.currentUser || null;
-                    state.adminId = data.adminId || null;
                     unreadCount = state.notifications.filter(n => !n.read && n.userId === state.currentUser?.id).length;
-                    
-                    if (state.currentUser && isBanned(state.currentUser.id)) {
-                        showBanNotification(state.currentUser.id);
-                    }
                 } catch(e) {}
             }
             
@@ -891,7 +908,6 @@
             state.friends = [];
             state.bannedUsers = [];
             state.verificationRequests = [];
-            state.adminId = null;
             saveData();
         }
 
@@ -1297,8 +1313,6 @@
                 return false;
             }
             
-            const isFirstUser = state.users.length === 0;
-            
             const newUser = {
                 id: 'u' + Date.now(),
                 name: name,
@@ -1314,11 +1328,6 @@
             };
             state.users.push(newUser);
             state.currentUser = newUser;
-            
-            if (isFirstUser) {
-                state.adminId = newUser.id;
-                showToast('👑 Вы стали администратором NEXUS! Теперь вы можете управлять пользователями и постами.', 'success');
-            }
             
             saveData();
             showToast('🎉 Добро пожаловать в NEXUS!', 'success');
@@ -1405,7 +1414,6 @@
                                 <img src="logo.png" style="height: 48px; width: auto; border-radius: 12px; margin-bottom: 16px;">
                                 <h1 style="font-size: 42px; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #ec489a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">NEXUS</h1>
                                 <p style="color: rgba(255,255,255,0.7); margin-top: 12px;">Социальная платформа будущего</p>
-                                <p style="color: #8b5cf6; font-size: 12px; margin-top: 8px;">👑 Первый пользователь становится администратором!</p>
                             </div>
 
                             <div style="display: flex; gap: 12px; margin-bottom: 32px;">
@@ -1424,7 +1432,6 @@
                                     <input type="email" id="regEmail" placeholder="Email" class="input-glow" style="margin-bottom: 12px;">
                                     <input type="password" id="regPassword" placeholder="Пароль" class="input-glow" style="margin-bottom: 24px;">
                                     <button id="registerBtn" class="btn-primary" style="width: 100%;">Зарегистрироваться</button>
-                                    <p style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 16px;">👑 Первый пользователь получает права администратора</p>
                                 `}
                             </div>
                         </div>
@@ -1456,17 +1463,17 @@
         function renderMain() {
             const app = document.getElementById('app');
             const user = state.currentUser;
+            const userIsAdmin = isAdmin(user.id);
+            const allPosts = getAllPosts();
             const friends = getFriends(user.id);
             const pendingRequests = state.friends.filter(f => f.friendId === user.id && f.status === 'pending');
             const userNotifications = state.notifications.filter(n => n.userId === user.id).sort((a, b) => b.timestamp - a.timestamp);
             const pendingVerifications = state.verificationRequests.filter(r => r.status === 'pending');
-            const userIsAdmin = isAdmin(user.id);
             const bannedUsersList = state.bannedUsers.map(b => getUserById(b.userId)).filter(Boolean);
 
             let content = '';
 
             if (currentView.type === 'feed') {
-                const allPosts = getAllPosts();
                 content = `
                     <div style="max-width: 680px; margin: 0 auto;">
                         <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
@@ -1781,8 +1788,22 @@
                 `;
             }
             else if (currentView.type === 'friends') {
+                // Поиск пользователей
+                const allUsers = state.users.filter(u => u.id !== user.id);
+                const filteredUsers = allUsers.filter(u => 
+                    u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    u.username.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                
                 content = `
                     <div style="max-width: 680px; margin: 0 auto;">
+                        <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                            <div class="search-input">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="searchUsersInput" class="input-glow" placeholder="Поиск пользователей..." value="${escapeHtml(searchQuery)}" style="padding-left: 40px;">
+                            </div>
+                        </div>
+                        
                         ${pendingRequests.length > 0 ? `
                             <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
                                 <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">📨 Заявки в друзья</h2>
@@ -1807,7 +1828,7 @@
                             </div>
                         ` : ''}
                         
-                        <div class="glass-card" style="padding: 24px;">
+                        <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
                             <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">👥 Мои друзья (${friends.length})</h2>
                             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
                                 ${friends.map(friend => `
@@ -1827,15 +1848,57 @@
                             </div>
                             ${friends.length === 0 ? '<div style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">У вас пока нет друзей 😢</div>' : ''}
                         </div>
+                        
+                        <div class="glass-card" style="padding: 24px;">
+                            <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">🔍 Найти людей (${filteredUsers.length})</h2>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+                                ${filteredUsers.map(u => {
+                                    const isAlreadyFriend = friends.some(f => f.id === u.id);
+                                    return `
+                                        <div class="glass-card" style="padding: 16px;">
+                                            <div style="display: flex; gap: 12px; align-items: center; justify-content: space-between;">
+                                                <div style="display: flex; gap: 12px; align-items: center; cursor: pointer;" onclick="window.navigateToProfileExternal('${u.id}')">
+                                                    <div class="avatar-wrapper" style="width: 52px; height: 52px;">
+                                                        <img src="${u.avatar}" class="avatar-img" style="width: 52px; height: 52px;">
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight: 600;">${escapeHtml(u.name)}</div>
+                                                        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${u.username}</div>
+                                                        ${u.city ? `<div style="font-size: 11px; color: rgba(255,255,255,0.4);">📍 ${escapeHtml(u.city)}</div>` : ''}
+                                                    </div>
+                                                </div>
+                                                ${!isAlreadyFriend ? `
+                                                    <button onclick="window.sendFriendExternal('${u.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 12px;">➕ Добавить</button>
+                                                ` : '<span class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">✓ Друг</span>'}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                            ${filteredUsers.length === 0 && searchQuery ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Ничего не найдено</div>' : ''}
+                            ${filteredUsers.length === 0 && !searchQuery ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Других пользователей пока нет</div>' : ''}
+                        </div>
                     </div>
                 `;
             }
             else if (currentView.type === 'admin' && userIsAdmin) {
+                // Поиск пользователей в админке
+                const filteredUsers = state.users.filter(u => 
+                    u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    u.email.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                
                 content = `
                     <div style="max-width: 800px; margin: 0 auto;">
                         <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
                             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">👑 Админ-панель</h2>
                             <p style="color: rgba(255,255,255,0.6); margin-bottom: 24px;">Управление пользователями, постами и верификацией</p>
+                            
+                            <div class="search-input" style="margin-bottom: 24px;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="searchAdminInput" class="input-glow" placeholder="Поиск пользователей..." value="${escapeHtml(searchQuery)}" style="padding-left: 40px;">
+                            </div>
                             
                             <div style="margin-bottom: 32px;">
                                 <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">✅ Заявки на верификацию (${pendingVerifications.length})</h3>
@@ -1887,7 +1950,7 @@
                             
                             <div>
                                 <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">👥 Все пользователи (${state.users.length})</h3>
-                                ${state.users.map(u => {
+                                ${filteredUsers.map(u => {
                                     const isUserBanned = isBanned(u.id);
                                     return `
                                         <div class="user-management-item" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
@@ -1903,6 +1966,7 @@
                                                         ${isUserBanned ? `<span class="banned-badge" style="font-size: 8px;"><i class="fas fa-ban"></i> Banned</span>` : ''}
                                                     </div>
                                                     <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${u.username}</div>
+                                                    <div style="font-size: 10px; color: rgba(255,255,255,0.4);">${u.email}</div>
                                                 </div>
                                             </div>
                                             <div style="display: flex; gap: 8px;">
@@ -1915,6 +1979,7 @@
                                         </div>
                                     `;
                                 }).join('')}
+                                ${filteredUsers.length === 0 && searchQuery ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Пользователи не найдены</div>' : ''}
                                 ${state.users.length === 0 ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Нет пользователей</div>' : ''}
                             </div>
                         </div>
@@ -2074,6 +2139,22 @@
             document.getElementById('profileSettingsTab')?.addEventListener('click', () => setSettingsTab('profile'));
             document.getElementById('accountSettingsTab')?.addEventListener('click', () => setSettingsTab('account'));
             document.getElementById('systemSettingsTab')?.addEventListener('click', () => setSettingsTab('system'));
+            
+            const searchInput = document.getElementById('searchUsersInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value;
+                    render();
+                });
+            }
+            
+            const searchAdminInput = document.getElementById('searchAdminInput');
+            if (searchAdminInput) {
+                searchAdminInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value;
+                    render();
+                });
+            }
             
             const uploadAvatarInput = document.getElementById('uploadAvatar');
             if (uploadAvatarInput) {
