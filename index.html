@@ -8,26 +8,20 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* ==================== ВЕСЬ ВАШ ОРИГИНАЛЬНЫЙ CSS ОСТАЁТСЯ ЗДЕСЬ ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             min-height: 100vh;
             color: #fff;
         }
-
         .glass {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
         }
-
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
@@ -35,52 +29,42 @@
             border-radius: 20px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         .glass-card:hover {
             transform: translateY(-4px);
             border-color: rgba(139, 92, 246, 0.5);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
         }
-
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes bellRing {
             0% { transform: rotate(0deg); }
             25% { transform: rotate(15deg); }
             75% { transform: rotate(-15deg); }
             100% { transform: rotate(0deg); }
         }
-
         .bell-ring {
             animation: bellRing 0.5s ease;
         }
-
         .post-enter {
             animation: slideIn 0.4s ease-out;
         }
-
         ::-webkit-scrollbar {
             width: 6px;
         }
-
         ::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
         }
-
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
             border-radius: 10px;
         }
-
         .btn-primary {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
             border: none;
@@ -93,12 +77,10 @@
             position: relative;
             overflow: hidden;
         }
-
         .btn-primary:hover {
             transform: scale(1.05);
             box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5);
         }
-
         .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -108,12 +90,10 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.2);
             border-color: rgba(139, 92, 246, 0.5);
         }
-
         .btn-danger {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             border: none;
@@ -124,12 +104,10 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-
         .btn-danger:hover {
             transform: scale(1.05);
             box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.5);
         }
-
         .input-glow {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -140,27 +118,22 @@
             transition: all 0.3s;
             width: 100%;
         }
-
         .input-glow:focus {
             outline: none;
             border-color: #8b5cf6;
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
         }
-
         .like-btn {
             transition: all 0.2s;
         }
-
         .like-btn.liked {
             color: #ec489a;
             animation: heartBeat 0.4s ease;
         }
-
         @keyframes heartBeat {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.3); }
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -174,11 +147,9 @@
             justify-content: center;
             align-items: center;
         }
-
         .modal.active {
             display: flex;
         }
-
         .toast {
             position: fixed;
             bottom: 30px;
@@ -191,12 +162,10 @@
             z-index: 1100;
             animation: slideInRight 0.3s ease;
         }
-
         @keyframes slideInRight {
             from { opacity: 0; transform: translateX(100px); }
             to { opacity: 1; transform: translateX(0); }
         }
-
         .avatar-wrapper {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
             border-radius: 50%;
@@ -205,14 +174,12 @@
             justify-content: center;
             flex-shrink: 0;
         }
-
         .avatar-img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
         }
-
         .verified-badge {
             display: inline-flex;
             align-items: center;
@@ -226,11 +193,9 @@
             cursor: pointer;
             transition: transform 0.2s;
         }
-
         .verified-badge:hover {
             transform: scale(1.1);
         }
-
         .admin-badge {
             display: inline-flex;
             align-items: center;
@@ -242,7 +207,6 @@
             font-weight: 600;
             margin-left: 8px;
         }
-
         .banned-badge {
             display: inline-flex;
             align-items: center;
@@ -254,31 +218,25 @@
             font-weight: 600;
             margin-left: 8px;
         }
-
         .settings-panel {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.5s ease-out;
         }
-
         .settings-panel.open {
             max-height: 2000px;
         }
-
         .avatar-option, .cover-option {
             cursor: pointer;
             transition: all 0.2s;
             border: 3px solid transparent;
         }
-
         .avatar-option:hover, .cover-option:hover {
             transform: scale(1.05);
         }
-
         .avatar-option.selected, .cover-option.selected {
             border-color: #8b5cf6;
         }
-
         .nav-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -289,19 +247,16 @@
             transition: all 0.3s;
             color: rgba(255, 255, 255, 0.7);
         }
-
         .nav-btn:hover {
             background: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
         }
-
         .nav-btn.active {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
-
         .tab-btn {
             background: rgba(255, 255, 255, 0.05);
             border: none;
@@ -311,12 +266,10 @@
             transition: all 0.2s;
             color: rgba(255, 255, 255, 0.6);
         }
-
         .tab-btn.active {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
             color: white;
         }
-
         .notification-dropdown {
             position: absolute;
             top: 55px;
@@ -332,28 +285,23 @@
             display: none;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-
         .notification-dropdown.show {
             display: block;
             animation: slideIn 0.3s ease;
         }
-
         .notification-item {
             padding: 14px 16px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
             transition: background 0.2s;
         }
-
         .notification-item:hover {
             background: rgba(139, 92, 246, 0.1);
         }
-
         .notification-item.unread {
             background: rgba(139, 92, 246, 0.15);
             border-left: 3px solid #8b5cf6;
         }
-
         .repost-badge {
             background: rgba(139, 92, 246, 0.2);
             border-radius: 12px;
@@ -364,21 +312,17 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-
         .repost-badge:hover {
             background: rgba(139, 92, 246, 0.4);
         }
-
         .original-post-clickable {
             cursor: pointer;
             transition: all 0.2s;
         }
-
         .original-post-clickable:hover {
             background: rgba(139, 92, 246, 0.1);
             transform: translateX(4px);
         }
-
         .repost-modal textarea {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -389,25 +333,21 @@
             resize: none;
             font-family: inherit;
         }
-
         .repost-modal textarea:focus {
             outline: none;
             border-color: #8b5cf6;
         }
-
         .verification-request, .user-management-item {
             background: rgba(139, 92, 246, 0.1);
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 12px;
         }
-
         .banned-user {
             opacity: 0.7;
             filter: grayscale(0.3);
             position: relative;
         }
-
         .ban-notification {
             background: rgba(239, 68, 68, 0.9);
             border-radius: 12px;
@@ -453,11 +393,102 @@
             color: white;
         }
     </style>
+    <!-- ==================== ДОБАВЛЯЕМ SUPABASE ==================== -->
+    <script type="importmap">
+        {
+            "imports": {
+                "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
+            }
+        }
+    </script>
+    <script type="module">
+        import { createClient } from '@supabase/supabase-js'
+        
+        const supabaseUrl = 'https://wftbevggdyaufaelkbyw.supabase.co'
+        const supabaseAnonKey = 'sb_publishable_Rr-nBqv8yF_lX3V7Syu-Vw_ZeiNi6QQ'
+        
+        window.supabase = createClient(supabaseUrl, supabaseAnonKey)
+        
+        window.saveAllToSupabase = async function(state) {
+            try {
+                for (const user of state.users) {
+                    await window.supabase.from('users').upsert(user, { onConflict: 'id' })
+                }
+                for (const post of state.posts) {
+                    await window.supabase.from('posts').upsert(post, { onConflict: 'id' })
+                }
+                for (const comment of state.comments) {
+                    await window.supabase.from('comments').upsert(comment, { onConflict: 'id' })
+                }
+                for (const like of state.likes) {
+                    await window.supabase.from('likes').upsert(like, { onConflict: 'id' })
+                }
+                for (const friend of state.friends) {
+                    await window.supabase.from('friends').upsert(friend, { onConflict: 'id' })
+                }
+                for (const notif of state.notifications) {
+                    await window.supabase.from('notifications').upsert(notif, { onConflict: 'id' })
+                }
+                for (const req of state.verificationRequests) {
+                    await window.supabase.from('verification_requests').upsert(req, { onConflict: 'id' })
+                }
+                for (const ban of state.bannedUsers) {
+                    await window.supabase.from('banned_users').upsert(ban, { onConflict: 'id' })
+                }
+                console.log('✅ Данные сохранены в Supabase')
+            } catch (error) {
+                console.error('Ошибка сохранения в Supabase:', error)
+            }
+        }
+        
+        window.loadAllFromSupabase = async function() {
+            try {
+                const [
+                    { data: users },
+                    { data: posts },
+                    { data: comments },
+                    { data: likes },
+                    { data: friends },
+                    { data: notifications },
+                    { data: verificationRequests },
+                    { data: bannedUsers }
+                ] = await Promise.all([
+                    window.supabase.from('users').select('*'),
+                    window.supabase.from('posts').select('*'),
+                    window.supabase.from('comments').select('*'),
+                    window.supabase.from('likes').select('*'),
+                    window.supabase.from('friends').select('*'),
+                    window.supabase.from('notifications').select('*'),
+                    window.supabase.from('verification_requests').select('*'),
+                    window.supabase.from('banned_users').select('*')
+                ])
+                
+                return {
+                    users: users || [],
+                    posts: posts || [],
+                    comments: comments || [],
+                    likes: likes || [],
+                    friends: friends || [],
+                    notifications: notifications || [],
+                    verificationRequests: verificationRequests || [],
+                    bannedUsers: bannedUsers || []
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки из Supabase:', error)
+                return null
+            }
+        }
+        
+        window._supabaseFunctionsReady = true
+    </script>
 </head>
 <body>
     <div id="app"></div>
 
     <script>
+        // ==================== ВЕСЬ ВАШ ОРИГИНАЛЬНЫЙ КОД ОСТАЁТСЯ НИЖЕ ====================
+        // (он полностью скопирован из вашего файла, я только изменил saveData, loadData и запуск)
+
         // ========== СОСТОЯНИЕ ==========
         let state = {
             currentUser: null,
@@ -808,7 +839,9 @@
             };
         }
 
+        // ИЗМЕНЁННАЯ saveData: добавляем сохранение в Supabase
         function saveData() {
+            // Сохраняем в localStorage
             localStorage.setItem('nexus_data', JSON.stringify({
                 users: state.users,
                 posts: state.posts,
@@ -824,9 +857,16 @@
                 adminId: state.adminId,
                 pendingEmailVerifications: state.pendingEmailVerifications
             }));
+            
+            // Сохраняем в Supabase (асинхронно, не блокируем)
+            if (window.saveAllToSupabase) {
+                window.saveAllToSupabase(state).catch(e => console.log('Supabase save error:', e));
+            }
         }
 
-        function loadData() {
+        // ИЗМЕНЁННАЯ loadData: асинхронная, загружаем из Supabase после localStorage
+        async function loadData() {
+            // Сначала загружаем из localStorage как резерв
             const saved = localStorage.getItem('nexus_data');
             if (saved) {
                 try {
@@ -850,6 +890,26 @@
                         showBanNotification(state.currentUser.id);
                     }
                 } catch(e) {}
+            }
+            
+            // Загружаем из Supabase (если есть)
+            if (window.loadAllFromSupabase) {
+                try {
+                    const supabaseData = await window.loadAllFromSupabase();
+                    if (supabaseData) {
+                        if (supabaseData.users.length) state.users = supabaseData.users;
+                        if (supabaseData.posts.length) state.posts = supabaseData.posts;
+                        if (supabaseData.comments.length) state.comments = supabaseData.comments;
+                        if (supabaseData.likes.length) state.likes = supabaseData.likes;
+                        if (supabaseData.friends.length) state.friends = supabaseData.friends;
+                        if (supabaseData.notifications.length) state.notifications = supabaseData.notifications;
+                        if (supabaseData.verificationRequests.length) state.verificationRequests = supabaseData.verificationRequests;
+                        if (supabaseData.bannedUsers.length) state.bannedUsers = supabaseData.bannedUsers;
+                        console.log('✅ Данные загружены из Supabase');
+                    }
+                } catch(e) {
+                    console.log('Supabase load error:', e);
+                }
             }
         }
 
@@ -2229,12 +2289,14 @@
             }
         });
 
-        loadData();
-        initDemoData();
-        render();
+        // Асинхронный запуск
+        (async () => {
+            await loadData();
+            initDemoData();
+            render();
+        })();
     </script>
 </body>
 </html>
-    </script>
 </body>
 </html>
