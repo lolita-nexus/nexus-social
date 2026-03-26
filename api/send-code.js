@@ -17,8 +17,11 @@ module.exports = async (req, res) => {
         const RESEND_API_KEY = process.env.RESEND_API_KEY;
         
         if (!RESEND_API_KEY) {
-            return res.status(500).set(headers).json({ error: 'Missing API key' });
+            console.error('RESEND_API_KEY is missing');
+            return res.status(500).set(headers).json({ error: 'Server configuration error' });
         }
+        
+        console.log(`Sending code ${code} to ${email}`);
         
         const response = await fetch('https://api.resend.com/emails', {
             method: 'POST',
@@ -37,14 +40,15 @@ module.exports = async (req, res) => {
         const data = await response.text();
         
         if (!response.ok) {
-            console.error('Resend error:', data);
+            console.error('Resend API error:', data);
             return res.status(500).set(headers).json({ error: data });
         }
         
+        console.log('Email sent successfully');
         return res.status(200).set(headers).json({ success: true });
         
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Function error:', error);
         return res.status(500).set(headers).json({ error: error.message });
     }
 };
