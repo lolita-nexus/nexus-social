@@ -16,7 +16,7 @@ exports.handler = async (event) => {
         const resend = new Resend(process.env.RESEND_API_KEY);
         
         const { data, error } = await resend.emails.send({
-            from: 'Nexus <onboarding@resend.dev>',
+            from: 'Nexus <noreply@nexusssocial.online>',
             to: [email],
             subject: 'Код подтверждения Nexus',
             html: `
