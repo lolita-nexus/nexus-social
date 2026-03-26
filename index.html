@@ -1314,70 +1314,46 @@
             };
         }
 
-        async function registerUserWithEmail(name, username, email, password) {
-            if (!name || !username || !email || !password) {
-                showToast('Заполните все поля', 'error');
-                return false;
-            }
-            if (state.users.find(u => u.email === email)) {
-                showToast('Email уже используется', 'error');
-                return false;
-            }
-            if (state.users.find(u => u.username === username)) {
-                showToast('Username уже используется', 'error');
-                return false;
-            }
-            
-            pendingRegistrationData = { name, username, email, password };
-            const sent = await sendVerificationCode(email);
-            if (sent) {
-                return true;
-            }
-            pendingRegistrationData = null;
-            return false;
-        }
-        
-        function confirmRegistration(code) {
-            if (!pendingRegistrationData) {
-                showToast('Нет активной регистрации', 'error');
-                return false;
-            }
-            
-            const { name, username, email, password } = pendingRegistrationData;
-            
-            if (!verifyEmailCode(email, code)) {
-                return false;
-            }
-            
-            const isFirstUser = state.users.length === 0;
-            
-            const newUser = {
-                id: 'u' + Date.now(),
-                name: name,
-                username: username,
-                email: email,
-                password: password,
-                avatar: avatarPresets[0],
-                cover: coverPresets[0],
-                bio: '🌟 Новый пользователь NEXUS! Рад знакомству!',
-                city: '',
-                createdAt: new Date().toISOString(),
-                verified: false
-            };
-            state.users.push(newUser);
-            state.currentUser = newUser;
-            
-            if (isFirstUser) {
-                state.adminId = newUser.id;
-                showToast('👑 Вы стали администратором NEXUS! Теперь вы можете управлять пользователями и постами.', 'success');
-            }
-            
-            pendingRegistrationData = null;
-            saveData();
-            showToast('🎉 Добро пожаловать в NEXUS!', 'success');
-            return true;
-        }
-
+ function registerUser(name, username, email, password) {
+    if (!name || !username || !email || !password) {
+        showToast('Заполните все поля', 'error');
+        return false;
+    }
+    if (state.users.find(u => u.email === email)) {
+        showToast('Email уже используется', 'error');
+        return false;
+    }
+    if (state.users.find(u => u.username === username)) {
+        showToast('Username уже используется', 'error');
+        return false;
+    }
+    
+    const isFirstUser = state.users.length === 0;
+    
+    const newUser = {
+        id: 'u' + Date.now(),
+        name: name,
+        username: username,
+        email: email,
+        password: password,
+        avatar: avatarPresets[0],
+        cover: coverPresets[0],
+        bio: '🌟 Новый пользователь NEXUS! Рад знакомству!',
+        city: '',
+        createdAt: new Date().toISOString(),
+        verified: false
+    };
+    state.users.push(newUser);
+    state.currentUser = newUser;
+    
+    if (isFirstUser) {
+        state.adminId = newUser.id;
+        showToast('👑 Вы стали администратором NEXUS!', 'success');
+    }
+    
+    saveData();
+    showToast('🎉 Добро пожаловать в NEXUS!', 'success');
+    return true;
         function loginUser(email, password) {
             const user = state.users.find(u => u.email === email && u.password === password);
             if (user) {
