@@ -321,7 +321,7 @@
             position: absolute;
             top: 55px;
             right: 0;
-            width: 380px;
+            width: min(380px, calc(100vw - 20px));
             max-height: 500px;
             overflow-y: auto;
             background: rgba(20, 20, 40, 0.98);
@@ -331,6 +331,17 @@
             z-index: 200;
             display: none;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            right: 0;
+            left: auto;
+        }
+
+        @media (max-width: 480px) {
+            .notification-dropdown {
+                width: calc(100vw - 20px);
+                right: 10px;
+                left: 10px;
+                margin: 0;
+            }
         }
 
         .notification-dropdown.show {
@@ -343,6 +354,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             cursor: pointer;
             transition: background 0.2s;
+            word-break: break-word;
         }
 
         .notification-item:hover {
@@ -470,92 +482,6 @@
             color: rgba(255,255,255,0.5);
         }
     </style>
-    <!-- Supabase -->
-    <script type="importmap">
-        {
-            "imports": {
-                "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
-            }
-        }
-    </script>
-    <script type="module">
-        import { createClient } from '@supabase/supabase-js'
-        
-        const supabaseUrl = 'https://wftbevggdyaufaelkbyw.supabase.co'
-        const supabaseAnonKey = 'sb_publishable_Rr-nBqv8yF_lX3V7Syu-Vw_ZeiNi6QQ'
-        
-        window.supabase = createClient(supabaseUrl, supabaseAnonKey)
-        
-        window.saveAllToSupabase = async function(state) {
-            try {
-                const supabase = window.supabase;
-                if (!supabase) return;
-                
-                for (const user of state.users) {
-                    await supabase.from('users').upsert(user, { onConflict: 'id' });
-                }
-                for (const post of state.posts) {
-                    await supabase.from('posts').upsert(post, { onConflict: 'id' });
-                }
-                for (const comment of state.comments) {
-                    await supabase.from('comments').upsert(comment, { onConflict: 'id' });
-                }
-                for (const like of state.likes) {
-                    await supabase.from('likes').upsert(like, { onConflict: 'id' });
-                }
-                for (const friend of state.friends) {
-                    await supabase.from('friends').upsert(friend, { onConflict: 'id' });
-                }
-                for (const notif of state.notifications) {
-                    await supabase.from('notifications').upsert(notif, { onConflict: 'id' });
-                }
-                for (const req of state.verificationRequests) {
-                    await supabase.from('verification_requests').upsert(req, { onConflict: 'id' });
-                }
-                for (const ban of state.bannedUsers) {
-                    await supabase.from('banned_users').upsert(ban, { onConflict: 'id' });
-                }
-                console.log('✅ Данные сохранены в Supabase');
-            } catch (error) {
-                console.error('❌ Ошибка сохранения:', error);
-            }
-        }
-        
-        window.loadAllFromSupabase = async function() {
-            try {
-                const supabase = window.supabase;
-                if (!supabase) return null;
-                
-                const [
-                    { data: users }, { data: posts }, { data: comments }, { data: likes },
-                    { data: friends }, { data: notifications }, { data: verificationRequests }, { data: bannedUsers }
-                ] = await Promise.all([
-                    supabase.from('users').select('*'),
-                    supabase.from('posts').select('*'),
-                    supabase.from('comments').select('*'),
-                    supabase.from('likes').select('*'),
-                    supabase.from('friends').select('*'),
-                    supabase.from('notifications').select('*'),
-                    supabase.from('verification_requests').select('*'),
-                    supabase.from('banned_users').select('*')
-                ]);
-                
-                return {
-                    users: users || [],
-                    posts: posts || [],
-                    comments: comments || [],
-                    likes: likes || [],
-                    friends: friends || [],
-                    notifications: notifications || [],
-                    verificationRequests: verificationRequests || [],
-                    bannedUsers: bannedUsers || []
-                };
-            } catch (error) {
-                console.error('❌ Ошибка загрузки:', error);
-                return null;
-            }
-        }
-    </script>
 </head>
 <body>
     <div id="app"></div>
@@ -589,6 +515,7 @@
         let settingsTab = 'profile';
         let currentPostImage = null;
         let searchQuery = '';
+        let searchTimeout = null;
 
         const ADMIN_EMAIL = 'sasalelem119@gmail.com';
 
@@ -893,7 +820,6 @@
                 currentUser: state.currentUser,
                 adminId: state.adminId
             }));
-            if (window.saveAllToSupabase) window.saveAllToSupabase(state);
         }
 
         async function loadData() {
@@ -914,24 +840,6 @@
                     state.currentUser = data.currentUser || null;
                     unreadCount = state.notifications.filter(n => !n.read && n.userId === state.currentUser?.id).length;
                 } catch(e) {}
-            }
-            
-            if (window.loadAllFromSupabase) {
-                try {
-                    const supabaseData = await window.loadAllFromSupabase();
-                    if (supabaseData) {
-                        if (supabaseData.users && supabaseData.users.length) state.users = supabaseData.users;
-                        if (supabaseData.posts && supabaseData.posts.length) state.posts = supabaseData.posts;
-                        if (supabaseData.comments && supabaseData.comments.length) state.comments = supabaseData.comments;
-                        if (supabaseData.likes && supabaseData.likes.length) state.likes = supabaseData.likes;
-                        if (supabaseData.friends && supabaseData.friends.length) state.friends = supabaseData.friends;
-                        if (supabaseData.notifications && supabaseData.notifications.length) state.notifications = supabaseData.notifications;
-                        if (supabaseData.verificationRequests && supabaseData.verificationRequests.length) state.verificationRequests = supabaseData.verificationRequests;
-                        if (supabaseData.bannedUsers && supabaseData.bannedUsers.length) state.bannedUsers = supabaseData.bannedUsers;
-                        console.log('✅ Данные загружены из Supabase');
-                        console.log('👥 Всего пользователей:', state.users.length);
-                    }
-                } catch(e) { console.log('Supabase load error:', e); }
             }
         }
 
@@ -2177,16 +2085,22 @@
             const searchInput = document.getElementById('searchUsersInput');
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => {
-                    searchQuery = e.target.value;
-                    render();
+                    if (searchTimeout) clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        searchQuery = e.target.value;
+                        render();
+                    }, 300);
                 });
             }
             
             const searchAdminInput = document.getElementById('searchAdminInput');
             if (searchAdminInput) {
                 searchAdminInput.addEventListener('input', (e) => {
-                    searchQuery = e.target.value;
-                    render();
+                    if (searchTimeout) clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        searchQuery = e.target.value;
+                        render();
+                    }, 300);
                 });
             }
             
