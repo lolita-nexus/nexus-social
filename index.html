@@ -479,48 +479,83 @@
         }
     </script>
     <script type="module">
-        import { createClient } from '@supabase/supabase-js'
-        
-        const supabaseUrl = 'https://wftbevggdyaufaelkbyw.supabase.co'
-        const supabaseAnonKey = 'sb_publishable_Rr-nBqv8yF_lX3V7Syu-Vw_ZeiNi6QQ'
-        
-        window.supabase = createClient(supabaseUrl, supabaseAnonKey)
-        
-        window.saveAllToSupabase = async function(state) {
-            try {
-                for (const user of state.users) await window.supabase.from('users').upsert(user, { onConflict: 'id' })
-                for (const post of state.posts) await window.supabase.from('posts').upsert(post, { onConflict: 'id' })
-                for (const comment of state.comments) await window.supabase.from('comments').upsert(comment, { onConflict: 'id' })
-                for (const like of state.likes) await window.supabase.from('likes').upsert(like, { onConflict: 'id' })
-                for (const friend of state.friends) await window.supabase.from('friends').upsert(friend, { onConflict: 'id' })
-                for (const notif of state.notifications) await window.supabase.from('notifications').upsert(notif, { onConflict: 'id' })
-                for (const req of state.verificationRequests) await window.supabase.from('verification_requests').upsert(req, { onConflict: 'id' })
-                for (const ban of state.bannedUsers) await window.supabase.from('banned_users').upsert(ban, { onConflict: 'id' })
-                console.log('✅ Данные сохранены в Supabase')
-            } catch (error) { console.error('Ошибка сохранения:', error) }
+    import { createClient } from '@supabase/supabase-js'
+    
+    const supabaseUrl = 'https://wftbevggdyaufaelkbyw.supabase.co'
+    const supabaseAnonKey = 'sb_publishable_Rr-nBqv8yF_lX3V7Syu-Vw_ZeiNi6QQ'
+    
+    window.supabase = createClient(supabaseUrl, supabaseAnonKey)
+    
+    window.saveAllToSupabase = async function(state) {
+        try {
+            const supabase = window.supabase;
+            if (!supabase) return;
+            
+            for (const user of state.users) {
+                await supabase.from('users').upsert(user, { onConflict: 'id' });
+            }
+            for (const post of state.posts) {
+                await supabase.from('posts').upsert(post, { onConflict: 'id' });
+            }
+            for (const comment of state.comments) {
+                await supabase.from('comments').upsert(comment, { onConflict: 'id' });
+            }
+            for (const like of state.likes) {
+                await supabase.from('likes').upsert(like, { onConflict: 'id' });
+            }
+            for (const friend of state.friends) {
+                await supabase.from('friends').upsert(friend, { onConflict: 'id' });
+            }
+            for (const notif of state.notifications) {
+                await supabase.from('notifications').upsert(notif, { onConflict: 'id' });
+            }
+            for (const req of state.verificationRequests) {
+                await supabase.from('verification_requests').upsert(req, { onConflict: 'id' });
+            }
+            for (const ban of state.bannedUsers) {
+                await supabase.from('banned_users').upsert(ban, { onConflict: 'id' });
+            }
+            console.log('✅ Данные сохранены в Supabase');
+        } catch (error) {
+            console.error('❌ Ошибка сохранения:', error);
         }
-        
-        window.loadAllFromSupabase = async function() {
-            try {
-                const [
-                    { data: users }, { data: posts }, { data: comments }, { data: likes },
-                    { data: friends }, { data: notifications }, { data: verificationRequests }, { data: bannedUsers }
-                ] = await Promise.all([
-                    window.supabase.from('users').select('*'),
-                    window.supabase.from('posts').select('*'),
-                    window.supabase.from('comments').select('*'),
-                    window.supabase.from('likes').select('*'),
-                    window.supabase.from('friends').select('*'),
-                    window.supabase.from('notifications').select('*'),
-                    window.supabase.from('verification_requests').select('*'),
-                    window.supabase.from('banned_users').select('*')
-                ])
-                return { users: users || [], posts: posts || [], comments: comments || [], likes: likes || [],
-                         friends: friends || [], notifications: notifications || [],
-                         verificationRequests: verificationRequests || [], bannedUsers: bannedUsers || [] }
-            } catch (error) { console.error('Ошибка загрузки:', error); return null }
+    }
+    
+    window.loadAllFromSupabase = async function() {
+        try {
+            const supabase = window.supabase;
+            if (!supabase) return null;
+            
+            const [
+                { data: users }, { data: posts }, { data: comments }, { data: likes },
+                { data: friends }, { data: notifications }, { data: verificationRequests }, { data: bannedUsers }
+            ] = await Promise.all([
+                supabase.from('users').select('*'),
+                supabase.from('posts').select('*'),
+                supabase.from('comments').select('*'),
+                supabase.from('likes').select('*'),
+                supabase.from('friends').select('*'),
+                supabase.from('notifications').select('*'),
+                supabase.from('verification_requests').select('*'),
+                supabase.from('banned_users').select('*')
+            ]);
+            
+            return {
+                users: users || [],
+                posts: posts || [],
+                comments: comments || [],
+                likes: likes || [],
+                friends: friends || [],
+                notifications: notifications || [],
+                verificationRequests: verificationRequests || [],
+                bannedUsers: bannedUsers || []
+            };
+        } catch (error) {
+            console.error('❌ Ошибка загрузки:', error);
+            return null;
         }
-    </script>
+    }
+</script>
 </head>
 <body>
     <div id="app"></div>
