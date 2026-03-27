@@ -8,19 +8,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             min-height: 100vh;
             color: #fff;
         }
+
         .glass {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 24px;
         }
+
         .glass-card {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
@@ -28,11 +35,52 @@
             border-radius: 20px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
         .glass-card:hover {
             transform: translateY(-4px);
             border-color: rgba(139, 92, 246, 0.5);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bellRing {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(15deg); }
+            75% { transform: rotate(-15deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .bell-ring {
+            animation: bellRing 0.5s ease;
+        }
+
+        .post-enter {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #8b5cf6, #ec489a);
+            border-radius: 10px;
+        }
+
         .btn-primary {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
             border: none;
@@ -42,8 +90,15 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
-        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5); }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.5);
+        }
+
         .btn-secondary {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -51,7 +106,14 @@
             border-radius: 40px;
             color: white;
             cursor: pointer;
+            transition: all 0.3s;
         }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(139, 92, 246, 0.5);
+        }
+
         .btn-danger {
             background: linear-gradient(135deg, #ef4444, #dc2626);
             border: none;
@@ -60,20 +122,45 @@
             color: white;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s;
         }
+
+        .btn-danger:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.5);
+        }
+
         .input-glow {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 14px 18px;
             color: white;
+            font-size: 15px;
+            transition: all 0.3s;
             width: 100%;
         }
+
         .input-glow:focus {
             outline: none;
             border-color: #8b5cf6;
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
         }
+
+        .like-btn {
+            transition: all 0.2s;
+        }
+
+        .like-btn.liked {
+            color: #ec489a;
+            animation: heartBeat 0.4s ease;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -87,17 +174,29 @@
             justify-content: center;
             align-items: center;
         }
-        .modal.active { display: flex; }
+
+        .modal.active {
+            display: flex;
+        }
+
         .toast {
             position: fixed;
             bottom: 30px;
             right: 30px;
             background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(139, 92, 246, 0.5);
             border-radius: 16px;
             padding: 14px 24px;
             z-index: 1100;
+            animation: slideInRight 0.3s ease;
         }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
         .avatar-wrapper {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
             border-radius: 50%;
@@ -106,12 +205,14 @@
             justify-content: center;
             flex-shrink: 0;
         }
+
         .avatar-img {
             width: 100%;
             height: 100%;
             border-radius: 50%;
             object-fit: cover;
         }
+
         .verified-badge {
             display: inline-flex;
             align-items: center;
@@ -122,7 +223,14 @@
             height: 18px;
             font-size: 10px;
             margin-left: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
         }
+
+        .verified-badge:hover {
+            transform: scale(1.1);
+        }
+
         .admin-badge {
             display: inline-flex;
             align-items: center;
@@ -131,8 +239,10 @@
             border-radius: 20px;
             padding: 2px 8px;
             font-size: 10px;
+            font-weight: 600;
             margin-left: 8px;
         }
+
         .banned-badge {
             display: inline-flex;
             align-items: center;
@@ -141,59 +251,201 @@
             border-radius: 20px;
             padding: 2px 8px;
             font-size: 10px;
+            font-weight: 600;
             margin-left: 8px;
         }
+
+        .settings-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .settings-panel.open {
+            max-height: 2000px;
+        }
+
+        .avatar-option, .cover-option {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 3px solid transparent;
+        }
+
+        .avatar-option:hover, .cover-option:hover {
+            transform: scale(1.05);
+        }
+
+        .avatar-option.selected, .cover-option.selected {
+            border-color: #8b5cf6;
+        }
+
         .nav-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 10px 28px;
             border-radius: 40px;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
             color: rgba(255, 255, 255, 0.7);
         }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
         .nav-btn.active {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
-        .like-btn { transition: all 0.2s; cursor: pointer; }
-        .like-btn.liked { color: #ec489a; animation: heartBeat 0.4s ease; }
-        @keyframes heartBeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-        }
-        .settings-panel {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out;
-        }
-        .settings-panel.open { max-height: 2000px; }
+
         .tab-btn {
             background: rgba(255, 255, 255, 0.05);
             border: none;
             padding: 8px 20px;
             border-radius: 40px;
             cursor: pointer;
+            transition: all 0.2s;
+            color: rgba(255, 255, 255, 0.6);
         }
+
         .tab-btn.active {
             background: linear-gradient(135deg, #8b5cf6, #ec489a);
             color: white;
         }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: min(380px, calc(100vw - 20px));
+            max-height: 500px;
+            overflow-y: auto;
+            background: rgba(20, 20, 40, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 200;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 480px) {
+            .notification-dropdown {
+                width: calc(100vw - 20px);
+                right: 10px;
+                left: 10px;
+            }
+        }
+
+        .notification-dropdown.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+            word-break: break-word;
+        }
+
+        .notification-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .notification-item.unread {
+            background: rgba(139, 92, 246, 0.15);
+            border-left: 3px solid #8b5cf6;
+        }
+
+        .repost-badge {
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 12px;
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            display: inline-block;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .repost-badge:hover {
+            background: rgba(139, 92, 246, 0.4);
+        }
+
+        .original-post-clickable {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .original-post-clickable:hover {
+            background: rgba(139, 92, 246, 0.1);
+            transform: translateX(4px);
+        }
+
+        .repost-modal textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 14px;
+            color: white;
+            width: 100%;
+            resize: none;
+            font-family: inherit;
+        }
+
+        .repost-modal textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+        }
+
+        .verification-request, .user-management-item {
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .banned-user {
+            opacity: 0.7;
+            filter: grayscale(0.3);
+            position: relative;
+        }
+
+        .ban-notification {
+            background: rgba(239, 68, 68, 0.9);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-left: 4px solid #ef4444;
+        }
+        
         .post-image {
             max-width: 100%;
             max-height: 400px;
             border-radius: 16px;
             margin-top: 12px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
+        
         .image-preview {
             margin-top: 12px;
             position: relative;
             display: inline-block;
         }
+        
         .image-preview img {
             max-width: 100%;
             max-height: 200px;
             border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.2);
         }
+        
         .image-preview .remove-image {
             position: absolute;
             top: -8px;
@@ -207,73 +459,24 @@
             justify-content: center;
             cursor: pointer;
             font-size: 12px;
+            color: white;
         }
+
         .search-input {
             margin-bottom: 20px;
             position: relative;
         }
+
         .search-input input {
             padding-left: 40px;
         }
+
         .search-input i {
             position: absolute;
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
             color: rgba(255,255,255,0.5);
-        }
-        .notification-dropdown {
-            position: absolute;
-            top: 55px;
-            right: 0;
-            width: min(380px, calc(100vw - 20px));
-            max-height: 500px;
-            overflow-y: auto;
-            background: rgba(20, 20, 40, 0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            z-index: 200;
-            display: none;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        @media (max-width: 480px) {
-            .notification-dropdown {
-                width: calc(100vw - 20px);
-                right: 10px;
-                left: 10px;
-            }
-        }
-        .notification-dropdown.show { display: block; }
-        .notification-item {
-            padding: 14px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer;
-            word-break: break-word;
-        }
-        .notification-item.unread {
-            background: rgba(139, 92, 246, 0.15);
-            border-left: 3px solid #8b5cf6;
-        }
-        .repost-badge {
-            background: rgba(139, 92, 246, 0.2);
-            border-radius: 12px;
-            padding: 6px 12px;
-            font-size: 12px;
-            margin-bottom: 12px;
-            display: inline-block;
-            cursor: pointer;
-        }
-        .original-post-clickable { cursor: pointer; }
-        .original-post-clickable:hover {
-            background: rgba(139, 92, 246, 0.1);
-            transform: translateX(4px);
-        }
-        .verification-request, .user-management-item {
-            background: rgba(139, 92, 246, 0.1);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
         }
     </style>
     <script src="https://unpkg.com/parse/dist/parse.min.js"></script>
@@ -304,11 +507,13 @@
                 language: 'ru',
                 privacy: 'public'
             },
-            adminId: null
+            adminId: null,
+            pendingEmailVerifications: {}
         };
 
         let unreadCount = 0;
         let repostModalPostId = null;
+        let pendingRegistrationData = null;
         let currentView = { type: 'feed', userId: null };
         let settingsOpen = false;
         let settingsTab = 'profile';
@@ -339,116 +544,27 @@
         function showToast(message, type = 'success') {
             const toast = document.createElement('div');
             toast.className = 'toast';
-            toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="margin-right:8px"></i> ${message}`;
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}" style="color: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#8b5cf6'}; font-size: 20px;"></i>
+                    <span>${message}</span>
+                </div>
+            `;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
 
         function escapeHtml(str) {
             if (!str) return '';
-            return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : m === '>' ? '&gt;' : m);
+            return String(str).replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
 
-        // ========== ФУНКЦИИ БАЗЫ ДАННЫХ ==========
-        async function loadFromBack4App() {
-            try {
-                const Users = Parse.Object.extend("User");
-                const usersResults = await new Parse.Query(Users).find();
-                state.users = usersResults.map(u => ({
-                    id: u.id,
-                    name: u.get('name'),
-                    username: u.get('username'),
-                    email: u.get('email'),
-                    password: u.get('password'),
-                    avatar: u.get('avatar'),
-                    cover: u.get('cover'),
-                    bio: u.get('bio'),
-                    city: u.get('city'),
-                    verified: u.get('verified'),
-                    created_at: u.get('created_at')
-                }));
-
-                const Posts = Parse.Object.extend("Post");
-                const postsResults = await new Parse.Query(Posts).find();
-                state.posts = postsResults.map(p => ({
-                    id: p.id,
-                    userId: p.get('userId'),
-                    content: p.get('content'),
-                    image: p.get('image'),
-                    timestamp: p.get('timestamp'),
-                    originalPostId: p.get('originalPostId'),
-                    repostComment: p.get('repostComment')
-                }));
-
-                const Comments = Parse.Object.extend("Comment");
-                const commentsResults = await new Parse.Query(Comments).find();
-                state.comments = commentsResults.map(c => ({
-                    id: c.id,
-                    postId: c.get('postId'),
-                    userId: c.get('userId'),
-                    text: c.get('text'),
-                    timestamp: c.get('timestamp')
-                }));
-
-                const Likes = Parse.Object.extend("Like");
-                const likesResults = await new Parse.Query(Likes).find();
-                state.likes = likesResults.map(l => ({
-                    id: l.id,
-                    postId: l.get('postId'),
-                    userId: l.get('userId'),
-                    timestamp: l.get('timestamp')
-                }));
-
-                const Friends = Parse.Object.extend("Friend");
-                const friendsResults = await new Parse.Query(Friends).find();
-                state.friends = friendsResults.map(f => ({
-                    id: f.id,
-                    userId: f.get('userId'),
-                    friendId: f.get('friendId'),
-                    status: f.get('status')
-                }));
-
-                const Notifications = Parse.Object.extend("Notification");
-                const notifResults = await new Parse.Query(Notifications).find();
-                state.notifications = notifResults.map(n => ({
-                    id: n.id,
-                    userId: n.get('userId'),
-                    type: n.get('type'),
-                    data: n.get('data'),
-                    read: n.get('read'),
-                    timestamp: n.get('timestamp')
-                }));
-
-                const VerificationRequests = Parse.Object.extend("VerificationRequest");
-                const vrResults = await new Parse.Query(VerificationRequests).find();
-                state.verificationRequests = vrResults.map(v => ({
-                    id: v.id,
-                    userId: v.get('userId'),
-                    userName: v.get('userName'),
-                    userAvatar: v.get('userAvatar'),
-                    reason: v.get('reason'),
-                    status: v.get('status'),
-                    timestamp: v.get('timestamp')
-                }));
-
-                const BannedUsers = Parse.Object.extend("BannedUser");
-                const bannedResults = await new Parse.Query(BannedUsers).find();
-                state.bannedUsers = bannedResults.map(b => ({
-                    id: b.id,
-                    userId: b.get('userId'),
-                    reason: b.get('reason'),
-                    expiresAt: b.get('expiresAt'),
-                    bannedAt: b.get('bannedAt'),
-                    bannedBy: b.get('bannedBy')
-                }));
-
-                console.log('✅ Данные загружены из Back4App');
-                console.log('👥 Пользователей:', state.users.length);
-            } catch (error) {
-                console.error('Ошибка загрузки из Back4App:', error);
-            }
-        }
-
+        // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С BACK4APP ==========
         async function saveToBack4App() {
             try {
                 const Users = Parse.Object.extend("User");
@@ -555,24 +671,129 @@
             }
         }
 
-        async function loadData() {
-            await loadFromBack4App();
+        async function loadFromBack4App() {
+            try {
+                const Users = Parse.Object.extend("User");
+                const usersResults = await new Parse.Query(Users).find();
+                state.users = usersResults.map(u => ({
+                    id: u.id,
+                    name: u.get('name'),
+                    username: u.get('username'),
+                    email: u.get('email'),
+                    password: u.get('password'),
+                    avatar: u.get('avatar'),
+                    cover: u.get('cover'),
+                    bio: u.get('bio'),
+                    city: u.get('city'),
+                    verified: u.get('verified'),
+                    created_at: u.get('created_at')
+                }));
+
+                const Posts = Parse.Object.extend("Post");
+                const postsResults = await new Parse.Query(Posts).find();
+                state.posts = postsResults.map(p => ({
+                    id: p.id,
+                    userId: p.get('userId'),
+                    content: p.get('content'),
+                    image: p.get('image'),
+                    timestamp: p.get('timestamp'),
+                    originalPostId: p.get('originalPostId'),
+                    repostComment: p.get('repostComment')
+                }));
+
+                const Comments = Parse.Object.extend("Comment");
+                const commentsResults = await new Parse.Query(Comments).find();
+                state.comments = commentsResults.map(c => ({
+                    id: c.id,
+                    postId: c.get('postId'),
+                    userId: c.get('userId'),
+                    text: c.get('text'),
+                    timestamp: c.get('timestamp')
+                }));
+
+                const Likes = Parse.Object.extend("Like");
+                const likesResults = await new Parse.Query(Likes).find();
+                state.likes = likesResults.map(l => ({
+                    id: l.id,
+                    postId: l.get('postId'),
+                    userId: l.get('userId'),
+                    timestamp: l.get('timestamp')
+                }));
+
+                const Friends = Parse.Object.extend("Friend");
+                const friendsResults = await new Parse.Query(Friends).find();
+                state.friends = friendsResults.map(f => ({
+                    id: f.id,
+                    userId: f.get('userId'),
+                    friendId: f.get('friendId'),
+                    status: f.get('status')
+                }));
+
+                const Notifications = Parse.Object.extend("Notification");
+                const notifResults = await new Parse.Query(Notifications).find();
+                state.notifications = notifResults.map(n => ({
+                    id: n.id,
+                    userId: n.get('userId'),
+                    type: n.get('type'),
+                    data: n.get('data'),
+                    read: n.get('read'),
+                    timestamp: n.get('timestamp')
+                }));
+
+                const VR = Parse.Object.extend("VerificationRequest");
+                const vrResults = await new Parse.Query(VR).find();
+                state.verificationRequests = vrResults.map(v => ({
+                    id: v.id,
+                    userId: v.get('userId'),
+                    userName: v.get('userName'),
+                    userAvatar: v.get('userAvatar'),
+                    reason: v.get('reason'),
+                    status: v.get('status'),
+                    timestamp: v.get('timestamp')
+                }));
+
+                const Banned = Parse.Object.extend("BannedUser");
+                const bannedResults = await new Parse.Query(Banned).find();
+                state.bannedUsers = bannedResults.map(b => ({
+                    id: b.id,
+                    userId: b.get('userId'),
+                    reason: b.get('reason'),
+                    expiresAt: b.get('expiresAt'),
+                    bannedAt: b.get('bannedAt'),
+                    bannedBy: b.get('bannedBy')
+                }));
+
+                console.log('✅ Данные загружены из Back4App');
+                console.log('👥 Пользователей:', state.users.length);
+            } catch (error) {
+                console.error('Ошибка загрузки из Back4App:', error);
+            }
         }
 
-        function initDemoData() {
-            if (state.users.length > 0) return;
-            state.users = [];
-            state.posts = [];
-            state.comments = [];
-            state.likes = [];
-            state.friends = [];
-            state.bannedUsers = [];
-            state.verificationRequests = [];
+        // ========== ОРИГИНАЛЬНЫЕ ФУНКЦИИ (НЕ ТРОГАЮ) ==========
+        function addNotification(userId, type, data) {
+            const notification = {
+                id: 'n' + Date.now(),
+                userId: userId,
+                type: type,
+                data: data,
+                read: false,
+                timestamp: Date.now()
+            };
+            state.notifications.push(notification);
+            if (userId === state.currentUser?.id && state.systemSettings.notifications) {
+                unreadCount++;
+                const bell = document.getElementById('bellIcon');
+                if (bell) bell.classList.add('bell-ring');
+                setTimeout(() => bell?.classList.remove('bell-ring'), 500);
+            }
             saveToBack4App();
         }
 
-        function getUserById(id) {
-            return state.users.find(u => u.id === id);
+        function markNotificationsRead() {
+            state.notifications.forEach(n => { if (!n.read) n.read = true; });
+            unreadCount = 0;
+            saveToBack4App();
         }
 
         function isAdmin(userId) {
@@ -596,17 +817,268 @@
             return state.bannedUsers.find(b => b.userId === userId);
         }
 
-        function addNotification(userId, type, data) {
-            const notification = { id: 'n' + Date.now(), userId, type, data, read: false, timestamp: Date.now() };
-            state.notifications.push(notification);
-            if (userId === state.currentUser?.id && state.systemSettings.notifications) unreadCount++;
+        function adminDeletePost(postId) {
+            const post = state.posts.find(p => p.id === postId);
+            if (post && isAdmin(state.currentUser.id)) {
+                const author = getUserById(post.userId);
+                state.posts = state.posts.filter(p => p.id !== postId);
+                state.comments = state.comments.filter(c => c.postId !== postId);
+                state.likes = state.likes.filter(l => l.postId !== postId);
+                saveToBack4App();
+                showToast(`🗑 Пост пользователя ${author?.name} удален администратором`, 'success');
+                if (author && author.id !== state.currentUser.id) {
+                    addNotification(author.id, 'post_deleted_by_admin', {
+                        postId: postId,
+                        adminName: state.currentUser.name,
+                        reason: 'Нарушение правил сообщества'
+                    });
+                }
+                render();
+                return true;
+            }
+            return false;
+        }
+
+        function openBanUserModal(userId) {
+            const user = getUserById(userId);
+            if (!user || userId === state.currentUser.id) return;
+            
+            const existingBan = getBanInfo(userId);
+            
+            const modalHtml = `
+                <div class="modal active" id="banUserModal" onclick="if(event.target === this) closeBanModal()">
+                    <div class="modal-content" style="background: rgba(20, 20, 40, 0.98); backdrop-filter: blur(20px); border-radius: 24px; max-width: 500px; width: 90%; padding: 24px;">
+                        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">${existingBan ? '🔄 Изменить блокировку' : '🔨 Блокировка пользователя'}</h2>
+                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">Пользователь: <strong>${escapeHtml(user.name)}</strong> (@${user.username})</p>
+                        
+                        ${existingBan ? `
+                            <div class="ban-notification" style="margin-bottom: 16px;">
+                                <i class="fas fa-info-circle"></i> Пользователь уже заблокирован
+                                ${existingBan.expiresAt ? `<br>Срок блокировки до: ${new Date(existingBan.expiresAt).toLocaleString()}` : '<br>⚠️ Бессрочная блокировка'}
+                                <br>Причина: ${escapeHtml(existingBan.reason)}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px;">Тип блокировки:</label>
+                            <select id="banType" class="input-glow" style="margin-bottom: 12px;">
+                                <option value="permanent">🔒 Бессрочная блокировка</option>
+                                <option value="temporary">⏰ Временная блокировка</option>
+                            </select>
+                        </div>
+                        
+                        <div id="banDurationContainer" style="display: none; margin-bottom: 16px;">
+                            <label style="display: block; margin-bottom: 8px;">Срок блокировки:</label>
+                            <select id="banDuration" class="input-glow">
+                                <option value="1">1 день</option>
+                                <option value="3">3 дня</option>
+                                <option value="7">7 дней</option>
+                                <option value="14">14 дней</option>
+                                <option value="30">30 дней</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; margin-bottom: 8px;">Причина блокировки:</label>
+                            <textarea id="banReason" rows="3" placeholder="Укажите причину блокировки..." class="input-glow">${existingBan?.reason || ''}</textarea>
+                        </div>
+                        
+                        <div style="display: flex; gap: 12px;">
+                            ${existingBan ? `
+                                <button id="unbanBtn" class="btn-secondary" style="flex: 1;">🔓 Разблокировать</button>
+                                <button id="updateBanBtn" class="btn-primary" style="flex: 1;">🔄 Обновить блокировку</button>
+                            ` : `
+                                <button id="confirmBanBtn" class="btn-danger" style="flex: 1;">🔨 Заблокировать</button>
+                            `}
+                            <button onclick="closeBanModal()" class="btn-secondary" style="flex: 1;">Отмена</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            const banTypeSelect = document.getElementById('banType');
+            const banDurationContainer = document.getElementById('banDurationContainer');
+            
+            if (banTypeSelect) {
+                banTypeSelect.addEventListener('change', (e) => {
+                    banDurationContainer.style.display = e.target.value === 'temporary' ? 'block' : 'none';
+                });
+            }
+            
+            if (existingBan) {
+                document.getElementById('unbanBtn')?.addEventListener('click', () => {
+                    unbanUser(userId);
+                    closeBanModal();
+                });
+                document.getElementById('updateBanBtn')?.addEventListener('click', () => {
+                    const banType = document.getElementById('banType').value;
+                    const durationDays = parseInt(document.getElementById('banDuration')?.value || '7');
+                    const reason = document.getElementById('banReason').value;
+                    const expiresAt = banType === 'temporary' ? Date.now() + (durationDays * 24 * 60 * 60 * 1000) : null;
+                    banUser(userId, reason, expiresAt);
+                    closeBanModal();
+                });
+            } else {
+                document.getElementById('confirmBanBtn')?.addEventListener('click', () => {
+                    const banType = document.getElementById('banType').value;
+                    const durationDays = parseInt(document.getElementById('banDuration')?.value || '7');
+                    const reason = document.getElementById('banReason').value;
+                    if (!reason.trim()) {
+                        showToast('Укажите причину блокировки', 'error');
+                        return;
+                    }
+                    const expiresAt = banType === 'temporary' ? Date.now() + (durationDays * 24 * 60 * 60 * 1000) : null;
+                    banUser(userId, reason, expiresAt);
+                    closeBanModal();
+                });
+            }
+            
+            window.closeBanModal = () => {
+                document.getElementById('banUserModal')?.remove();
+            };
+        }
+        
+        function banUser(userId, reason, expiresAt) {
+            const user = getUserById(userId);
+            if (!user) return;
+            
+            const existingBan = state.bannedUsers.find(b => b.userId === userId);
+            if (existingBan) {
+                existingBan.reason = reason;
+                existingBan.expiresAt = expiresAt;
+                existingBan.bannedAt = Date.now();
+                existingBan.bannedBy = state.currentUser.id;
+            } else {
+                state.bannedUsers.push({
+                    userId: userId,
+                    reason: reason,
+                    bannedAt: Date.now(),
+                    expiresAt: expiresAt,
+                    bannedBy: state.currentUser.id
+                });
+            }
+            
+            saveToBack4App();
+            
+            addNotification(userId, 'user_banned', {
+                reason: reason,
+                expiresAt: expiresAt,
+                adminName: state.currentUser.name
+            });
+            
+            showToast(`🔨 Пользователь ${user.name} заблокирован`, 'success');
+            
+            if (state.currentUser?.id === userId) {
+                showToast('⚠️ Ваш аккаунт был заблокирован!', 'error');
+                setTimeout(() => logout(), 2000);
+            }
+            
+            render();
+        }
+        
+        function unbanUser(userId) {
+            const user = getUserById(userId);
+            state.bannedUsers = state.bannedUsers.filter(b => b.userId !== userId);
+            saveToBack4App();
+            showToast(`🔓 Пользователь ${user?.name} разблокирован`, 'success');
+            
+            addNotification(userId, 'user_unbanned', {
+                adminName: state.currentUser.name
+            });
+            
+            render();
+        }
+        
+        function showBanNotification(userId) {
+            const banInfo = getBanInfo(userId);
+            if (!banInfo) return;
+            
+            const modalHtml = `
+                <div class="modal active" id="banNotificationModal" onclick="if(event.target === this) closeBanNotificationModal()">
+                    <div class="modal-content" style="background: rgba(20, 20, 40, 0.98); backdrop-filter: blur(20px); border-radius: 24px; max-width: 450px; width: 90%; padding: 24px; text-align: center;">
+                        <i class="fas fa-gavel" style="font-size: 48px; color: #ef4444; margin-bottom: 16px;"></i>
+                        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px;">Ваш аккаунт заблокирован</h2>
+                        <p style="color: rgba(255,255,255,0.7); margin-bottom: 16px;">${escapeHtml(banInfo.reason)}</p>
+                        ${banInfo.expiresAt ? 
+                            `<p style="color: #f59e0b; margin-bottom: 20px;">⏰ Блокировка действует до: ${new Date(banInfo.expiresAt).toLocaleString()}</p>` : 
+                            `<p style="color: #ef4444; margin-bottom: 20px;">⚠️ Бессрочная блокировка</p>`
+                        }
+                        <button onclick="closeBanNotificationModal()" class="btn-primary" style="width: 100%;">Понятно</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            window.closeBanNotificationModal = () => {
+                document.getElementById('banNotificationModal')?.remove();
+                logout();
+            };
+        }
+
+        async function saveData() {
+            localStorage.setItem('nexus_data', JSON.stringify({
+                users: state.users,
+                posts: state.posts,
+                comments: state.comments,
+                likes: state.likes,
+                friends: state.friends,
+                reposts: state.reposts,
+                notifications: state.notifications,
+                verificationRequests: state.verificationRequests,
+                bannedUsers: state.bannedUsers,
+                systemSettings: state.systemSettings,
+                currentUser: state.currentUser,
+                adminId: state.adminId,
+                pendingEmailVerifications: state.pendingEmailVerifications
+            }));
+            await saveToBack4App();
+        }
+
+        async function loadData() {
+            const saved = localStorage.getItem('nexus_data');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    state.users = data.users || [];
+                    state.posts = data.posts || [];
+                    state.comments = data.comments || [];
+                    state.likes = data.likes || [];
+                    state.friends = data.friends || [];
+                    state.reposts = data.reposts || [];
+                    state.notifications = data.notifications || [];
+                    state.verificationRequests = data.verificationRequests || [];
+                    state.bannedUsers = data.bannedUsers || [];
+                    state.systemSettings = data.systemSettings || { theme: 'dark', notifications: true, language: 'ru', privacy: 'public' };
+                    state.currentUser = data.currentUser || null;
+                    state.adminId = data.adminId || null;
+                    state.pendingEmailVerifications = data.pendingEmailVerifications || {};
+                    unreadCount = state.notifications.filter(n => !n.read && n.userId === state.currentUser?.id).length;
+                    
+                    if (state.currentUser && isBanned(state.currentUser.id)) {
+                        showBanNotification(state.currentUser.id);
+                    }
+                } catch(e) {}
+            }
+            
+            await loadFromBack4App();
+        }
+
+        function initDemoData() {
+            if (state.users.length > 0) return;
+            state.users = [];
+            state.posts = [];
+            state.comments = [];
+            state.likes = [];
+            state.friends = [];
+            state.bannedUsers = [];
+            state.verificationRequests = [];
+            state.adminId = null;
             saveToBack4App();
         }
 
-        function markNotificationsRead() {
-            state.notifications.forEach(n => { if (!n.read) n.read = true; });
-            unreadCount = 0;
-            saveToBack4App();
+        function getUserById(id) {
+            return state.users.find(u => u.id === id);
         }
 
         function getFriends(userId) {
@@ -651,7 +1123,7 @@
         async function createPost(content, image = null, originalPostId = null, repostComment = null) {
             if (!content.trim() && !image && !originalPostId) return false;
             if (isBanned(state.currentUser.id)) {
-                showToast('❌ Вы заблокированы', 'error');
+                showToast('❌ Вы заблокированы и не можете создавать посты', 'error');
                 return false;
             }
             const newPost = {
@@ -664,11 +1136,17 @@
                 repostComment: repostComment
             };
             state.posts.unshift(newPost);
-            await saveToBack4App();
+            saveData();
+            
             if (originalPostId) {
                 const originalPost = state.posts.find(p => p.id === originalPostId);
                 if (originalPost && originalPost.userId !== state.currentUser.id) {
-                    addNotification(originalPost.userId, 'repost', { postId: originalPostId, userName: state.currentUser.name, postContent: originalPost.content.substring(0, 100), comment: repostComment ? repostComment.substring(0, 100) : null });
+                    addNotification(originalPost.userId, 'repost', {
+                        postId: originalPostId,
+                        userName: state.currentUser.name,
+                        postContent: originalPost.content.substring(0, 100),
+                        comment: repostComment ? repostComment.substring(0, 100) : null
+                    });
                 }
                 showToast('📢 Репост опубликован!', 'success');
             } else if (image) {
@@ -676,213 +1154,50 @@
             } else {
                 showToast('✨ Пост опубликован!', 'success');
             }
-            render();
             return true;
         }
 
-        function deletePost(postId) {
-            const post = state.posts.find(p => p.id === postId);
-            if (post && (post.userId === state.currentUser.id || isAdmin(state.currentUser.id))) {
-                state.posts = state.posts.filter(p => p.id !== postId);
-                state.comments = state.comments.filter(c => c.postId !== postId);
-                state.likes = state.likes.filter(l => l.postId !== postId);
-                saveToBack4App();
-                showToast('🗑 Пост удален', 'success');
-                render();
-                return true;
-            }
-            return false;
-        }
-
-        function addComment(postId, text) {
-            if (!text.trim()) return false;
+        function openRepostModal(postId) {
             if (isBanned(state.currentUser.id)) {
-                showToast('❌ Вы заблокированы', 'error');
-                return false;
+                showToast('❌ Вы заблокированы и не можете делать репосты', 'error');
+                return;
             }
-            const newComment = { id: 'c' + Date.now(), postId, userId: state.currentUser.id, text: text.trim(), timestamp: Date.now() };
-            state.comments.push(newComment);
-            const post = state.posts.find(p => p.id === postId);
-            if (post && post.userId !== state.currentUser.id) {
-                addNotification(post.userId, 'comment', { postId, userName: state.currentUser.name, commentText: text.substring(0, 100), postContent: post.content.substring(0, 100) });
-            }
-            saveToBack4App();
-            showToast('💬 Комментарий добавлен', 'success');
-            render();
-            return true;
-        }
-
-        function toggleLike(postId) {
-            const existing = state.likes.find(l => l.postId === postId && l.userId === state.currentUser.id);
-            if (existing) {
-                state.likes = state.likes.filter(l => l.id !== existing.id);
-            } else {
-                if (isBanned(state.currentUser.id)) {
-                    showToast('❌ Вы заблокированы', 'error');
-                    return false;
-                }
-                state.likes.push({ id: 'l' + Date.now(), postId, userId: state.currentUser.id, timestamp: Date.now() });
-                const post = state.posts.find(p => p.id === postId);
-                if (post && post.userId !== state.currentUser.id) {
-                    addNotification(post.userId, 'like', { postId, userName: state.currentUser.name, postContent: post.content.substring(0, 100) });
-                }
-                showToast('❤️ Лайк добавлен!', 'success');
-            }
-            saveToBack4App();
-            render();
-            return !existing;
-        }
-
-        function sendFriendRequest(userId) {
-            if (userId === state.currentUser.id) return;
-            if (isBanned(state.currentUser.id)) { showToast('❌ Вы заблокированы', 'error'); return; }
-            if (getFriends(state.currentUser.id).some(f => f.id === userId)) { showToast('Вы уже друзья', 'info'); return; }
-            if (state.friends.some(f => (f.userId === state.currentUser.id && f.friendId === userId) || (f.userId === userId && f.friendId === state.currentUser.id))) {
-                showToast('Заявка уже отправлена', 'info'); return;
-            }
-            state.friends.push({ id: 'f' + Date.now(), userId: state.currentUser.id, friendId: userId, status: 'pending' });
-            addNotification(userId, 'friend_request', { userName: state.currentUser.name });
-            saveToBack4App();
-            showToast('📨 Заявка отправлена!', 'success');
-        }
-
-        function acceptFriendRequest(requestId) {
-            const request = state.friends.find(f => f.id === requestId);
-            if (request) {
-                request.status = 'accepted';
-                addNotification(request.userId, 'friend_accept', { userName: state.currentUser.name });
-                saveToBack4App();
-                showToast('🎉 Теперь вы друзья!', 'success');
-                render();
-            }
-        }
-
-        function updateProfile(updates) {
-            if (isBanned(state.currentUser.id)) { showToast('❌ Вы заблокированы', 'error'); return; }
-            Object.assign(state.currentUser, updates);
-            const index = state.users.findIndex(u => u.id === state.currentUser.id);
-            if (index !== -1) state.users[index] = state.currentUser;
-            saveToBack4App();
-            showToast('✅ Профиль обновлен!', 'success');
-            render();
-        }
-
-        function updateSystemSettings(updates) {
-            Object.assign(state.systemSettings, updates);
-            saveToBack4App();
-            showToast('⚙️ Настройки сохранены!', 'success');
-            render();
-        }
-
-        function requestVerification(reason) {
-            if (!reason.trim()) { showToast('Напишите причину', 'error'); return; }
-            if (isBanned(state.currentUser.id)) { showToast('❌ Вы заблокированы', 'error'); return; }
-            if (state.verificationRequests.some(r => r.userId === state.currentUser.id && r.status === 'pending')) {
-                showToast('У вас уже есть заявка', 'info'); return;
-            }
-            state.verificationRequests.push({
-                id: 'vr' + Date.now(),
-                userId: state.currentUser.id,
-                userName: state.currentUser.name,
-                userAvatar: state.currentUser.avatar,
-                reason: reason.trim(),
-                status: 'pending',
-                timestamp: Date.now()
-            });
-            saveToBack4App();
-            if (state.adminId) addNotification(state.adminId, 'verification_request', { userName: state.currentUser.name, reason: reason.substring(0, 100) });
-            showToast('📋 Запрос отправлен!', 'success');
-            render();
-        }
-
-        function approveVerification(requestId) {
-            const request = state.verificationRequests.find(r => r.id === requestId);
-            if (request) {
-                request.status = 'approved';
-                const user = state.users.find(u => u.id === request.userId);
-                if (user) { user.verified = true; addNotification(user.id, 'verification_approved', {}); showToast(`✅ Верификация одобрена для ${user.name}!`, 'success'); }
-                saveToBack4App();
-                render();
-            }
-        }
-
-        function rejectVerification(requestId) {
-            const request = state.verificationRequests.find(r => r.id === requestId);
-            if (request) { request.status = 'rejected'; addNotification(request.userId, 'verification_rejected', {}); showToast(`❌ Верификация отклонена`, 'info'); saveToBack4App(); render(); }
-        }
-
-        function banUser(userId, reason, expiresAt) {
-            const user = getUserById(userId);
-            if (!user) return;
-            const existing = state.bannedUsers.find(b => b.userId === userId);
-            if (existing) { existing.reason = reason; existing.expiresAt = expiresAt; existing.bannedAt = Date.now(); }
-            else state.bannedUsers.push({ id: 'b' + Date.now(), userId, reason, bannedAt: Date.now(), expiresAt, bannedBy: state.currentUser.id });
-            saveToBack4App();
-            addNotification(userId, 'user_banned', { reason, adminName: state.currentUser.name });
-            showToast(`🔨 ${user.name} заблокирован`, 'success');
-            if (state.currentUser?.id === userId) setTimeout(() => logout(), 2000);
-            render();
-        }
-
-        function unbanUser(userId) {
-            state.bannedUsers = state.bannedUsers.filter(b => b.userId !== userId);
-            saveToBack4App();
-            showToast(`🔓 Пользователь разблокирован`, 'success');
-            render();
-        }
-
-        function openBanModal(userId) {
-            const user = getUserById(userId);
-            if (!user || userId === state.currentUser.id) return;
+            repostModalPostId = postId;
             const modalHtml = `
-                <div class="modal active" id="banModal" onclick="if(event.target===this) closeModal()">
-                    <div class="modal-content" style="background:rgba(20,20,40,0.98);border-radius:24px;max-width:500px;width:90%;padding:24px">
-                        <h2>🔨 Блокировка</h2>
-                        <p>Пользователь: <strong>${escapeHtml(user.name)}</strong></p>
-                        <div style="margin:16px 0"><label>Причина:</label><textarea id="banReason" rows="3" class="input-glow" style="margin-top:8px"></textarea></div>
-                        <div style="display:flex;gap:12px">
-                            <button id="confirmBan" class="btn-danger">Заблокировать</button>
-                            <button onclick="closeModal()" class="btn-secondary">Отмена</button>
+                <div class="modal active" id="repostModal" onclick="if(event.target === this) closeRepostModal()">
+                    <div class="modal-content repost-modal" style="background: rgba(20, 20, 40, 0.98); backdrop-filter: blur(20px); border-radius: 24px; max-width: 500px; width: 90%; padding: 24px;">
+                        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">📢 Сделать репост</h2>
+                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">Добавьте комментарий (необязательно):</p>
+                        <textarea id="repostComment" rows="4" placeholder="Напишите что-нибудь к этому репосту..." style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 14px; color: white; resize: none; font-family: inherit; margin-bottom: 20px;"></textarea>
+                        <div style="display: flex; gap: 12px;">
+                            <button id="confirmRepostBtn" class="btn-primary" style="flex: 1;">📢 Сделать репост</button>
+                            <button onclick="closeRepostModal()" class="btn-secondary" style="flex: 1;">Отмена</button>
                         </div>
                     </div>
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
-            document.getElementById('confirmBan').onclick = () => {
-                const reason = document.getElementById('banReason').value;
-                if (reason) banUser(userId, reason, null);
-                closeModal();
-            };
-            window.closeModal = () => document.getElementById('banModal')?.remove();
-        }
-
-        function openRepostModal(postId) {
-            if (isBanned(state.currentUser.id)) { showToast('❌ Вы заблокированы', 'error'); return; }
-            repostModalPostId = postId;
-            const modalHtml = `
-                <div class="modal active" id="repostModal" onclick="if(event.target===this) closeRepostModal()">
-                    <div class="modal-content" style="background:rgba(20,20,40,0.98);border-radius:24px;max-width:500px;width:90%;padding:24px">
-                        <h2>📢 Сделать репост</h2>
-                        <textarea id="repostComment" rows="4" placeholder="Добавьте комментарий..." style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px;color:white;resize:none;margin-bottom:20px"></textarea>
-                        <div style="display:flex;gap:12px"><button id="confirmRepostBtn" class="btn-primary">Сделать репост</button><button onclick="closeRepostModal()" class="btn-secondary">Отмена</button></div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
             document.getElementById('confirmRepostBtn').onclick = () => {
                 const comment = document.getElementById('repostComment').value;
                 const originalPost = state.posts.find(p => p.id === postId);
                 if (originalPost) {
-                    if (state.posts.find(p => p.originalPostId === postId && p.userId === state.currentUser.id)) {
-                        showToast('Вы уже сделали репост', 'info');
+                    const existingRepost = state.posts.find(p => p.originalPostId === postId && p.userId === state.currentUser.id);
+                    if (existingRepost) {
+                        showToast('Вы уже сделали репост этого поста', 'info');
                         closeRepostModal();
                         return;
                     }
                     createPost('', null, postId, comment.trim() || null);
                 }
                 closeRepostModal();
+                render();
             };
-            window.closeRepostModal = () => document.getElementById('repostModal')?.remove();
+            
+            window.closeRepostModal = () => {
+                document.getElementById('repostModal')?.remove();
+                repostModalPostId = null;
+            };
         }
 
         function goToOriginalPost(originalPostId) {
@@ -893,46 +1208,338 @@
                     postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     postElement.style.transform = 'scale(1.02)';
                     postElement.style.border = '2px solid #8b5cf6';
-                    setTimeout(() => { postElement.style.transform = ''; postElement.style.border = ''; }, 2000);
+                    setTimeout(() => {
+                        postElement.style.transform = '';
+                        postElement.style.border = '';
+                    }, 2000);
                 } else {
                     navigateToProfile(originalPost.userId);
-                    setTimeout(() => showToast('Пост найден в профиле', 'info'), 500);
+                    setTimeout(() => {
+                        showToast('Пост найден в профиле пользователя', 'info');
+                    }, 500);
                 }
             }
         }
 
-        function registerUser(name, username, email, password) {
-            if (!name || !username || !email || !password) { showToast('Заполните все поля', 'error'); return false; }
-            if (state.users.find(u => u.email === email)) { showToast('Email уже используется', 'error'); return false; }
-            if (state.users.find(u => u.username === username)) { showToast('Username уже используется', 'error'); return false; }
+        function deletePost(postId) {
+            const post = state.posts.find(p => p.id === postId);
+            if (post && (post.userId === state.currentUser.id || isAdmin(state.currentUser.id))) {
+                state.posts = state.posts.filter(p => p.id !== postId);
+                state.comments = state.comments.filter(c => c.postId !== postId);
+                state.likes = state.likes.filter(l => l.postId !== postId);
+                saveData();
+                showToast('🗑 Пост удален', 'success');
+                return true;
+            }
+            return false;
+        }
+
+        function addComment(postId, text) {
+            if (!text.trim()) return false;
+            if (isBanned(state.currentUser.id)) {
+                showToast('❌ Вы заблокированы и не можете оставлять комментарии', 'error');
+                return false;
+            }
+            const newComment = {
+                id: 'c' + Date.now(),
+                postId: postId,
+                userId: state.currentUser.id,
+                text: text.trim(),
+                timestamp: Date.now()
+            };
+            state.comments.push(newComment);
+            
+            const post = state.posts.find(p => p.id === postId);
+            if (post && post.userId !== state.currentUser.id) {
+                addNotification(post.userId, 'comment', {
+                    postId: postId,
+                    userName: state.currentUser.name,
+                    commentText: text.substring(0, 100),
+                    postContent: post.content.substring(0, 100)
+                });
+            }
+            
+            saveData();
+            showToast('💬 Комментарий добавлен', 'success');
+            return true;
+        }
+
+        function toggleLike(postId) {
+            const existing = state.likes.find(l => l.postId === postId && l.userId === state.currentUser.id);
+            const post = state.posts.find(p => p.id === postId);
+            
+            if (existing) {
+                state.likes = state.likes.filter(l => l.id !== existing.id);
+            } else {
+                if (isBanned(state.currentUser.id)) {
+                    showToast('❌ Вы заблокированы и не можете ставить лайки', 'error');
+                    return false;
+                }
+                state.likes.push({
+                    id: 'l' + Date.now(),
+                    postId: postId,
+                    userId: state.currentUser.id,
+                    timestamp: Date.now()
+                });
+                if (post && post.userId !== state.currentUser.id) {
+                    addNotification(post.userId, 'like', {
+                        postId: postId,
+                        userName: state.currentUser.name,
+                        postContent: post.content.substring(0, 100)
+                    });
+                }
+                showToast('❤️ Лайк добавлен!', 'success');
+            }
+            saveData();
+            return !existing;
+        }
+
+        function sendFriendRequest(userId) {
+            if (userId === state.currentUser.id) return;
+            if (isBanned(state.currentUser.id)) {
+                showToast('❌ Вы заблокированы и не можете отправлять заявки', 'error');
+                return;
+            }
+            if (getFriends(state.currentUser.id).some(f => f.id === userId)) {
+                showToast('Вы уже друзья', 'info');
+                return;
+            }
+            const existing = state.friends.find(f => 
+                (f.userId === state.currentUser.id && f.friendId === userId) ||
+                (f.userId === userId && f.friendId === state.currentUser.id)
+            );
+            if (existing) {
+                showToast('Заявка уже отправлена', 'info');
+                return;
+            }
+            state.friends.push({
+                id: 'f' + Date.now(),
+                userId: state.currentUser.id,
+                friendId: userId,
+                status: 'pending'
+            });
+            
+            addNotification(userId, 'friend_request', {
+                userId: state.currentUser.id,
+                userName: state.currentUser.name
+            });
+            
+            saveData();
+            showToast('📨 Заявка отправлена!', 'success');
+        }
+
+        function acceptFriendRequest(requestId) {
+            const request = state.friends.find(f => f.id === requestId);
+            if (request) {
+                request.status = 'accepted';
+                addNotification(request.userId, 'friend_accept', {
+                    userName: state.currentUser.name
+                });
+                saveData();
+                showToast('🎉 Теперь вы друзья!', 'success');
+            }
+        }
+
+        function updateProfile(updates) {
+            if (isBanned(state.currentUser.id)) {
+                showToast('❌ Вы заблокированы и не можете редактировать профиль', 'error');
+                return;
+            }
+            Object.assign(state.currentUser, updates);
+            const index = state.users.findIndex(u => u.id === state.currentUser.id);
+            if (index !== -1) state.users[index] = state.currentUser;
+            saveData();
+            showToast('✅ Профиль обновлен!', 'success');
+        }
+
+        function updateSystemSettings(updates) {
+            Object.assign(state.systemSettings, updates);
+            saveData();
+            showToast('⚙️ Настройки сохранены!', 'success');
+            render();
+        }
+
+        function requestVerification(reason) {
+            if (!reason.trim()) {
+                showToast('Напишите причину запроса на верификацию', 'error');
+                return;
+            }
+            if (isBanned(state.currentUser.id)) {
+                showToast('❌ Вы заблокированы и не можете запрашивать верификацию', 'error');
+                return;
+            }
+            
+            const existingRequest = state.verificationRequests.find(r => r.userId === state.currentUser.id && r.status === 'pending');
+            if (existingRequest) {
+                showToast('У вас уже есть активная заявка на верификацию', 'info');
+                return;
+            }
+            
+            const request = {
+                id: 'vr' + Date.now(),
+                userId: state.currentUser.id,
+                userName: state.currentUser.name,
+                userAvatar: state.currentUser.avatar,
+                reason: reason.trim(),
+                status: 'pending',
+                timestamp: Date.now()
+            };
+            
+            state.verificationRequests.push(request);
+            saveData();
+            
+            if (state.adminId) {
+                addNotification(state.adminId, 'verification_request', {
+                    requestId: request.id,
+                    userName: state.currentUser.name,
+                    reason: reason.substring(0, 150)
+                });
+            }
+            
+            showToast('📋 Запрос на верификацию отправлен! Ожидайте решения администратора', 'success');
+            render();
+        }
+        
+        function approveVerification(requestId) {
+            const request = state.verificationRequests.find(r => r.id === requestId);
+            if (request) {
+                request.status = 'approved';
+                const user = state.users.find(u => u.id === request.userId);
+                if (user) {
+                    user.verified = true;
+                    addNotification(user.id, 'verification_approved', {
+                        message: 'Ваша заявка на верификацию одобрена! Теперь у вас есть синяя галочка рядом с именем.'
+                    });
+                    showToast(`✅ Верификация одобрена для ${user.name}!`, 'success');
+                }
+                saveData();
+                render();
+            }
+        }
+        
+        function rejectVerification(requestId) {
+            const request = state.verificationRequests.find(r => r.id === requestId);
+            if (request) {
+                request.status = 'rejected';
+                const user = state.users.find(u => u.id === request.userId);
+                if (user) {
+                    addNotification(user.id, 'verification_rejected', {
+                        message: 'К сожалению, ваша заявка на верификацию отклонена.'
+                    });
+                    showToast(`❌ Верификация отклонена для ${user.name}`, 'info');
+                }
+                saveData();
+                render();
+            }
+        }
+        
+        function openVerificationModal() {
+            if (isBanned(state.currentUser.id)) {
+                showToast('❌ Вы заблокированы и не можете запрашивать верификацию', 'error');
+                return;
+            }
+            const modalHtml = `
+                <div class="modal active" id="verificationModal" onclick="if(event.target === this) closeVerificationModal()">
+                    <div class="modal-content" style="background: rgba(20, 20, 40, 0.98); backdrop-filter: blur(20px); border-radius: 24px; max-width: 500px; width: 90%; padding: 24px;">
+                        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">✅ Запрос на верификацию</h2>
+                        <p style="color: rgba(255,255,255,0.6); margin-bottom: 16px;">Синяя галочка подтверждает, что это официальный аккаунт известной личности, бренда или организации.</p>
+                        <p style="color: rgba(139,92,246,0.8); margin-bottom: 12px; font-size: 14px;">Почему вам нужна верификация?</p>
+                        <textarea id="verificationReason" rows="5" placeholder="Напишите причину, почему вы хотите получить верификацию..." style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 14px; color: white; resize: none; font-family: inherit; margin-bottom: 20px;"></textarea>
+                        <div style="display: flex; gap: 12px;">
+                            <button id="submitVerificationBtn" class="btn-primary" style="flex: 1;">📋 Отправить запрос</button>
+                            <button onclick="closeVerificationModal()" class="btn-secondary" style="flex: 1;">Отмена</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            document.getElementById('submitVerificationBtn').onclick = () => {
+                const reason = document.getElementById('verificationReason').value;
+                requestVerification(reason);
+                closeVerificationModal();
+            };
+            
+            window.closeVerificationModal = () => {
+                document.getElementById('verificationModal')?.remove();
+            };
+        }
+
+        async function registerUserWithEmail(name, username, email, password) {
+            if (!name || !username || !email || !password) {
+                showToast('Заполните все поля', 'error');
+                return false;
+            }
+            if (state.users.find(u => u.email === email)) {
+                showToast('Email уже используется', 'error');
+                return false;
+            }
+            if (state.users.find(u => u.username === username)) {
+                showToast('Username уже используется', 'error');
+                return false;
+            }
+            
+            pendingRegistrationData = { name, username, email, password };
+            const sent = await sendVerificationCode(email);
+            if (sent) {
+                return true;
+            }
+            pendingRegistrationData = null;
+            return false;
+        }
+        
+        function confirmRegistration(code) {
+            if (!pendingRegistrationData) {
+                showToast('Нет активной регистрации', 'error');
+                return false;
+            }
+            
+            const { name, username, email, password } = pendingRegistrationData;
+            
+            if (!verifyEmailCode(email, code)) {
+                return false;
+            }
+            
+            const isFirstUser = state.users.length === 0;
             
             const newUser = {
                 id: 'u' + Date.now(),
-                name, username, email, password,
+                name: name,
+                username: username,
+                email: email,
+                password: password,
                 avatar: avatarPresets[0],
                 cover: coverPresets[0],
-                bio: '🌟 Новый пользователь NEXUS!',
+                bio: '🌟 Новый пользователь NEXUS! Рад знакомству!',
                 city: '',
-                created_at: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
                 verified: false
             };
             state.users.push(newUser);
             state.currentUser = newUser;
-            if (state.users.length === 1) state.adminId = newUser.id;
-            saveToBack4App();
+            
+            if (isFirstUser) {
+                state.adminId = newUser.id;
+                showToast('👑 Вы стали администратором NEXUS! Теперь вы можете управлять пользователями и постами.', 'success');
+            }
+            
+            pendingRegistrationData = null;
+            saveData();
             showToast('🎉 Добро пожаловать в NEXUS!', 'success');
-            render();
             return true;
         }
 
         function loginUser(email, password) {
             const user = state.users.find(u => u.email === email && u.password === password);
             if (user) {
-                if (isBanned(user.id)) { showToast('❌ Вы заблокированы', 'error'); return false; }
+                if (isBanned(user.id)) {
+                    showBanNotification(user.id);
+                    return false;
+                }
                 state.currentUser = user;
                 unreadCount = state.notifications.filter(n => !n.read && n.userId === user.id).length;
+                saveData();
                 showToast(`👋 С возвращением, ${user.name}!`, 'success');
-                render();
                 return true;
             }
             showToast('Неверный email или пароль', 'error');
@@ -941,82 +1548,147 @@
 
         function logout() {
             state.currentUser = null;
+            unreadCount = 0;
+            saveData();
             render();
         }
 
         function uploadAvatar(file) {
-            if (isBanned(state.currentUser.id)) { showToast('❌ Вы заблокированы', 'error'); return; }
+            if (isBanned(state.currentUser.id)) {
+                showToast('❌ Вы заблокированы', 'error');
+                return;
+            }
             const reader = new FileReader();
-            reader.onload = function(e) { updateProfile({ avatar: e.target.result }); };
+            reader.onload = function(e) {
+                updateProfile({ avatar: e.target.result });
+                showToast('✅ Аватар загружен!', 'success');
+            };
             reader.readAsDataURL(file);
         }
 
         function uploadCover(file) {
-            if (isBanned(state.currentUser.id)) { showToast('❌ Вы заблокированы', 'error'); return; }
+            if (isBanned(state.currentUser.id)) {
+                showToast('❌ Вы заблокированы', 'error');
+                return;
+            }
             const reader = new FileReader();
-            reader.onload = function(e) { updateProfile({ cover: e.target.result }); };
+            reader.onload = function(e) {
+                updateProfile({ cover: e.target.result });
+                showToast('✅ Обложка загружена!', 'success');
+            };
             reader.readAsDataURL(file);
         }
 
-        function navigateToFeed() { currentView = { type: 'feed' }; settingsOpen = false; render(); }
-        function navigateToProfile(userId) { currentView = { type: 'profile', userId }; settingsOpen = false; render(); }
-        function navigateToFriends() { currentView = { type: 'friends' }; settingsOpen = false; render(); }
-        function navigateToAdmin() { currentView = { type: 'admin' }; settingsOpen = false; render(); }
+        function navigateToFeed() { currentView = { type: 'feed', userId: null }; settingsOpen = false; render(); }
+        function navigateToProfile(userId) { currentView = { type: 'profile', userId: userId }; settingsOpen = false; render(); }
+        function navigateToFriends() { currentView = { type: 'friends', userId: null }; settingsOpen = false; render(); }
+        function navigateToAdminPanel() { currentView = { type: 'admin', userId: null }; settingsOpen = false; render(); }
         function toggleSettings() { settingsOpen = !settingsOpen; render(); }
         function setSettingsTab(tab) { settingsTab = tab; render(); }
 
         function render() {
-            if (!state.currentUser) renderAuth();
-            else renderMain();
+            if (!state.currentUser) {
+                renderAuth();
+            } else {
+                renderMain();
+            }
         }
 
         function renderAuth() {
             const app = document.getElementById('app');
             let isLogin = true;
+            let showVerification = false;
+
             function refresh() {
                 app.innerHTML = `
-                    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px">
-                        <div class="glass" style="max-width:480px;width:100%;padding:48px">
-                            <div style="text-align:center;margin-bottom:40px">
-                                <img src="logo.png" style="height:48px;width:auto;border-radius:12px;margin-bottom:16px">
-                                <h1 style="font-size:42px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec489a);-webkit-background-clip:text;-webkit-text-fill-color:transparent">NEXUS</h1>
-                                <p style="color:rgba(255,255,255,0.7)">Социальная платформа</p>
+                    <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; position: relative; overflow: hidden;">
+                        <div style="position: absolute; width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%); border-radius: 50%; top: -200px; right: -200px; animation: float 8s ease-in-out infinite;"></div>
+                        <div style="position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(236,72,153,0.3) 0%, transparent 70%); border-radius: 50%; bottom: -150px; left: -150px; animation: float 6s ease-in-out infinite reverse;"></div>
+                        
+                        <div class="glass" style="max-width: 480px; width: 100%; padding: 48px; position: relative; z-index: 10;">
+                            <div style="text-align: center; margin-bottom: 40px;">
+                                <img src="logo.png" style="height: 48px; width: auto; border-radius: 12px; margin-bottom: 16px;">
+                                <h1 style="font-size: 42px; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #ec489a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">NEXUS</h1>
+                                <p style="color: rgba(255,255,255,0.7); margin-top: 12px;">Социальная платформа будущего</p>
+                                <p style="color: #8b5cf6; font-size: 12px; margin-top: 8px;">👑 Первый пользователь становится администратором!</p>
+                                <p style="color: #ec489a; font-size: 12px;">✉️ Требуется подтверждение email</p>
                             </div>
-                            <div style="display:flex;gap:12px;margin-bottom:32px">
-                                <button id="loginTab" style="flex:1;padding:12px;border:none;border-radius:40px;font-weight:600;cursor:pointer;background:${isLogin ? 'linear-gradient(135deg,#8b5cf6,#ec489a)' : 'rgba(255,255,255,0.1)'};color:white">Вход</button>
-                                <button id="registerTab" style="flex:1;padding:12px;border:none;border-radius:40px;font-weight:600;cursor:pointer;background:${!isLogin ? 'linear-gradient(135deg,#8b5cf6,#ec489a)' : 'rgba(255,255,255,0.1)'};color:white">Регистрация</button>
-                            </div>
-                            <div id="authForm">
-                                ${isLogin ? `
-                                    <input type="email" id="loginEmail" placeholder="Email" class="input-glow" style="margin-bottom:16px">
-                                    <input type="password" id="loginPassword" placeholder="Пароль" class="input-glow" style="margin-bottom:24px">
-                                    <button id="loginBtn" class="btn-primary" style="width:100%">Войти</button>
-                                ` : `
-                                    <input type="text" id="regName" placeholder="Полное имя" class="input-glow" style="margin-bottom:12px">
-                                    <input type="text" id="regUsername" placeholder="Имя пользователя" class="input-glow" style="margin-bottom:12px">
-                                    <input type="email" id="regEmail" placeholder="Email" class="input-glow" style="margin-bottom:12px">
-                                    <input type="password" id="regPassword" placeholder="Пароль" class="input-glow" style="margin-bottom:24px">
-                                    <button id="registerBtn" class="btn-primary" style="width:100%">Зарегистрироваться</button>
-                                `}
-                            </div>
+
+                            ${!showVerification ? `
+                                <div style="display: flex; gap: 12px; margin-bottom: 32px;">
+                                    <button id="loginTab" style="flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; background: ${isLogin ? 'linear-gradient(135deg, #8b5cf6, #ec489a)' : 'rgba(255,255,255,0.1)'}; color: white;">Вход</button>
+                                    <button id="registerTab" style="flex: 1; padding: 12px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; background: ${!isLogin ? 'linear-gradient(135deg, #8b5cf6, #ec489a)' : 'rgba(255,255,255,0.1)'}; color: white;">Регистрация</button>
+                                </div>
+
+                                <div id="authForm">
+                                    ${isLogin ? `
+                                        <input type="email" id="loginEmail" placeholder="Email" class="input-glow" style="margin-bottom: 16px;">
+                                        <input type="password" id="loginPassword" placeholder="Пароль" class="input-glow" style="margin-bottom: 24px;">
+                                        <button id="loginBtn" class="btn-primary" style="width: 100%;">Войти в NEXUS</button>
+                                    ` : `
+                                        <input type="text" id="regName" placeholder="Полное имя" class="input-glow" style="margin-bottom: 12px;">
+                                        <input type="text" id="regUsername" placeholder="Имя пользователя" class="input-glow" style="margin-bottom: 12px;">
+                                        <input type="email" id="regEmail" placeholder="Email" class="input-glow" style="margin-bottom: 12px;">
+                                        <input type="password" id="regPassword" placeholder="Пароль" class="input-glow" style="margin-bottom: 24px;">
+                                        <button id="registerBtn" class="btn-primary" style="width: 100%;">Зарегистрироваться</button>
+                                        <p style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 16px;">✉️ На почту придет код подтверждения</p>
+                                        <p style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.5);">👑 Первый пользователь получает права администратора</p>
+                                    `}
+                                </div>
+                            ` : `
+                                <div class="verification-step">
+                                    <h2 style="font-size: 20px; font-weight: 600; text-align: center; margin-bottom: 20px;">✉️ Подтверждение email</h2>
+                                    <p style="color: rgba(255,255,255,0.7); text-align: center; margin-bottom: 20px;">Код отправлен на <strong>${pendingRegistrationData?.email || ''}</strong></p>
+                                    <input type="text" id="verificationCode" placeholder="Введите код из письма" class="input-glow" style="margin-bottom: 16px; text-align: center; font-size: 20px; letter-spacing: 4px;">
+                                    <button id="confirmCodeBtn" class="btn-primary" style="width: 100%; margin-bottom: 12px;">✅ Подтвердить</button>
+                                    <button id="resendCodeBtn" class="btn-secondary" style="width: 100%;">🔄 Отправить код повторно</button>
+                                    <button id="backToRegisterBtn" style="background: none; border: none; color: rgba(255,255,255,0.5); margin-top: 16px; cursor: pointer; width: 100%;">← Назад к регистрации</button>
+                                </div>
+                            `}
                         </div>
                     </div>
                 `;
-                document.getElementById('loginTab')?.addEventListener('click', () => { isLogin = true; refresh(); });
-                document.getElementById('registerTab')?.addEventListener('click', () => { isLogin = false; refresh(); });
-                if (isLogin) {
-                    document.getElementById('loginBtn')?.addEventListener('click', () => {
-                        const email = document.getElementById('loginEmail').value;
-                        const password = document.getElementById('loginPassword').value;
-                        if (loginUser(email, password)) render();
-                    });
+
+                if (!showVerification) {
+                    document.getElementById('loginTab')?.addEventListener('click', () => { isLogin = true; showVerification = false; refresh(); });
+                    document.getElementById('registerTab')?.addEventListener('click', () => { isLogin = false; showVerification = false; refresh(); });
+
+                    if (isLogin) {
+                        document.getElementById('loginBtn')?.addEventListener('click', () => {
+                            const email = document.getElementById('loginEmail').value;
+                            const password = document.getElementById('loginPassword').value;
+                            if (loginUser(email, password)) render();
+                        });
+                    } else {
+                        document.getElementById('registerBtn')?.addEventListener('click', async () => {
+                            const name = document.getElementById('regName').value;
+                            const username = document.getElementById('regUsername').value;
+                            const email = document.getElementById('regEmail').value;
+                            const password = document.getElementById('regPassword').value;
+                            const success = await registerUserWithEmail(name, username, email, password);
+                            if (success) {
+                                showVerification = true;
+                                refresh();
+                            }
+                        });
+                    }
                 } else {
-                    document.getElementById('registerBtn')?.addEventListener('click', () => {
-                        const name = document.getElementById('regName').value;
-                        const username = document.getElementById('regUsername').value;
-                        const email = document.getElementById('regEmail').value;
-                        const password = document.getElementById('regPassword').value;
-                        if (registerUser(name, username, email, password)) render();
+                    document.getElementById('confirmCodeBtn')?.addEventListener('click', () => {
+                        const code = document.getElementById('verificationCode').value;
+                        if (confirmRegistration(code)) {
+                            render();
+                        }
+                    });
+                    document.getElementById('resendCodeBtn')?.addEventListener('click', async () => {
+                        if (pendingRegistrationData) {
+                            await sendVerificationCode(pendingRegistrationData.email);
+                            showToast('Код отправлен повторно', 'success');
+                        }
+                    });
+                    document.getElementById('backToRegisterBtn')?.addEventListener('click', () => {
+                        showVerification = false;
+                        pendingRegistrationData = null;
+                        refresh();
                     });
                 }
             }
@@ -1026,32 +1698,38 @@
         function renderMain() {
             const app = document.getElementById('app');
             const user = state.currentUser;
-            const userIsAdmin = isAdmin(user.id);
-            const allPosts = getAllPosts();
             const friends = getFriends(user.id);
             const pendingRequests = state.friends.filter(f => f.friendId === user.id && f.status === 'pending');
-            const userNotifications = state.notifications.filter(n => n.userId === user.id).sort((a,b)=>b.timestamp-a.timestamp);
+            const userNotifications = state.notifications.filter(n => n.userId === user.id).sort((a, b) => b.timestamp - a.timestamp);
             const pendingVerifications = state.verificationRequests.filter(r => r.status === 'pending');
+            const userIsAdmin = isAdmin(user.id);
             const bannedUsersList = state.bannedUsers.map(b => getUserById(b.userId)).filter(Boolean);
 
             let content = '';
 
             if (currentView.type === 'feed') {
+                const allPosts = getAllPosts();
                 content = `
-                    <div style="max-width:680px;margin:0 auto">
-                        <div class="glass-card" style="padding:24px;margin-bottom:24px">
-                            <div style="display:flex;gap:16px;align-items:flex-start">
-                                <div class="avatar-wrapper" style="width:52px;height:52px"><img src="${user.avatar}" class="avatar-img"></div>
-                                <div style="flex:1">
-                                    <textarea id="postContent" rows="2" placeholder="Что нового? (можно вставлять эмодзи 😊✨)" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:14px;color:white;resize:none;font-family:inherit"></textarea>
-                                    <div id="imagePreview" class="image-preview" style="display:none;margin-top:12px"></div>
-                                    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:12px">
-                                        <label class="btn-secondary" style="padding:10px 20px;cursor:pointer"><i class="fas fa-image"></i> Фото<input type="file" id="postImageInput" accept="image/*" style="display:none"></label>
-                                        <button id="publishBtn" class="btn-primary">Опубликовать ✨</button>
+                    <div style="max-width: 680px; margin: 0 auto;">
+                        <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                            <div style="display: flex; gap: 16px; align-items: flex-start;">
+                                <div class="avatar-wrapper" style="width: 52px; height: 52px; flex-shrink: 0;">
+                                    <img src="${user.avatar}" class="avatar-img" style="width: 52px; height: 52px;">
+                                </div>
+                                <div style="flex: 1;">
+                                    <textarea id="postContent" rows="2" placeholder="Что у вас нового? (можно вставлять эмодзи 😊✨)" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 14px; color: white; resize: none; font-family: inherit;"></textarea>
+                                    <div id="imagePreview" class="image-preview" style="display: none; margin-top: 12px;"></div>
+                                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 12px;">
+                                        <label class="btn-secondary" style="padding: 10px 20px; cursor: pointer;">
+                                            <i class="fas fa-image"></i> Фото
+                                            <input type="file" id="postImageInput" accept="image/*" style="display: none;">
+                                        </label>
+                                        <button id="publishBtn" class="btn-primary" style="padding: 10px 28px;">Опубликовать ✨</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                         ${allPosts.map(post => {
                             const author = getUserById(post.userId);
                             if (!author) return '';
@@ -1059,173 +1737,592 @@
                             const likesCount = getLikesCount(post.id);
                             const liked = isLiked(post.id, user.id);
                             const isRepost = post.originalPostId;
-                            const originalPost = isRepost ? state.posts.find(p=>p.id===post.originalPostId) : null;
+                            const originalPost = isRepost ? state.posts.find(p => p.id === post.originalPostId) : null;
                             const originalAuthor = originalPost ? getUserById(originalPost.userId) : null;
+                            const authorIsAdmin = isAdmin(author.id);
+                            const authorIsBanned = isBanned(author.id);
+                            
                             return `
-                                <div class="glass-card" style="padding:24px;margin-bottom:20px" id="post-${post.id}">
-                                    ${isRepost ? `<div class="repost-badge" onclick="window.goToOriginalPostExternal('${post.originalPostId}')"><i class="fas fa-retweet"></i> Репост от ${escapeHtml(author.name)}${post.repostComment ? `<div style="margin-top:8px">💬 ${escapeHtml(post.repostComment)}</div>` : ''}</div>` : ''}
-                                    <div style="display:flex;justify-content:space-between">
-                                        <div style="display:flex;gap:12px;cursor:pointer" onclick="window.navigateToProfileExternal('${author.id}')">
-                                            <div class="avatar-wrapper" style="width:48px;height:48px"><img src="${author.avatar}" class="avatar-img"></div>
-                                            <div><div style="font-weight:600">${escapeHtml(author.name)}${author.verified ? ' ✅' : ''}${isAdmin(author.id) ? ' 👑' : ''}</div><div style="font-size:12px;color:rgba(255,255,255,0.5)">${new Date(post.timestamp).toLocaleString()}</div></div>
+                                <div class="glass-card post-enter" style="padding: 24px; margin-bottom: 20px; ${authorIsBanned ? 'opacity: 0.6; filter: grayscale(0.3);' : ''}" id="post-${post.id}">
+                                    ${isRepost ? `
+                                        <div class="repost-badge" onclick="window.goToOriginalPostExternal('${post.originalPostId}')" title="Кликните чтобы перейти к оригинальному посту">
+                                            <i class="fas fa-retweet"></i> Репост от ${escapeHtml(author.name)}
+                                            ${post.repostComment ? `<div style="margin-top: 8px; color: rgba(255,255,255,0.7); font-size: 13px;"><i class="fas fa-quote-left"></i> ${escapeHtml(post.repostComment)}</div>` : ''}
+                                            <div style="font-size: 11px; color: rgba(139,92,246,0.8); margin-top: 4px;"><i class="fas fa-link"></i> Нажмите чтобы перейти к оригиналу</div>
                                         </div>
-                                        ${(author.id === user.id || userIsAdmin) ? `<button onclick="window.deletePostExternal('${post.id}')" style="background:none;border:none;color:rgba(255,255,255,0.5)"><i class="fas fa-trash"></i></button>` : ''}
-                                    </div>
-                                    <div style="margin:16px 0">
-                                        ${isRepost && originalPost ? `
-                                            <div class="original-post-clickable" onclick="window.goToOriginalPostExternal('${post.originalPostId}')" style="background:rgba(255,255,255,0.03);border-radius:16px;padding:12px;border-left:3px solid #8b5cf6">
-                                                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><div class="avatar-wrapper" style="width:28px;height:28px"><img src="${originalAuthor.avatar}" class="avatar-img"></div><span>${escapeHtml(originalAuthor.name)}</span><span style="font-size:10px;color:rgba(255,255,255,0.4)">оригинальный пост</span></div>
-                                                <p>${escapeHtml(originalPost.content)}</p>${originalPost.image ? `<img src="${originalPost.image}" class="post-image">` : ''}
+                                    ` : ''}
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <div style="display: flex; gap: 12px; cursor: pointer; align-items: center;" onclick="window.navigateToProfileExternal('${author.id}')">
+                                            <div class="avatar-wrapper" style="width: 48px; height: 48px; flex-shrink: 0;">
+                                                <img src="${author.avatar}" class="avatar-img" style="width: 48px; height: 48px;">
                                             </div>
-                                        ` : `<p style="white-space:pre-wrap">${escapeHtml(post.content)}</p>${post.image ? `<img src="${post.image}" class="post-image">` : ''}`}
+                                            <div>
+                                                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                                    <div style="font-weight: 600; font-size: 16px;">${escapeHtml(author.name)}</div>
+                                                    ${author.verified ? `<div class="verified-badge" title="Верифицированный аккаунт"><i class="fas fa-check-circle" style="font-size: 14px; color: #3b82f6;"></i></div>` : ''}
+                                                    ${authorIsAdmin ? `<span class="admin-badge" style="font-size: 8px; padding: 2px 6px;"><i class="fas fa-crown"></i> Admin</span>` : ''}
+                                                    ${authorIsBanned ? `<span class="banned-badge" style="font-size: 8px; padding: 2px 6px;"><i class="fas fa-ban"></i> Banned</span>` : ''}
+                                                </div>
+                                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">${new Date(post.timestamp).toLocaleString()}</div>
+                                            </div>
+                                        </div>
+                                        <div style="display: flex; gap: 8px;">
+                                            ${(author.id === user.id || userIsAdmin) ? `
+                                                <button onclick="window.deletePostExternal('${post.id}')" style="background: rgba(255,255,255,0.05); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; color: rgba(255,255,255,0.5);" title="Удалить пост">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            ` : ''}
+                                        </div>
                                     </div>
-                                    <div style="display:flex;gap:20px;padding:12px 0;border-top:1px solid rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.1)">
-                                        <button class="like-btn ${liked ? 'liked' : ''}" data-post="${post.id}" style="background:none;border:none;cursor:pointer;color:${liked ? '#ec489a' : 'rgba(255,255,255,0.6)'}"><i class="fas fa-heart"></i> ${likesCount}</button>
-                                        <button onclick="window.toggleCommentsExternal('${post.id}')" style="background:none;border:none;cursor:pointer"><i class="fas fa-comment"></i> ${comments.length}</button>
-                                        <button onclick="window.openRepostModalExternal('${post.id}')" style="background:none;border:none;cursor:pointer"><i class="fas fa-retweet"></i> Репост</button>
+                                    
+                                    <div style="margin: 16px 0;">
+                                        ${isRepost && originalPost ? `
+                                            <div class="original-post-clickable" onclick="window.goToOriginalPostExternal('${post.originalPostId}')" style="background: rgba(255,255,255,0.03); border-radius: 16px; padding: 12px; margin-bottom: 12px; border-left: 3px solid #8b5cf6;">
+                                                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                                    <div class="avatar-wrapper" style="width: 28px; height: 28px;">
+                                                        <img src="${originalAuthor.avatar}" class="avatar-img" style="width: 28px; height: 28px;">
+                                                    </div>
+                                                    <span style="font-weight: 500; font-size: 13px;">${escapeHtml(originalAuthor.name)}</span>
+                                                    ${originalAuthor.verified ? `<div class="verified-badge" title="Верифицированный аккаунт"><i class="fas fa-check-circle" style="font-size: 10px; color: #3b82f6;"></i></div>` : ''}
+                                                    ${isAdmin(originalAuthor.id) ? `<span class="admin-badge" style="font-size: 8px; padding: 2px 4px;"><i class="fas fa-crown"></i></span>` : ''}
+                                                    <span style="font-size: 10px; color: rgba(255,255,255,0.4);">оригинальный пост</span>
+                                                </div>
+                                                <p style="font-size: 14px;">${escapeHtml(originalPost.content)}</p>
+                                                ${originalPost.image ? `<img src="${originalPost.image}" class="post-image" style="max-width: 100%; border-radius: 12px; margin-top: 8px;">` : ''}
+                                                <div style="font-size: 11px; color: rgba(139,92,246,0.8); margin-top: 8px;"><i class="fas fa-hand-pointer"></i> Нажмите чтобы перейти</div>
+                                            </div>
+                                        ` : `
+                                            <p style="line-height: 1.6; white-space: pre-wrap;">${escapeHtml(post.content)}</p>
+                                            ${post.image ? `<img src="${post.image}" class="post-image">` : ''}
+                                        `}
                                     </div>
-                                    <div id="comments-${post.id}" style="margin-top:16px">
-                                        ${comments.map(c => { const cu = getUserById(c.userId); return `<div style="display:flex;gap:10px;margin-bottom:12px"><div class="avatar-wrapper" style="width:32px;height:32px" onclick="window.navigateToProfileExternal('${cu.id}')"><img src="${cu.avatar}" class="avatar-img"></div><div style="flex:1;background:rgba(255,255,255,0.05);border-radius:18px;padding:8px 14px"><span style="font-weight:600;cursor:pointer" onclick="window.navigateToProfileExternal('${cu.id}')">${escapeHtml(cu.name)}</span> <span>${escapeHtml(c.text)}</span></div></div>`; }).join('')}
-                                        <div style="display:flex;gap:10px;margin-top:12px">
-                                            <div class="avatar-wrapper" style="width:32px;height:32px"><img src="${user.avatar}" class="avatar-img"></div>
-                                            <div style="flex:1;display:flex;gap:8px"><input type="text" id="commentInput-${post.id}" placeholder="Написать комментарий..." style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:10px 16px;color:white"><button onclick="window.addCommentExternal('${post.id}', document.getElementById('commentInput-${post.id}').value)" style="background:linear-gradient(135deg,#8b5cf6,#ec489a);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer"><i class="fas fa-arrow-right"></i></button></div>
+                                    
+                                    <div style="display: flex; gap: 20px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                        <button class="like-btn ${liked ? 'liked' : ''}" data-post="${post.id}" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; color: ${liked ? '#ec489a' : 'rgba(255,255,255,0.6)'};">
+                                            <i class="fas fa-heart"></i> ${likesCount}
+                                        </button>
+                                        <button onclick="window.toggleCommentsExternal('${post.id}')" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.6);">
+                                            <i class="fas fa-comment"></i> ${comments.length}
+                                        </button>
+                                        <button onclick="window.openRepostModalExternal('${post.id}')" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.6);">
+                                            <i class="fas fa-retweet"></i> Репост
+                                        </button>
+                                    </div>
+                                    
+                                    <div id="comments-${post.id}" style="margin-top: 16px;">
+                                        ${comments.map(comment => {
+                                            const commentUser = getUserById(comment.userId);
+                                            if (!commentUser) return '';
+                                            const commentIsAdmin = isAdmin(commentUser.id);
+                                            return `
+                                                <div style="display: flex; gap: 10px; margin-bottom: 12px; align-items: flex-start;">
+                                                    <div class="avatar-wrapper" style="width: 32px; height: 32px; flex-shrink: 0;">
+                                                        <img src="${commentUser.avatar}" class="avatar-img" style="width: 32px; height: 32px; cursor: pointer;" onclick="window.navigateToProfileExternal('${commentUser.id}')">
+                                                    </div>
+                                                    <div style="flex: 1; background: rgba(255,255,255,0.05); border-radius: 18px; padding: 8px 14px;">
+                                                        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                                            <span style="font-weight: 600; font-size: 13px; cursor: pointer;" onclick="window.navigateToProfileExternal('${commentUser.id}')">${escapeHtml(commentUser.name)}</span>
+                                                            ${commentUser.verified ? `<div class="verified-badge" style="width: 14px; height: 14px; font-size: 8px;"><i class="fas fa-check-circle"></i></div>` : ''}
+                                                            ${commentIsAdmin ? `<span class="admin-badge" style="font-size: 8px; padding: 2px 4px;"><i class="fas fa-crown"></i></span>` : ''}
+                                                        </div>
+                                                        <span style="font-size: 13px;"> ${escapeHtml(comment.text)}</span>
+                                                        <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 4px;">${new Date(comment.timestamp).toLocaleString()}</div>
+                                                    </div>
+                                                </div>
+                                            `;
+                                        }).join('')}
+                                        <div style="display: flex; gap: 10px; margin-top: 12px; align-items: flex-start;">
+                                            <div class="avatar-wrapper" style="width: 32px; height: 32px; flex-shrink: 0;">
+                                                <img src="${user.avatar}" class="avatar-img" style="width: 32px; height: 32px;">
+                                            </div>
+                                            <div style="flex: 1; display: flex; gap: 8px;">
+                                                <input type="text" id="commentInput-${post.id}" placeholder="Написать комментарий..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 10px 16px; color: white;">
+                                                <button onclick="window.addCommentExternal('${post.id}', document.getElementById('commentInput-${post.id}').value)" style="background: linear-gradient(135deg, #8b5cf6, #ec489a); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer;">
+                                                    <i class="fas fa-arrow-right"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             `;
                         }).join('')}
-                        ${allPosts.length === 0 ? '<div style="text-align:center;padding:60px">✨ Нет постов. Будьте первым!</div>' : ''}
+                        ${allPosts.length === 0 ? '<div style="text-align: center; padding: 60px; color: rgba(255,255,255,0.5);">✨ Нет постов. Будьте первым, кто опубликует что-то!</div>' : ''}
                     </div>
                 `;
-            } else if (currentView.type === 'profile') {
-                const profileUser = getUserById(currentView.userId) || user;
-                const isOwn = profileUser.id === user.id;
+            } 
+            else if (currentView.type === 'profile') {
+                const profileUser = getUserById(currentView.userId);
+                if (!profileUser) { navigateToFeed(); return; }
                 const userPosts = getPostsByUser(profileUser.id);
+                const isOwn = profileUser.id === user.id;
+                const isFriend = getFriends(user.id).some(f => f.id === profileUser.id);
                 const userFriends = getFriends(profileUser.id);
+                const profileIsAdmin = isAdmin(profileUser.id);
+                const profileIsBanned = isBanned(profileUser.id);
+                const banInfo = getBanInfo(profileUser.id);
+
                 content = `
-                    <div style="max-width:880px;margin:0 auto">
-                        <div class="glass-card" style="overflow:hidden;margin-bottom:24px">
-                            <img src="${profileUser.cover}" style="width:100%;height:200px;object-fit:cover">
-                            <div style="padding:24px;margin-top:-50px">
-                                <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap">
-                                    <div style="display:flex;gap:20px;align-items:flex-end">
-                                        <div class="avatar-wrapper" style="width:100px;height:100px"><img src="${profileUser.avatar}" class="avatar-img"></div>
-                                        <div><h1 style="font-size:32px">${escapeHtml(profileUser.name)}${profileUser.verified ? ' ✅' : ''}${isAdmin(profileUser.id) ? ' 👑' : ''}</h1><p style="color:rgba(255,255,255,0.6)">@${profileUser.username}</p><p>${escapeHtml(profileUser.bio)}</p></div>
+                    <div style="max-width: 880px; margin: 0 auto;">
+                        <div class="glass-card" style="overflow: hidden; margin-bottom: 24px;">
+                            <img src="${profileUser.cover}" style="width: 100%; height: 240px; object-fit: cover;">
+                            <div style="padding: 24px; margin-top: -60px; position: relative;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+                                    <div style="display: flex; gap: 20px; align-items: flex-end;">
+                                        <div class="avatar-wrapper" style="width: 100px; height: 100px; flex-shrink: 0;">
+                                            <img src="${profileUser.avatar}" class="avatar-img" style="width: 100px; height: 100px;">
+                                        </div>
+                                        <div>
+                                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                                <h1 style="font-size: 32px; font-weight: 700;">${escapeHtml(profileUser.name)}</h1>
+                                                ${profileUser.verified ? `<div class="verified-badge" title="Верифицированный аккаунт"><i class="fas fa-check-circle" style="font-size: 18px; color: #3b82f6;"></i></div>` : ''}
+                                                ${profileIsAdmin ? `<span class="admin-badge"><i class="fas fa-crown"></i> Администратор</span>` : ''}
+                                                ${profileIsBanned ? `<span class="banned-badge"><i class="fas fa-ban"></i> Заблокирован</span>` : ''}
+                                            </div>
+                                            <p style="color: rgba(255,255,255,0.6); margin-top: 4px;">@${profileUser.username}</p>
+                                            ${profileUser.city ? `<p style="color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 6px;"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(profileUser.city)}</p>` : ''}
+                                            ${profileIsBanned && banInfo ? `<p style="color: #ef4444; font-size: 12px; margin-top: 6px;"><i class="fas fa-gavel"></i> Причина: ${escapeHtml(banInfo.reason)}${banInfo.expiresAt ? ` | До: ${new Date(banInfo.expiresAt).toLocaleString()}` : ' | Бессрочно'}</p>` : ''}
+                                        </div>
                                     </div>
-                                    ${!isOwn ? `<button id="addFriendBtn" class="btn-secondary">${getFriends(user.id).some(f=>f.id===profileUser.id) ? '✓ В друзьях' : '➕ Добавить'}</button>` : `<button id="editProfileBtn" class="btn-secondary"><i class="fas fa-edit"></i> Редактировать</button>`}
+                                    <div style="display: flex; gap: 12px;">
+                                        ${!isOwn ? `
+                                            ${!isFriend ? `<button id="addFriendBtn" class="btn-primary" style="padding: 10px 24px;">➕ Добавить в друзья</button>` : '<button class="btn-secondary" disabled>✓ В друзьях</button>'}
+                                            ${userIsAdmin ? `<button id="adminBanBtn" class="btn-danger" style="padding: 10px 24px;"><i class="fas fa-ban"></i> Управление</button>` : ''}
+                                        ` : `
+                                            <button id="toggleSettingsBtn" class="btn-secondary"><i class="fas fa-sliders-h"></i> Настройки</button>
+                                            <button id="requestVerificationBtn" class="btn-secondary"><i class="fas fa-check-circle"></i> Запросить галочку</button>
+                                        `}
+                                    </div>
                                 </div>
-                                <div style="display:flex;gap:32px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1)">
-                                    <div onclick="window.showFriendsListExternal('${profileUser.id}')"><span style="font-weight:700">${userFriends.length}</span><br><span style="font-size:13px">Друзей</span></div>
-                                    <div><span style="font-weight:700">${state.posts.filter(p=>p.userId===profileUser.id).length}</span><br><span style="font-size:13px">Постов</span></div>
+                                <div style="margin-top: 24px;">
+                                    <p style="line-height: 1.6;">${escapeHtml(profileUser.bio || '')}</p>
+                                </div>
+                                <div style="display: flex; gap: 32px; margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+                                    <div style="cursor: pointer;" onclick="window.showFriendsListExternal('${profileUser.id}')">
+                                        <span style="font-weight: 700; font-size: 18px;">${userFriends.length}</span><br>
+                                        <span style="color: rgba(255,255,255,0.5); font-size: 13px;">Друзей</span>
+                                    </div>
+                                    <div>
+                                        <span style="font-weight: 700; font-size: 18px;">${state.posts.filter(p => p.userId === profileUser.id).length}</span><br>
+                                        <span style="color: rgba(255,255,255,0.5); font-size: 13px;">Постов</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        
                         ${isOwn ? `
-                            <div id="settingsPanel" class="settings-panel ${settingsOpen ? 'open' : ''}" style="margin-bottom:24px">
-                                <div class="glass-card" style="padding:24px">
-                                    <div style="display:flex;gap:12px;margin-bottom:24px;border-bottom:1px solid rgba(255,255,255,0.1);padding-bottom:12px">
-                                        <button id="profileSettingsTab" class="tab-btn ${settingsTab==='profile'?'active':''}">👤 Профиль</button>
-                                        <button id="accountSettingsTab" class="tab-btn ${settingsTab==='account'?'active':''}">🔐 Аккаунт</button>
-                                        <button id="systemSettingsTab" class="tab-btn ${settingsTab==='system'?'active':''}">⚙️ Система</button>
+                            <div id="settingsPanel" class="settings-panel ${settingsOpen ? 'open' : ''}" style="margin-bottom: 24px;">
+                                <div class="glass-card" style="padding: 24px;">
+                                    <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+                                        <button id="profileSettingsTab" class="tab-btn ${settingsTab === 'profile' ? 'active' : ''}" style="padding: 8px 20px;">👤 Профиль</button>
+                                        <button id="accountSettingsTab" class="tab-btn ${settingsTab === 'account' ? 'active' : ''}" style="padding: 8px 20px;">🔐 Аккаунт</button>
+                                        <button id="systemSettingsTab" class="tab-btn ${settingsTab === 'system' ? 'active' : ''}" style="padding: 8px 20px;">⚙️ Система</button>
                                     </div>
-                                    ${settingsTab==='profile'?`
-                                        <div style="margin-bottom:24px"><h3>Аватар</h3><div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">${avatarPresets.map(av=>`<div class="avatar-wrapper ${user.avatar===av?'selected':''}" style="width:60px;height:60px;cursor:pointer;border:3px solid ${user.avatar===av?'#8b5cf6':'transparent'}" onclick="window.changeAvatarExternal('${av}')"><img src="${av}" class="avatar-img"></div>`).join('')}<label style="cursor:pointer"><div class="avatar-wrapper" style="width:60px;height:60px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center"><i class="fas fa-upload"></i></div><input type="file" id="uploadAvatar" accept="image/*" style="display:none"></label></div></div>
-                                        <div style="margin-bottom:24px"><h3>Обложка</h3><div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">${coverPresets.map(c=>`<img src="${c}" class="cover-option ${user.cover===c?'selected':''}" style="width:100px;height:60px;object-fit:cover;border-radius:12px;cursor:pointer;border:2px solid ${user.cover===c?'#8b5cf6':'transparent'}" onclick="window.changeCoverExternal('${c}')">`).join('')}<label style="cursor:pointer"><div style="width:100px;height:60px;background:rgba(255,255,255,0.1);border-radius:12px;display:flex;align-items:center;justify-content:center"><i class="fas fa-upload"></i></div><input type="file" id="uploadCover" accept="image/*" style="display:none"></label></div></div>
-                                        <div style="margin-bottom:24px"><h3>Информация</h3><input type="text" id="editName" value="${escapeHtml(user.name)}" placeholder="Имя" class="input-glow" style="margin-bottom:12px"><input type="text" id="editUsername" value="${escapeHtml(user.username)}" placeholder="Username" class="input-glow" style="margin-bottom:12px"><textarea id="editBio" rows="3" placeholder="О себе" class="input-glow" style="margin-bottom:12px">${escapeHtml(user.bio||'')}</textarea><input type="text" id="editCity" value="${escapeHtml(user.city||'')}" placeholder="Город" class="input-glow"></div>
-                                    `:settingsTab==='account'?`
-                                        <div><h3>Email</h3><input type="email" id="editEmail" value="${escapeHtml(user.email)}" class="input-glow" style="margin-bottom:16px"><h3>Сменить пароль</h3><input type="password" id="newPassword" placeholder="Новый пароль" class="input-glow" style="margin-bottom:12px"><input type="password" id="confirmPassword" placeholder="Подтвердите" class="input-glow" style="margin-bottom:16px"><h3>Конфиденциальность</h3><select id="privacySetting" class="input-glow"><option value="public" ${state.systemSettings.privacy==='public'?'selected':''}>🌍 Публичный</option><option value="friends" ${state.systemSettings.privacy==='friends'?'selected':''}>👥 Друзья</option><option value="private" ${state.systemSettings.privacy==='private'?'selected':''}>🔒 Только я</option></select></div>
-                                    `:`
-                                        <div><h3>Внешний вид</h3><select id="themeSetting" class="input-glow" style="margin-bottom:16px"><option value="dark" ${state.systemSettings.theme==='dark'?'selected':''}>🌙 Тёмная</option><option value="light" ${state.systemSettings.theme==='light'?'selected':''}>☀️ Светлая</option></select><h3>Уведомления</h3><label style="display:flex;align-items:center;gap:12px"><input type="checkbox" id="notificationsToggle" ${state.systemSettings.notifications?'checked':''}> Включить уведомления</label><h3>Язык</h3><select id="languageSetting" class="input-glow"><option value="ru" ${state.systemSettings.language==='ru'?'selected':''}>🇷🇺 Русский</option><option value="en" ${state.systemSettings.language==='en'?'selected':''}>🇬🇧 English</option></select></div>
+                                    
+                                    ${settingsTab === 'profile' ? `
+                                        <div style="margin-bottom: 24px;">
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Аватар</h3>
+                                            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                                ${avatarPresets.map(avatar => `
+                                                    <div class="avatar-wrapper ${user.avatar === avatar ? 'selected' : ''}" style="width: 60px; height: 60px; cursor: pointer; border: 3px solid ${user.avatar === avatar ? '#8b5cf6' : 'transparent'};" onclick="window.changeAvatarExternal('${avatar}')">
+                                                        <img src="${avatar}" class="avatar-img" style="width: 60px; height: 60px;">
+                                                    </div>
+                                                `).join('')}
+                                                <label style="cursor: pointer;">
+                                                    <div class="avatar-wrapper" style="width: 60px; height: 60px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-upload" style="font-size: 24px;"></i>
+                                                    </div>
+                                                    <input type="file" id="uploadAvatar" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="margin-bottom: 24px;">
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Обложка профиля</h3>
+                                            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                                ${coverPresets.map(cover => `
+                                                    <img src="${cover}" class="cover-option ${user.cover === cover ? 'selected' : ''}" style="width: 100px; height: 60px; object-fit: cover; border-radius: 12px; cursor: pointer; border: 2px solid ${user.cover === cover ? '#8b5cf6' : 'transparent'};" onclick="window.changeCoverExternal('${cover}')">
+                                                `).join('')}
+                                                <label style="cursor: pointer;">
+                                                    <div style="width: 100px; height: 60px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-upload"></i>
+                                                    </div>
+                                                    <input type="file" id="uploadCover" accept="image/*" style="display: none;">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="margin-bottom: 24px;">
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Информация</h3>
+                                            <input type="text" id="editName" value="${escapeHtml(user.name)}" placeholder="Имя" class="input-glow" style="margin-bottom: 12px;">
+                                            <input type="text" id="editUsername" value="${escapeHtml(user.username)}" placeholder="Username (без @)" class="input-glow" style="margin-bottom: 12px;">
+                                            <textarea id="editBio" rows="3" placeholder="О себе" class="input-glow" style="margin-bottom: 12px;">${escapeHtml(user.bio || '')}</textarea>
+                                            <input type="text" id="editCity" value="${escapeHtml(user.city || '')}" placeholder="Город" class="input-glow">
+                                        </div>
+                                    ` : settingsTab === 'account' ? `
+                                        <div style="margin-bottom: 24px;">
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Email</h3>
+                                            <input type="email" id="editEmail" value="${escapeHtml(user.email)}" placeholder="Email" class="input-glow" style="margin-bottom: 16px;">
+                                            
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Сменить пароль</h3>
+                                            <input type="password" id="newPassword" placeholder="Новый пароль" class="input-glow" style="margin-bottom: 12px;">
+                                            <input type="password" id="confirmPassword" placeholder="Подтвердите пароль" class="input-glow" style="margin-bottom: 16px;">
+                                            
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Конфиденциальность</h3>
+                                            <select id="privacySetting" class="input-glow">
+                                                <option value="public" ${state.systemSettings.privacy === 'public' ? 'selected' : ''}>🌍 Публичный профиль</option>
+                                                <option value="friends" ${state.systemSettings.privacy === 'friends' ? 'selected' : ''}>👥 Только друзья</option>
+                                                <option value="private" ${state.systemSettings.privacy === 'private' ? 'selected' : ''}>🔒 Только я</option>
+                                            </select>
+                                        </div>
+                                    ` : `
+                                        <div style="margin-bottom: 24px;">
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Внешний вид</h3>
+                                            <select id="themeSetting" class="input-glow" style="margin-bottom: 16px;">
+                                                <option value="dark" ${state.systemSettings.theme === 'dark' ? 'selected' : ''}>🌙 Тёмная тема</option>
+                                                <option value="light" ${state.systemSettings.theme === 'light' ? 'selected' : ''}>☀️ Светлая тема</option>
+                                            </select>
+                                            
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Уведомления</h3>
+                                            <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                                <input type="checkbox" id="notificationsToggle" ${state.systemSettings.notifications ? 'checked' : ''} style="width: 18px; height: 18px;">
+                                                <span>Включить уведомления</span>
+                                            </label>
+                                            
+                                            <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 12px;">Язык</h3>
+                                            <select id="languageSetting" class="input-glow">
+                                                <option value="ru" ${state.systemSettings.language === 'ru' ? 'selected' : ''}>🇷🇺 Русский</option>
+                                                <option value="en" ${state.systemSettings.language === 'en' ? 'selected' : ''}>🇬🇧 English</option>
+                                            </select>
+                                        </div>
                                     `}
-                                    <button id="saveSettingsBtn" class="btn-primary" style="width:100%;margin-top:20px">💾 Сохранить</button>
+                                    
+                                    <button id="saveSettingsBtn" class="btn-primary" style="width: 100%;">💾 Сохранить изменения</button>
                                 </div>
                             </div>
-                        `:''}
-                        <h2>📝 Посты (${userPosts.length})</h2>
+                        ` : ''}
+                        
+                        <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 20px;">📝 Посты</h2>
                         ${userPosts.map(post => {
                             const comments = getCommentsForPost(post.id);
                             const likesCount = getLikesCount(post.id);
                             const liked = isLiked(post.id, user.id);
                             return `
-                                <div class="glass-card" style="padding:24px;margin-bottom:20px">
-                                    <p>${escapeHtml(post.content)}</p>${post.image ? `<img src="${post.image}" class="post-image">` : ''}
-                                    <div style="display:flex;gap:20px;margin-top:12px">
-                                        <button class="like-btn ${liked ? 'liked' : ''}" data-post="${post.id}" style="background:none;border:none;cursor:pointer"><i class="fas fa-heart"></i> ${likesCount}</button>
-                                        <button onclick="window.toggleCommentsExternal('${post.id}')" style="background:none;border:none;cursor:pointer"><i class="fas fa-comment"></i> ${comments.length}</button>
-                                        <button onclick="window.openRepostModalExternal('${post.id}')" style="background:none;border:none;cursor:pointer"><i class="fas fa-retweet"></i> Репост</button>
-                                        ${isOwn || userIsAdmin ? `<button onclick="window.deletePostExternal('${post.id}')" style="background:none;border:none;cursor:pointer"><i class="fas fa-trash"></i></button>` : ''}
-                                    </div>
-                                    <div id="comments-${post.id}" style="margin-top:16px;display:none">
-                                        ${comments.map(c => { const cu = getUserById(c.userId); return `<div style="display:flex;gap:10px;margin-bottom:12px"><div class="avatar-wrapper" style="width:32px;height:32px" onclick="window.navigateToProfileExternal('${cu.id}')"><img src="${cu.avatar}" class="avatar-img"></div><div style="flex:1;background:rgba(255,255,255,0.05);border-radius:18px;padding:8px 14px"><span style="font-weight:600;cursor:pointer" onclick="window.navigateToProfileExternal('${cu.id}')">${escapeHtml(cu.name)}</span> <span>${escapeHtml(c.text)}</span></div></div>`; }).join('')}
-                                        <div style="display:flex;gap:10px;margin-top:12px"><div class="avatar-wrapper" style="width:32px;height:32px"><img src="${user.avatar}" class="avatar-img"></div><div style="flex:1;display:flex;gap:8px"><input type="text" id="commentInput-${post.id}" placeholder="Написать комментарий..." style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:10px 16px;color:white"><button onclick="window.addCommentExternal('${post.id}', document.getElementById('commentInput-${post.id}').value)" style="background:linear-gradient(135deg,#8b5cf6,#ec489a);border:none;border-radius:50%;width:40px;height:40px;cursor:pointer"><i class="fas fa-arrow-right"></i></button></div></div>
+                                <div class="glass-card" style="padding: 24px; margin-bottom: 20px;">
+                                    <p style="white-space: pre-wrap;">${escapeHtml(post.content)}</p>
+                                    ${post.image ? `<img src="${post.image}" class="post-image">` : ''}
+                                    <div style="display: flex; gap: 20px; margin-top: 12px;">
+                                        <button class="like-btn ${liked ? 'liked' : ''}" data-post="${post.id}" style="background:none;border:none;cursor:pointer;color:${liked ? '#ec489a' : 'rgba(255,255,255,0.6)'}"><i class="fas fa-heart"></i> ${likesCount}</button>
+                                        <span><i class="fas fa-comment"></i> ${comments.length}</span>
+                                        ${isOwn || userIsAdmin ? `<button onclick="window.deletePostExternal('${post.id}')" style="background:none;border:none;color:rgba(255,255,255,0.5)"><i class="fas fa-trash"></i></button>` : ''}
                                     </div>
                                 </div>
                             `;
                         }).join('')}
-                        ${userPosts.length === 0 ? '<div style="text-align:center;padding:40px">Нет постов</div>' : ''}
+                        ${userPosts.length === 0 ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Нет постов</div>' : ''}
                     </div>
                 `;
-            } else if (currentView.type === 'friends') {
+            }
+            else if (currentView.type === 'friends') {
                 const allUsers = state.users.filter(u => u.id !== user.id);
-                const filteredUsers = allUsers.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.username.toLowerCase().includes(searchQuery.toLowerCase()));
+                const filteredUsers = allUsers.filter(u => 
+                    u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    u.username.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                
                 content = `
-                    <div style="max-width:680px;margin:0 auto">
-                        <div class="glass-card" style="padding:24px;margin-bottom:24px">
-                            <div class="search-input"><i class="fas fa-search"></i><input type="text" id="searchUsersInput" class="input-glow" placeholder="Поиск пользователей..." value="${escapeHtml(searchQuery)}" style="padding-left:40px"></div>
+                    <div style="max-width: 680px; margin: 0 auto;">
+                        <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                            <div class="search-input">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="searchUsersInput" class="input-glow" placeholder="Поиск пользователей..." value="${escapeHtml(searchQuery)}" style="padding-left: 40px;">
+                            </div>
                         </div>
-                        ${pendingRequests.length > 0 ? `<div class="glass-card" style="padding:24px;margin-bottom:24px"><h3>📨 Заявки в друзья</h3>${pendingRequests.map(req => { const reqUser = getUserById(req.userId); return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px"><div><strong>${escapeHtml(reqUser.name)}</strong> @${reqUser.username}</div><button onclick="window.acceptFriendExternal('${req.id}')" class="btn-primary" style="padding:6px 16px">Принять</button></div>`; }).join('')}</div>` : ''}
-                        <div class="glass-card" style="padding:24px;margin-bottom:24px"><h3>👥 Мои друзья (${friends.length})</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">${friends.map(f => `<div class="glass-card" style="padding:16px;cursor:pointer" onclick="window.navigateToProfileExternal('${f.id}')"><div style="display:flex;gap:12px;align-items:center"><div class="avatar-wrapper" style="width:52px;height:52px"><img src="${f.avatar}" class="avatar-img"></div><div><strong>${escapeHtml(f.name)}</strong><br><span style="font-size:12px">@${f.username}</span></div></div></div>`).join('')}</div>${friends.length===0?'<p style="text-align:center;padding:40px">У вас пока нет друзей</p>':''}</div>
-                        <div class="glass-card" style="padding:24px"><h3>🔍 Найти людей (${filteredUsers.length})</h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">${filteredUsers.map(u => { const isFriend = friends.some(f=>f.id===u.id); return `<div class="glass-card" style="padding:16px"><div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;gap:12px;align-items:center;cursor:pointer" onclick="window.navigateToProfileExternal('${u.id}')"><div class="avatar-wrapper" style="width:52px;height:52px"><img src="${u.avatar}" class="avatar-img"></div><div><strong>${escapeHtml(u.name)}</strong><br><span style="font-size:12px">@${u.username}</span></div></div>${!isFriend ? `<button onclick="window.sendFriendExternal('${u.id}')" class="btn-primary" style="padding:6px 12px">➕ Добавить</button>` : '<span style="padding:6px 12px">✓ Друг</span>'}</div></div>`; }).join('')}</div>${filteredUsers.length===0&&searchQuery?'<p style="text-align:center;padding:40px">Ничего не найдено</p>':''}${filteredUsers.length===0&&!searchQuery?'<p style="text-align:center;padding:40px">Других пользователей пока нет</p>':''}</div>
+                        
+                        ${pendingRequests.length > 0 ? `
+                            <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                                <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">📨 Заявки в друзья</h2>
+                                ${pendingRequests.map(req => {
+                                    const reqUser = getUserById(req.userId);
+                                    if (!reqUser) return '';
+                                    return `
+                                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 16px; margin-bottom: 8px;">
+                                            <div style="display: flex; gap: 12px; align-items: center;">
+                                                <div class="avatar-wrapper" style="width: 48px; height: 48px; flex-shrink: 0;">
+                                                    <img src="${reqUser.avatar}" class="avatar-img" style="width: 48px; height: 48px;">
+                                                </div>
+                                                <div>
+                                                    <div style="font-weight: 600;">${escapeHtml(reqUser.name)}</div>
+                                                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${reqUser.username}</div>
+                                                </div>
+                                            </div>
+                                            <button onclick="window.acceptFriendRequestExternal('${req.id}')" class="btn-primary" style="padding: 8px 20px;">Принять</button>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                            <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">👥 Мои друзья (${friends.length})</h2>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+                                ${friends.map(friend => `
+                                    <div class="glass-card" style="padding: 16px; cursor: pointer;" onclick="window.navigateToProfileExternal('${friend.id}')">
+                                        <div style="display: flex; gap: 12px; align-items: center;">
+                                            <div class="avatar-wrapper" style="width: 52px; height: 52px; flex-shrink: 0;">
+                                                <img src="${friend.avatar}" class="avatar-img" style="width: 52px; height: 52px;">
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 600;">${escapeHtml(friend.name)}</div>
+                                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${friend.username}</div>
+                                                ${friend.city ? `<div style="font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px;">📍 ${escapeHtml(friend.city)}</div>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            ${friends.length === 0 ? '<div style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">У вас пока нет друзей 😢</div>' : ''}
+                        </div>
+                        
+                        <div class="glass-card" style="padding: 24px;">
+                            <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">🔍 Найти людей (${filteredUsers.length})</h2>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+                                ${filteredUsers.map(u => {
+                                    const isAlreadyFriend = friends.some(f => f.id === u.id);
+                                    return `
+                                        <div class="glass-card" style="padding: 16px;">
+                                            <div style="display: flex; gap: 12px; align-items: center; justify-content: space-between;">
+                                                <div style="display: flex; gap: 12px; align-items: center; cursor: pointer;" onclick="window.navigateToProfileExternal('${u.id}')">
+                                                    <div class="avatar-wrapper" style="width: 52px; height: 52px;">
+                                                        <img src="${u.avatar}" class="avatar-img" style="width: 52px; height: 52px;">
+                                                    </div>
+                                                    <div>
+                                                        <div style="font-weight: 600;">${escapeHtml(u.name)}</div>
+                                                        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${u.username}</div>
+                                                        ${u.city ? `<div style="font-size: 11px; color: rgba(255,255,255,0.4);">📍 ${escapeHtml(u.city)}</div>` : ''}
+                                                    </div>
+                                                </div>
+                                                ${!isAlreadyFriend ? `
+                                                    <button onclick="window.sendFriendExternal('${u.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 12px;">➕ Добавить</button>
+                                                ` : '<span class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">✓ Друг</span>'}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                            ${filteredUsers.length === 0 && searchQuery ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Ничего не найдено</div>' : ''}
+                            ${filteredUsers.length === 0 && !searchQuery ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Других пользователей пока нет</div>' : ''}
+                        </div>
                     </div>
                 `;
-            } else if (currentView.type === 'admin' && userIsAdmin) {
-                const filteredUsers = state.users.filter(u => u.name.toLowerCase().includes(searchQuery.toLowerCase()) || u.username.toLowerCase().includes(searchQuery.toLowerCase()) || u.email.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+            else if (currentView.type === 'admin' && userIsAdmin) {
+                const filteredUsers = state.users.filter(u => 
+                    u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    u.email.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+                
                 content = `
-                    <div style="max-width:800px;margin:0 auto">
-                        <div class="glass-card" style="padding:24px">
-                            <h2>👑 Админ-панель</h2>
-                            <div class="search-input" style="margin-bottom:24px"><i class="fas fa-search"></i><input type="text" id="searchAdminInput" class="input-glow" placeholder="Поиск пользователей..." value="${escapeHtml(searchQuery)}" style="padding-left:40px"></div>
-                            <div style="margin-bottom:32px"><h3>✅ Заявки на верификацию (${pendingVerifications.length})</h3>${pendingVerifications.map(r => `<div class="verification-request"><div><strong>${escapeHtml(r.userName)}</strong><br><small>${new Date(r.timestamp).toLocaleString()}</small></div><p>${escapeHtml(r.reason)}</p><div><button onclick="window.approveVerificationExternal('${r.id}')" class="btn-primary">✅ Одобрить</button><button onclick="window.rejectVerificationExternal('${r.id}')" class="btn-secondary">❌ Отклонить</button></div></div>`).join('')}</div>
-                            <div><h3>👥 Пользователи (${state.users.length})</h3>${filteredUsers.map(u => `<div class="user-management-item" style="display:flex;justify-content:space-between;align-items:center"><div><strong>${escapeHtml(u.name)}</strong> @${u.username}${u.verified ? ' ✅' : ''}${u.id === state.adminId ? ' 👑' : ''}<br><small>${u.email}</small></div><button onclick="window.banUserExternal('${u.id}')" class="btn-danger">🔨 Бан</button></div>`).join('')}</div>
+                    <div style="max-width: 800px; margin: 0 auto;">
+                        <div class="glass-card" style="padding: 24px; margin-bottom: 24px;">
+                            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 8px;">👑 Админ-панель</h2>
+                            <p style="color: rgba(255,255,255,0.6); margin-bottom: 24px;">Управление пользователями, постами и верификацией</p>
+                            
+                            <div class="search-input" style="margin-bottom: 24px;">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="searchAdminInput" class="input-glow" placeholder="Поиск пользователей..." value="${escapeHtml(searchQuery)}" style="padding-left: 40px;">
+                            </div>
+                            
+                            <div style="margin-bottom: 32px;">
+                                <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">✅ Заявки на верификацию (${pendingVerifications.length})</h3>
+                                ${pendingVerifications.length > 0 ? pendingVerifications.map(req => `
+                                    <div class="verification-request" style="margin-bottom: 16px;">
+                                        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 12px;">
+                                            <div class="avatar-wrapper" style="width: 56px; height: 56px;">
+                                                <img src="${req.userAvatar}" class="avatar-img" style="width: 56px; height: 56px;">
+                                            </div>
+                                            <div>
+                                                <div style="font-weight: 700; font-size: 18px;">${escapeHtml(req.userName)}</div>
+                                                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Запрошено: ${new Date(req.timestamp).toLocaleString()}</div>
+                                            </div>
+                                        </div>
+                                        <div style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+                                            <div style="font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 8px;">Причина запроса:</div>
+                                            <p style="line-height: 1.5;">${escapeHtml(req.reason)}</p>
+                                        </div>
+                                        <div style="display: flex; gap: 12px;">
+                                            <button onclick="window.approveVerificationExternal('${req.id}')" class="btn-primary" style="padding: 8px 20px;">✅ Одобрить</button>
+                                            <button onclick="window.rejectVerificationExternal('${req.id}')" class="btn-secondary" style="padding: 8px 20px;">❌ Отклонить</button>
+                                        </div>
+                                    </div>
+                                `).join('') : '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Нет активных заявок</div>'}
+                            </div>
+                            
+                            <div style="margin-bottom: 32px;">
+                                <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">🔨 Заблокированные пользователи (${bannedUsersList.length})</h3>
+                                ${bannedUsersList.length > 0 ? bannedUsersList.map(bannedUser => {
+                                    const banInfo = getBanInfo(bannedUser.id);
+                                    return `
+                                        <div class="user-management-item" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                                            <div style="display: flex; gap: 12px; align-items: center;">
+                                                <div class="avatar-wrapper" style="width: 48px; height: 48px;">
+                                                    <img src="${bannedUser.avatar}" class="avatar-img" style="width: 48px; height: 48px;">
+                                                </div>
+                                                <div>
+                                                    <div style="font-weight: 600;">${escapeHtml(bannedUser.name)}</div>
+                                                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${bannedUser.username}</div>
+                                                    <div style="font-size: 11px; color: #ef4444;">Причина: ${escapeHtml(banInfo?.reason)}</div>
+                                                    ${banInfo?.expiresAt ? `<div style="font-size: 10px;">До: ${new Date(banInfo.expiresAt).toLocaleString()}</div>` : '<div style="font-size: 10px;">⚠️ Бессрочно</div>'}
+                                                </div>
+                                            </div>
+                                            <button onclick="window.unbanUserExternal('${bannedUser.id}')" class="btn-secondary" style="padding: 6px 16px;">🔓 Разблокировать</button>
+                                        </div>
+                                    `;
+                                }).join('') : '<div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">Нет заблокированных пользователей</div>'}
+                            </div>
+                            
+                            <div>
+                                <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">👥 Все пользователи (${state.users.length})</h3>
+                                ${filteredUsers.map(u => {
+                                    const isUserBanned = isBanned(u.id);
+                                    return `
+                                        <div class="user-management-item" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                                            <div style="display: flex; gap: 12px; align-items: center; cursor: pointer;" onclick="window.navigateToProfileExternal('${u.id}')">
+                                                <div class="avatar-wrapper" style="width: 48px; height: 48px;">
+                                                    <img src="${u.avatar}" class="avatar-img" style="width: 48px; height: 48px;">
+                                                </div>
+                                                <div>
+                                                    <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                                        <div style="font-weight: 600;">${escapeHtml(u.name)}</div>
+                                                        ${u.verified ? `<span class="verified-badge" style="width: 14px; height: 14px;"><i class="fas fa-check-circle"></i></span>` : ''}
+                                                        ${u.id === state.adminId ? `<span class="admin-badge" style="font-size: 8px;"><i class="fas fa-crown"></i> Admin</span>` : ''}
+                                                        ${isUserBanned ? `<span class="banned-badge" style="font-size: 8px;"><i class="fas fa-ban"></i> Banned</span>` : ''}
+                                                    </div>
+                                                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${u.username}</div>
+                                                    <div style="font-size: 10px; color: rgba(255,255,255,0.4);">${u.email}</div>
+                                                </div>
+                                            </div>
+                                            <div style="display: flex; gap: 8px;">
+                                                ${!isUserBanned && u.id !== state.currentUser.id ? 
+                                                    `<button onclick="window.openBanUserModalExternal('${u.id}')" class="btn-danger" style="padding: 6px 16px; font-size: 12px;">🔨 Заблокировать</button>` : 
+                                                    isUserBanned && u.id !== state.currentUser.id ?
+                                                    `<button onclick="window.unbanUserExternal('${u.id}')" class="btn-secondary" style="padding: 6px 16px; font-size: 12px;">🔓 Разблокировать</button>` : ''
+                                                }
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                                ${filteredUsers.length === 0 && searchQuery ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Пользователи не найдены</div>' : ''}
+                                ${state.users.length === 0 ? '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Нет пользователей</div>' : ''}
+                            </div>
                         </div>
                     </div>
                 `;
             }
 
             app.innerHTML = `
-                <div style="min-height:100vh">
-                    <div style="position:sticky;top:0;z-index:100;background:rgba(15,12,41,0.9);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.1)">
-                        <div style="max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
-                            <div style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="window.navigateToFeedExternal()"><img src="logo.png" style="height:32px;width:auto;border-radius:8px"><span style="font-size:24px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec489a);-webkit-background-clip:text;-webkit-text-fill-color:transparent">NEXUS</span></div>
-                            <div style="display:flex;gap:12px"><button id="navFeed" class="nav-btn ${currentView.type==='feed'?'active':''}"><i class="fas fa-newspaper"></i> Лента</button><button id="navFriends" class="nav-btn ${currentView.type==='friends'?'active':''}"><i class="fas fa-users"></i> Друзья</button><button id="navProfile" class="nav-btn ${currentView.type==='profile' && currentView.userId===user.id?'active':''}"><i class="fas fa-user"></i> Профиль</button>${userIsAdmin ? `<button id="navAdmin" class="nav-btn ${currentView.type==='admin'?'active':''}"><i class="fas fa-crown"></i> Админка</button>` : ''}</div>
-                            <div style="display:flex;align-items:center;gap:16px;position:relative">
-                                <div id="notificationBtn" style="position:relative;cursor:pointer"><i class="fas fa-bell" id="bellIcon" style="font-size:22px"></i>${unreadCount>0?`<span id="notificationBadge" style="position:absolute;top:-8px;right:-8px;background:#ec489a;color:white;font-size:10px;padding:2px 6px;border-radius:20px">${unreadCount}</span>`:''}</div>
-                                <div id="notificationDropdown" class="notification-dropdown"><div style="padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.1);font-weight:bold">Уведомления</div><div id="notificationList">${userNotifications.length>0?userNotifications.map(n=>`<div class="notification-item ${!n.read?'unread':''}" onclick="window.handleNotificationClick('${n.id}','${n.type}','${n.data.postId||''}')">${n.type==='like'?`❤️ <strong>${escapeHtml(n.data.userName)}</strong> лайкнул ваш пост`:n.type==='comment'?`💬 <strong>${escapeHtml(n.data.userName)}</strong> прокомментировал: "${escapeHtml(n.data.commentText)}"`:n.type==='friend_request'?`👥 <strong>${escapeHtml(n.data.userName)}</strong> хочет добавить вас в друзья`:n.type==='friend_accept'?`🎉 <strong>${escapeHtml(n.data.userName)}</strong> принял заявку`:n.type==='verification_request'?`📋 <strong>${escapeHtml(n.data.userName)}</strong> запросил верификацию`:n.type==='verification_approved'?`✅ Верификация одобрена!`:n.type==='verification_rejected'?`❌ Верификация отклонена`:n.type==='user_banned'?`🔨 Ваш аккаунт заблокирован`:n.type==='user_unbanned'?`🔓 Ваш аккаунт разблокирован`:''}<div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:4px">${new Date(n.timestamp).toLocaleString()}</div></div>`).join(''):'<div style="padding:20px;text-align:center">Нет уведомлений</div>'}</div></div>
-                                <div class="avatar-wrapper" style="width:44px;height:44px;cursor:pointer" onclick="window.navigateToProfileExternal('${user.id}')"><img src="${user.avatar}" class="avatar-img"></div>
-                                <button id="logoutBtn" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> Выйти</button>
+                <div style="min-height: 100vh;">
+                    <div style="position: sticky; top: 0; z-index: 100; background: rgba(15, 12, 41, 0.9); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <div style="max-width: 1200px; margin: 0 auto; padding: 14px 24px;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                                <div style="display: flex; align-items: center; gap: 12px; cursor: pointer;" onclick="window.navigateToFeedExternal()">
+                                    <img src="logo.png" style="height: 32px; width: auto; border-radius: 8px;">
+                                    <span style="font-size: 24px; font-weight: 800; background: linear-gradient(135deg, #8b5cf6, #ec489a); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">NEXUS</span>
+                                </div>
+                                
+                                <div style="display: flex; gap: 12px; background: rgba(255,255,255,0.03); padding: 6px; border-radius: 60px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <button id="navFeed" class="nav-btn ${currentView.type === 'feed' ? 'active' : ''}" style="padding: 8px 28px;">
+                                        <i class="fas fa-newspaper" style="margin-right: 8px;"></i>Лента
+                                    </button>
+                                    <button id="navFriends" class="nav-btn ${currentView.type === 'friends' ? 'active' : ''}" style="padding: 8px 28px;">
+                                        <i class="fas fa-users" style="margin-right: 8px;"></i>Друзья
+                                    </button>
+                                    <button id="navProfile" class="nav-btn ${currentView.type === 'profile' && currentView.userId === user.id ? 'active' : ''}" style="padding: 8px 28px;">
+                                        <i class="fas fa-user" style="margin-right: 8px;"></i>Профиль
+                                    </button>
+                                    ${userIsAdmin ? `
+                                        <button id="navAdmin" class="nav-btn ${currentView.type === 'admin' ? 'active' : ''}" style="padding: 8px 28px;">
+                                            <i class="fas fa-crown" style="margin-right: 8px;"></i>Админка
+                                            ${pendingVerifications.length > 0 ? `<span style="background: #ec489a; padding: 2px 8px; border-radius: 20px; font-size: 10px; margin-left: 6px;">${pendingVerifications.length}</span>` : ''}
+                                        </button>
+                                    ` : ''}
+                                </div>
+                                
+                                <div style="display: flex; align-items: center; gap: 16px; position: relative;">
+                                    <div id="notificationBtn" style="position: relative; cursor: pointer;">
+                                        <i class="fas fa-bell" id="bellIcon" style="font-size: 22px; color: rgba(255,255,255,0.8);"></i>
+                                        ${unreadCount > 0 ? `<span id="notificationBadge" style="position: absolute; top: -8px; right: -8px; background: #ec489a; color: white; font-size: 10px; padding: 2px 6px; border-radius: 20px;">${unreadCount}</span>` : ''}
+                                    </div>
+                                    <div id="notificationDropdown" class="notification-dropdown">
+                                        <div style="padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold;">Уведомления</div>
+                                        <div id="notificationList">
+                                            ${userNotifications.length > 0 ? userNotifications.map(n => `
+                                                <div class="notification-item ${!n.read ? 'unread' : ''}" onclick="window.handleNotificationClick('${n.id}', '${n.type}', '${n.data.postId || ''}')">
+                                                    ${n.type === 'like' ? `❤️ <strong>${escapeHtml(n.data.userName)}</strong> лайкнул ваш пост` : ''}
+                                                    ${n.type === 'comment' ? `💬 <strong>${escapeHtml(n.data.userName)}</strong> прокомментировал: "${escapeHtml(n.data.commentText)}"` : ''}
+                                                    ${n.type === 'repost' ? `📢 <strong>${escapeHtml(n.data.userName)}</strong> сделал репост вашего поста${n.data.comment ? ` с комментарием` : ''}` : ''}
+                                                    ${n.type === 'friend_request' ? `👥 <strong>${escapeHtml(n.data.userName)}</strong> хочет добавить вас в друзья` : ''}
+                                                    ${n.type === 'friend_accept' ? `🎉 <strong>${escapeHtml(n.data.userName)}</strong> принял заявку в друзья` : ''}
+                                                    ${n.type === 'verification_request' ? `📋 <strong>${escapeHtml(n.data.userName)}</strong> запросил верификацию` : ''}
+                                                    ${n.type === 'verification_approved' ? `✅ <strong>Верификация одобрена!</strong>` : ''}
+                                                    ${n.type === 'verification_rejected' ? `❌ <strong>Верификация отклонена</strong>` : ''}
+                                                    ${n.type === 'user_banned' ? `🔨 <strong>Ваш аккаунт заблокирован</strong> администратором ${escapeHtml(n.data.adminName)}` : ''}
+                                                    ${n.type === 'user_unbanned' ? `🔓 <strong>Ваш аккаунт разблокирован</strong> администратором ${escapeHtml(n.data.adminName)}` : ''}
+                                                    ${n.type === 'post_deleted_by_admin' ? `🗑 <strong>Ваш пост удален</strong> администратором` : ''}
+                                                    <div style="font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 4px;">${new Date(n.timestamp).toLocaleString()}</div>
+                                                </div>
+                                            `).join('') : '<div style="padding: 20px; text-align: center; color: rgba(255,255,255,0.5);">Нет уведомлений</div>'}
+                                        </div>
+                                    </div>
+                                    <div class="avatar-wrapper" style="width: 44px; height: 44px; cursor: pointer; transition: transform 0.2s;" onclick="window.navigateToProfileExternal('${user.id}')">
+                                        <img src="${user.avatar}" class="avatar-img" style="width: 44px; height: 44px;">
+                                    </div>
+                                    <button id="logoutBtn" class="btn-secondary" style="padding: 8px 24px;">
+                                        <i class="fas fa-sign-out-alt" style="margin-right: 8px;"></i>Выйти
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div style="max-width:1200px;margin:0 auto;padding:32px 24px">${content}</div>
+                    
+                    <div style="max-width: 1200px; margin: 0 auto; padding: 32px 24px;">
+                        ${content}
+                    </div>
                 </div>
             `;
 
             document.getElementById('navFeed')?.addEventListener('click', () => navigateToFeed());
             document.getElementById('navFriends')?.addEventListener('click', () => navigateToFriends());
             document.getElementById('navProfile')?.addEventListener('click', () => navigateToProfile(user.id));
-            document.getElementById('navAdmin')?.addEventListener('click', () => navigateToAdmin());
+            document.getElementById('navAdmin')?.addEventListener('click', () => navigateToAdminPanel());
             document.getElementById('logoutBtn')?.addEventListener('click', () => logout());
-            document.getElementById('publishBtn')?.addEventListener('click', async () => {
-                const content = document.getElementById('postContent').value;
-                if (!content.trim() && !currentPostImage) { showToast('Напишите что-нибудь или добавьте фото', 'error'); return; }
-                if (await createPost(content, currentPostImage)) {
-                    document.getElementById('postContent').value = '';
-                    currentPostImage = null;
-                    const preview = document.getElementById('imagePreview');
-                    if (preview) { preview.innerHTML = ''; preview.style.display = 'none'; }
-                    render();
-                }
+            document.getElementById('requestVerificationBtn')?.addEventListener('click', () => openVerificationModal());
+            document.getElementById('adminBanBtn')?.addEventListener('click', () => {
+                if (currentView.type === 'profile') openBanUserModal(currentView.userId);
             });
+            
+            const publishBtn = document.getElementById('publishBtn');
+            if (publishBtn) {
+                publishBtn.addEventListener('click', async () => {
+                    const content = document.getElementById('postContent').value;
+                    if (!content.trim() && !currentPostImage) {
+                        showToast('Напишите что-нибудь или добавьте фото', 'error');
+                        return;
+                    }
+                    const success = await createPost(content, currentPostImage);
+                    if (success) {
+                        document.getElementById('postContent').value = '';
+                        currentPostImage = null;
+                        const preview = document.getElementById('imagePreview');
+                        if (preview) {
+                            preview.innerHTML = '';
+                            preview.style.display = 'none';
+                        }
+                        render();
+                    }
+                });
+            }
+            
             const imageInput = document.getElementById('postImageInput');
             if (imageInput) {
                 imageInput.addEventListener('change', async (e) => {
@@ -1233,16 +2330,45 @@
                         const imgData = await uploadImage(e.target.files[0]);
                         currentPostImage = imgData;
                         const preview = document.getElementById('imagePreview');
-                        preview.innerHTML = `<div><img src="${imgData}"><div class="remove-image" onclick="document.getElementById('imagePreview').innerHTML=''; currentPostImage=null; document.getElementById('imagePreview').style.display='none'">✖</div></div>`;
+                        preview.innerHTML = `
+                            <div class="image-preview">
+                                <img src="${imgData}">
+                                <div class="remove-image" onclick="document.getElementById('imagePreview').innerHTML=''; currentPostImage=null; document.getElementById('imagePreview').style.display='none'">✖</div>
+                            </div>
+                        `;
                         preview.style.display = 'block';
                     }
                 });
             }
-            document.getElementById('addFriendBtn')?.addEventListener('click', () => sendFriendRequest(currentView.userId));
-            document.getElementById('editProfileBtn')?.addEventListener('click', () => toggleSettings());
+            
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            if (notificationBtn && notificationDropdown) {
+                notificationBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (notificationDropdown.classList.contains('show')) {
+                        notificationDropdown.classList.remove('show');
+                    } else {
+                        notificationDropdown.classList.add('show');
+                        markNotificationsRead();
+                        const badge = document.getElementById('notificationBadge');
+                        if (badge) badge.remove();
+                        unreadCount = 0;
+                    }
+                };
+                
+                document.addEventListener('click', (e) => {
+                    if (notificationDropdown && notificationBtn && !notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                        notificationDropdown.classList.remove('show');
+                    }
+                });
+            }
+            
             document.getElementById('toggleSettingsBtn')?.addEventListener('click', () => toggleSettings());
-            document.getElementById('requestVerificationBtn')?.addEventListener('click', () => openVerificationModal());
-            document.getElementById('adminBanBtn')?.addEventListener('click', () => openBanModal(currentView.userId));
+            document.getElementById('addFriendBtn')?.addEventListener('click', () => {
+                if (currentView.type === 'profile') sendFriendRequest(currentView.userId);
+            });
+            
             document.getElementById('profileSettingsTab')?.addEventListener('click', () => setSettingsTab('profile'));
             document.getElementById('accountSettingsTab')?.addEventListener('click', () => setSettingsTab('account'));
             document.getElementById('systemSettingsTab')?.addEventListener('click', () => setSettingsTab('system'));
@@ -1251,21 +2377,36 @@
             if (searchInput) {
                 searchInput.addEventListener('input', (e) => {
                     if (searchTimeout) clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(() => { searchQuery = e.target.value; render(); }, 300);
+                    searchTimeout = setTimeout(() => {
+                        searchQuery = e.target.value;
+                        render();
+                    }, 300);
                 });
             }
+            
             const searchAdminInput = document.getElementById('searchAdminInput');
             if (searchAdminInput) {
                 searchAdminInput.addEventListener('input', (e) => {
                     if (searchTimeout) clearTimeout(searchTimeout);
-                    searchTimeout = setTimeout(() => { searchQuery = e.target.value; render(); }, 300);
+                    searchTimeout = setTimeout(() => {
+                        searchQuery = e.target.value;
+                        render();
+                    }, 300);
                 });
             }
             
             const uploadAvatarInput = document.getElementById('uploadAvatar');
-            if (uploadAvatarInput) uploadAvatarInput.addEventListener('change', (e) => { if (e.target.files[0]) uploadAvatar(e.target.files[0]); });
+            if (uploadAvatarInput) {
+                uploadAvatarInput.addEventListener('change', (e) => {
+                    if (e.target.files[0]) uploadAvatar(e.target.files[0]);
+                });
+            }
             const uploadCoverInput = document.getElementById('uploadCover');
-            if (uploadCoverInput) uploadCoverInput.addEventListener('change', (e) => { if (e.target.files[0]) uploadCover(e.target.files[0]); });
+            if (uploadCoverInput) {
+                uploadCoverInput.addEventListener('change', (e) => {
+                    if (e.target.files[0]) uploadCover(e.target.files[0]);
+                });
+            }
             
             document.getElementById('saveSettingsBtn')?.addEventListener('click', () => {
                 if (settingsTab === 'profile') {
@@ -1289,63 +2430,76 @@
                     const theme = document.getElementById('themeSetting')?.value;
                     const notifications = document.getElementById('notificationsToggle')?.checked;
                     const language = document.getElementById('languageSetting')?.value;
-                    updateSystemSettings({ theme, notifications, language });
+                    updateSystemSettings({ theme: theme, notifications: notifications, language: language });
                 }
                 settingsOpen = false;
                 render();
             });
-
-            const notificationBtn = document.getElementById('notificationBtn');
-            const notificationDropdown = document.getElementById('notificationDropdown');
-            if (notificationBtn && notificationDropdown) {
-                notificationBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    if (notificationDropdown.classList.contains('show')) notificationDropdown.classList.remove('show');
-                    else {
-                        notificationDropdown.classList.add('show');
-                        markNotificationsRead();
-                        const badge = document.getElementById('notificationBadge');
-                        if (badge) badge.remove();
-                        unreadCount = 0;
-                    }
-                };
-                document.addEventListener('click', (e) => {
-                    if (notificationDropdown && notificationBtn && !notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) notificationDropdown.classList.remove('show');
-                });
-            }
         }
 
         window.navigateToFeedExternal = () => navigateToFeed();
         window.navigateToProfileExternal = (id) => navigateToProfile(id);
-        window.deletePostExternal = (id) => { deletePost(id); render(); };
+        window.deletePostExternal = (id) => { 
+            if (isAdmin(state.currentUser?.id)) {
+                adminDeletePost(id);
+            } else {
+                deletePost(id);
+            }
+            render(); 
+        };
         window.addCommentExternal = (postId, text) => { addComment(postId, text); render(); };
-        window.toggleCommentsExternal = (postId) => { const el = document.getElementById(`comments-${postId}`); if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none'; };
-        window.sendFriendExternal = (id) => sendFriendRequest(id);
-        window.acceptFriendExternal = (id) => acceptFriendRequest(id);
-        window.openRepostModalExternal = (id) => openRepostModal(id);
-        window.goToOriginalPostExternal = (id) => goToOriginalPost(id);
-        window.approveVerificationExternal = (id) => approveVerification(id);
-        window.rejectVerificationExternal = (id) => rejectVerification(id);
-        window.banUserExternal = (id) => openBanModal(id);
-        window.changeAvatarExternal = (avatar) => updateProfile({ avatar });
-        window.changeCoverExternal = (cover) => updateProfile({ cover });
+        window.acceptFriendRequestExternal = (id) => { acceptFriendRequest(id); render(); };
+        window.openRepostModalExternal = (id) => { openRepostModal(id); };
+        window.goToOriginalPostExternal = (id) => { goToOriginalPost(id); };
+        window.approveVerificationExternal = (id) => { approveVerification(id); render(); };
+        window.rejectVerificationExternal = (id) => { rejectVerification(id); render(); };
+        window.openBanUserModalExternal = (id) => { openBanUserModal(id); };
+        window.unbanUserExternal = (id) => { unbanUser(id); render(); };
+        window.toggleCommentsExternal = (postId) => {
+            const el = document.getElementById(`comments-${postId}`);
+            if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        };
+        window.changeAvatarExternal = (avatar) => { updateProfile({ avatar: avatar }); render(); };
+        window.changeCoverExternal = (cover) => { updateProfile({ cover: cover }); render(); };
         window.handleNotificationClick = (notifId, type, postId) => {
             const notif = state.notifications.find(n => n.id === notifId);
-            if (notif) { notif.read = true; saveToBack4App(); unreadCount = state.notifications.filter(n => !n.read && n.userId === state.currentUser?.id).length; }
+            if (notif) {
+                notif.read = true;
+                saveData();
+                unreadCount = state.notifications.filter(n => !n.read && n.userId === state.currentUser?.id).length;
+            }
             const dropdown = document.getElementById('notificationDropdown');
             if (dropdown) dropdown.classList.remove('show');
-            if (postId) goToOriginalPost(postId);
+            if (postId) {
+                goToOriginalPost(postId);
+            }
             render();
         };
         window.showFriendsListExternal = (userId) => {
             const userFriends = getFriends(userId);
             const user = getUserById(userId);
+            let friendsHtml = userFriends.map(f => `
+                <div style="display: flex; gap: 12px; align-items: center; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer;" onclick="window.navigateToProfileExternal('${f.id}'); closeModal();">
+                    <div class="avatar-wrapper" style="width: 48px; height: 48px;">
+                        <img src="${f.avatar}" class="avatar-img" style="width: 48px; height: 48px;">
+                    </div>
+                    <div>
+                        <div style="font-weight: 600;">${escapeHtml(f.name)}</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">@${f.username}</div>
+                        ${f.verified ? `<span class="verified-badge" style="width: 12px; height: 12px;"><i class="fas fa-check-circle"></i></span>` : ''}
+                        ${isAdmin(f.id) ? `<span class="admin-badge" style="font-size: 8px; padding: 2px 4px;"><i class="fas fa-crown"></i></span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            
             const modalHtml = `
-                <div class="modal active" id="friendsModal" onclick="if(event.target===this) closeModal()">
-                    <div class="modal-content" style="background:rgba(20,20,40,0.95);border-radius:24px;max-width:450px;width:90%;padding:24px">
-                        <h2>👥 Друзья ${escapeHtml(user.name)}</h2>
-                        <div style="max-height:500px;overflow-y:auto">${userFriends.map(f => `<div style="display:flex;gap:12px;align-items:center;padding:12px;cursor:pointer" onclick="window.navigateToProfileExternal('${f.id}'); closeModal();"><div class="avatar-wrapper" style="width:48px;height:48px"><img src="${f.avatar}" class="avatar-img"></div><div><strong>${escapeHtml(f.name)}</strong><br>@${f.username}</div></div>`).join('') || '<div style="text-align:center;padding:40px">Нет друзей</div>'}</div>
-                        <button onclick="closeModal()" class="btn-secondary" style="width:100%;margin-top:20px">Закрыть</button>
+                <div class="modal active" id="friendsModal" onclick="if(event.target === this) closeModal()">
+                    <div class="modal-content" style="background: rgba(20, 20, 40, 0.95); backdrop-filter: blur(20px); border-radius: 24px; max-width: 450px; width: 90%; padding: 24px;">
+                        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">👥 Друзья ${escapeHtml(user.name)}</h2>
+                        <div style="max-height: 500px; overflow-y: auto;">
+                            ${friendsHtml || '<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.5);">Нет друзей</div>'}
+                        </div>
+                        <button onclick="closeModal()" class="btn-secondary" style="width: 100%; margin-top: 20px;">Закрыть</button>
                     </div>
                 </div>
             `;
@@ -1355,7 +2509,13 @@
 
         document.addEventListener('click', (e) => {
             const likeBtn = e.target.closest('.like-btn');
-            if (likeBtn) { const postId = likeBtn.dataset.post; if (postId) toggleLike(postId); }
+            if (likeBtn) {
+                const postId = likeBtn.dataset.post;
+                if (postId) {
+                    toggleLike(postId);
+                    render();
+                }
+            }
         });
 
         (async () => {
