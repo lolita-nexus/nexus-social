@@ -1,3 +1,12 @@
+// api/send-to-telegram.js
+// Отправка результатов дневника эмоций в топик "Дневник эмоций"
+
+// ========== НАСТРОЙКИ ==========
+const BOT_TOKEN = "8716919048:AAFbHDZI2EmhN1sWAxd6fs9QVXsUMrXqitE";
+const CHAT_ID = -1003867368337;  // ID вашей группы (с минусом!)
+const TOPIC_ID = 7;              // ID топика "Дневник эмоций"
+// =================================
+
 export default async function handler(req, res) {
     // Разрешаем CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,10 +27,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Нет данных' });
     }
     
-    // Ваши данные Telegram
-    const BOT_TOKEN = "8716919048:AAFbHDZI2EmhN1sWAxd6fs9QVXsUMrXqitE";
-    const CHAT_ID = "8420827188";
-    
     // Формируем сообщение
     const session = data.sessionType || 'консультации';
     const intensity = data.emotionIntensity || 5;
@@ -31,7 +36,7 @@ export default async function handler(req, res) {
     const timestamp = data.timestamp || new Date().toLocaleString('ru-RU');
     const recordId = Math.floor(Date.now() / 1000).toString().slice(-6);
     
-    // Функции
+    // Эмодзи и описания
     const getMoodEmoji = (i) => {
         if (i <= 2) return "😔🌧️";
         if (i <= 4) return "😐🌥️";
@@ -67,9 +72,10 @@ ${notesLabel}
 ${notes}
 
 ---
-_Отправлено автоматически через Дневник эмоций_`;
+_Отправлено через Дневник эмоций_`;
     
     try {
+        // Отправляем сообщение в конкретный топик
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
             headers: {
@@ -77,6 +83,7 @@ _Отправлено автоматически через Дневник эм�
             },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
+                message_thread_id: TOPIC_ID,  // ← ОТПРАВЛЯЕМ В ТОПИК
                 text: message,
                 parse_mode: 'Markdown'
             })
@@ -87,10 +94,11 @@ _Отправлено автоматически через Дневник эм�
         if (result.ok) {
             return res.status(200).json({ success: true });
         } else {
+            console.error('Telegram API error:', result);
             return res.status(500).json({ success: false, error: result.description });
         }
     } catch (error) {
-        console.error('Telegram API error:', error);
+        console.error('Error:', error);
         return res.status(500).json({ success: false, error: error.message });
     }
 }
