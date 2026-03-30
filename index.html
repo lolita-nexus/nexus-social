@@ -20,6 +20,7 @@
             align-items: center;
             justify-content: center;
             color: #1e2a3e;
+            position: relative;
         }
 
         .app-container {
@@ -52,6 +53,58 @@
         .settings-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Живой цветок настроения */
+        .mood-flower {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.4rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 100;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .mood-flower:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .flower-tooltip {
+            position: fixed;
+            bottom: 100px;
+            right: 100px;
+            background: white;
+            padding: 10px 18px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 101;
+            white-space: nowrap;
+            animation: fadeOut 2s ease forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: scale(0.9); }
+            20% { opacity: 1; transform: scale(1); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-10px); visibility: hidden; }
         }
 
         /* Модалка смены номера */
@@ -461,6 +514,13 @@
                 height: 38px;
                 font-size: 1.1rem;
             }
+            .mood-flower {
+                width: 52px;
+                height: 52px;
+                font-size: 1.8rem;
+                bottom: 16px;
+                right: 16px;
+            }
         }
 
         .fade-in {
@@ -532,7 +592,48 @@
 
         setAnswer(questionId, value) {
             this.answers[questionId] = value;
-            if (!this.completed && this.isRegistered) this.renderQuestionScreen();
+            if (!this.completed && this.isRegistered) {
+                this.renderQuestionScreen();
+                this.updateMoodFlower(); // обновляем цветок при изменении настроения
+            }
+        }
+
+        updateMoodFlower() {
+            const intensity = this.answers.emotionIntensity;
+            const flower = document.getElementById('moodFlower');
+            if (!flower) return;
+            
+            let emoji, color;
+            if (intensity <= 2) {
+                emoji = '🌧️🌸';
+                color = 'linear-gradient(135deg, #a78bfa, #8b5cf6)';
+            } else if (intensity <= 4) {
+                emoji = '🌿🌸';
+                color = 'linear-gradient(135deg, #60a5fa, #3b82f6)';
+            } else if (intensity <= 7) {
+                emoji = '🌞🌸';
+                color = 'linear-gradient(135deg, #facc15, #eab308)';
+            } else {
+                emoji = '✨🌺✨';
+                color = 'linear-gradient(135deg, #fb923c, #f97316)';
+            }
+            
+            flower.style.background = color;
+            flower.innerHTML = emoji;
+        }
+
+        showFlowerMessage(text) {
+            const existing = document.querySelector('.flower-tooltip');
+            if (existing) existing.remove();
+            
+            const tooltip = document.createElement('div');
+            tooltip.className = 'flower-tooltip';
+            tooltip.textContent = text;
+            document.body.appendChild(tooltip);
+            
+            setTimeout(() => {
+                if (tooltip) tooltip.remove();
+            }, 2000);
         }
 
         nextStep() {
@@ -630,7 +731,6 @@ _Отправлено через Дневник эмоций_`;
             window.open(telegramUrl, '_blank');
         }
 
-        // Модалка смены номера
         showChangeNumberModal() {
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
@@ -667,7 +767,6 @@ _Отправлено через Дневник эмоций_`;
                 localStorage.setItem('userNumber', userNumber);
                 closeModal();
                 alert(`✅ Номер изменен на ${userNumber}`);
-                // Перезагружаем текущий экран
                 if (this.completed) {
                     this.renderResultScreen();
                 } else if (this.isRegistered) {
@@ -684,7 +783,41 @@ _Отправлено через Дневник эмоций_`;
             });
         }
 
+        renderFlower() {
+            if (!this.isRegistered || this.completed) return;
+            const existing = document.getElementById('moodFlower');
+            if (existing) existing.remove();
+            
+            const flower = document.createElement('div');
+            flower.id = 'moodFlower';
+            flower.className = 'mood-flower';
+            document.body.appendChild(flower);
+            
+            const supportMessages = [
+                "Ты молодец, что заботишься о себе 🌱",
+                "Это важный шаг. Я рядом 💜",
+                "Дыши. Ты справляешься 🌸",
+                "Твои чувства имеют значение ✨",
+                "Сегодня ты уже большой молодец 💪",
+                "Спасибо, что уделяешь время себе 🌼",
+                "Ты не один(на), даже если сейчас так кажется 🌙"
+            ];
+            
+            flower.onclick = () => {
+                const randomMessage = supportMessages[Math.floor(Math.random() * supportMessages.length)];
+                this.showFlowerMessage(randomMessage);
+            };
+            
+            this.updateMoodFlower();
+        }
+
+        removeFlower() {
+            const flower = document.getElementById('moodFlower');
+            if (flower) flower.remove();
+        }
+
         renderWelcome() {
+            this.removeFlower();
             const html = `
                 <div class="card fade-in">
                     <div class="welcome-card">
@@ -731,6 +864,7 @@ _Отправлено через Дневник эмоций_`;
         }
 
         renderResultScreen() {
+            this.removeFlower();
             const intensity = this.answers.emotionIntensity || 5;
             const physical = this.answers.physicalState || 5;
             const session = this.answers.sessionType || "консультации";
@@ -867,6 +1001,7 @@ _Отправлено через Дневник эмоций_`;
             this.container.innerHTML = html;
             document.getElementById("settingsBtn")?.addEventListener("click", () => this.showChangeNumberModal());
             this.attachEvents(currentQ);
+            this.renderFlower();
         }
 
         attachEvents(q) {
@@ -887,6 +1022,7 @@ _Отправлено через Дневник эмоций_`;
                         const v = parseInt(slider.value);
                         display.textContent = `${v} / 10`;
                         this.answers[q.id] = v;
+                        this.updateMoodFlower();
                     };
                 }
             }
