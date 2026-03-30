@@ -216,10 +216,36 @@
             border: 1px solid #cdc3b9;
             cursor: pointer;
             box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            transition: transform 0.05s ease;
         }
-        input[type="range"]::-webkit-slider-thumb:active {
+
+        .star-rating {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            margin: 12px 0;
+        }
+        .star {
+            transition: transform 0.1s ease;
+            color: #ddd0c4;
+        }
+        .star.active {
+            color: #f5b042;
+        }
+        .star:hover {
             transform: scale(1.1);
+        }
+
+        .admin-select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 40px;
+            border: 1px solid #e2ddd8;
+            background: white;
+            font-size: 0.95rem;
+            color: #3d352e;
+            margin-top: 8px;
         }
 
         .check-group {
@@ -370,6 +396,7 @@
         @media (max-width: 550px) {
             .content { padding: 24px 20px; }
             h2 { font-size: 1.5rem; }
+            .star-rating { font-size: 1.5rem; gap: 4px; }
         }
         .fade-in { animation: fadeIn 0.3s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
@@ -395,6 +422,8 @@
                 energy: 5,
                 social: 5,
                 afterTone: 5,
+                rating: 0,
+                adminName: "",
                 notes: ""
             };
             this.currentStep = 0;
@@ -417,6 +446,8 @@
             ];
             if (isAfter) {
                 baseQuestions.push({ id: "afterTone", text: "Как изменилось ваше общее состояние после консультации?", type: "range" });
+                baseQuestions.push({ id: "rating", text: "Оцените консультацию", type: "stars" });
+                baseQuestions.push({ id: "adminName", text: "С каким администратором вы общались?", type: "admin" });
             }
             baseQuestions.push({ id: "notes", text: isAfter ? "Что для вас было самым важным на консультации?" : "О чём хотите сказать перед консультацией?", type: "textarea", placeholder: isAfter ? "Поделитесь впечатлениями..." : "Напишите, что хотите обсудить..." });
             return baseQuestions;
@@ -435,6 +466,8 @@
             if (this.answers.social !== undefined) a++;
             if (this.answers.physicalState !== undefined) a++;
             if (this.answers.afterTone !== undefined) a++;
+            if (this.answers.rating !== undefined && this.answers.rating > 0) a++;
+            if (this.answers.adminName?.trim()) a++;
             if (this.answers.notes?.trim()) a++;
             return Math.min(100, Math.floor((a / qs.length) * 100));
         }
@@ -445,6 +478,8 @@
             const qs = this.getQuestions();
             const cur = qs[this.currentStep];
             if (cur.id === "sessionType" && !this.answers.sessionType) { alert("Выберите: до или после консультации"); return; }
+            if (cur.id === "rating" && this.answers.rating === 0) { alert("Пожалуйста, поставьте оценку консультации ⭐"); return; }
+            if (cur.id === "adminName" && !this.answers.adminName?.trim()) { alert("Пожалуйста, укажите имя администратора"); return; }
             if (this.currentStep < qs.length - 1) { this.currentStep++; this.renderQuestionScreen(); }
             else { this.completed = true; this.renderResultScreen(); }
         }
@@ -462,6 +497,8 @@
                 energy: 5,
                 social: 5,
                 afterTone: 5,
+                rating: 0,
+                adminName: "",
                 notes: ""
             };
             this.currentStep = 0;
@@ -469,11 +506,16 @@
             this.renderQuestionScreen();
         }
 
+        // ========== ИСПРАВЛЕННАЯ ЛОГИКА ==========
         getMoodDescription() {
             const e = this.answers.emotionIntensity || 5;
             const p = this.answers.physicalState || 5;
             const a = this.answers.anxiety || 5;
-            const avg = (e + p + (10 - a)) / 3;
+
+            // Высокая тревога → сразу нужна поддержка
+            if (a >= 8) return "состояние нуждается в поддержке";
+
+            const avg = (e + p) / 2;
             if (avg <= 3) return "состояние нуждается в поддержке";
             if (avg <= 5) return "нейтрально-сниженный фон";
             if (avg <= 7) return "умеренно позитивный настрой";
@@ -484,12 +526,16 @@
             const e = this.answers.emotionIntensity || 5;
             const p = this.answers.physicalState || 5;
             const a = this.answers.anxiety || 5;
-            const avg = (e + p + (10 - a)) / 3;
+
+            if (a >= 8) return "😔🌧️";
+
+            const avg = (e + p) / 2;
             if (avg <= 3) return "😔🌧️";
             if (avg <= 5) return "😐🌥️";
             if (avg <= 7) return "🙂☀️";
             return "😊🌈✨";
         }
+        // ========================================
 
         getResponseCard() {
             const inten = this.answers.emotionIntensity || 5;
@@ -510,6 +556,8 @@
             const en = this.answers.energy || 5;
             const soc = this.answers.social || 5;
             const after = this.answers.afterTone || null;
+            const rating = this.answers.rating || 0;
+            const admin = this.answers.adminName?.trim() || "—";
             const s = this.answers.sessionType || "консультации";
             const f = this.answers.feelings.join(", ") || "не указаны";
             const n = this.answers.notes?.trim() || "—";
@@ -519,8 +567,14 @@
             const ts = new Date().toLocaleString('ru-RU');
             const rec = Date.now().toString().slice(-6);
             let afterLine = "";
-            if (isAfter && after !== null) afterLine = `\n📈 Состояние после консультации: ${after}/10`;
-            return `📊 *ДНЕВНИК ЭМОЦИЙ* #${rec}\n\n👤 *Номер:* ${userNumber}\n🕐 ${ts}\n📋 ${s}\n\n😊 Эмоции: ${e}/10\n😰 Тревога: ${a}/10\n😴 Сон: ${sl}/10\n⚡ Энергия: ${en}/10\n👥 Желание общаться: ${soc}/10\n🧘 Физика: ${p}/10${afterLine}\n🌟 Общий фон: ${moodEmoji} — ${moodDesc}\n\n💭 Чувства: ${f}\n\n${isAfter ? '💡 Инсайты' : '🎯 Заметки'}:\n${n}\n\n_Отправлено через Дневник эмоций_`;
+            let ratingLine = "";
+            let adminLine = "";
+            if (isAfter) {
+                if (after !== null) afterLine = `\n📈 Состояние после консультации: ${after}/10`;
+                ratingLine = `\n⭐ Оценка консультации: ${rating}/5`;
+                adminLine = `\n👤 Администратор: ${admin}`;
+            }
+            return `📊 *ДНЕВНИК ЭМОЦИЙ* #${rec}\n\n👤 *Номер:* ${userNumber}\n🕐 ${ts}\n📋 ${s}\n\n😊 Эмоции: ${e}/10\n😰 Тревога: ${a}/10\n😴 Сон: ${sl}/10\n⚡ Энергия: ${en}/10\n👥 Желание общаться: ${soc}/10\n🧘 Физика: ${p}/10${afterLine}${ratingLine}${adminLine}\n🌟 Общий фон: ${moodEmoji} — ${moodDesc}\n\n💭 Чувства: ${f}\n\n${isAfter ? '💡 Инсайты' : '🎯 Заметки'}:\n${n}\n\n_Отправлено через Дневник эмоций_`;
         }
 
         sendToTelegram() { window.open(`https://t.me/${BOT_USERNAME}?text=${encodeURIComponent(this.formatMessage())}`, '_blank'); }
@@ -560,26 +614,32 @@
             };
         }
 
-        renderResultScreen() {
-            const e = this.answers.emotionIntensity || 5;
-            const p = this.answers.physicalState || 5;
-            const a = this.answers.anxiety || 5;
-            const sl = this.answers.sleep || 5;
-            const en = this.answers.energy || 5;
-            const soc = this.answers.social || 5;
-            const after = this.answers.afterTone || null;
-            const s = this.answers.sessionType || "консультации";
-            const f = this.answers.feelings.join(", ") || "не указаны";
-            const n = this.answers.notes?.trim() || "—";
-            const moodEmoji = this.getMoodEmoji();
-            const moodDesc = this.getMoodDescription();
-            const isAfter = s === "После консультации";
-            const label = isAfter ? "💡 Инсайты после консультации:" : "📝 Заметки перед консультацией:";
-            const resp = this.getResponseCard();
-            this.container.innerHTML = `<div class="settings-btn" id="settBtn">⚙️</div><div class="card"><div class="progress-area"><div class="progress-steps"><span class="step-badge">дневник готов</span><div class="step-bar-wrapper"><div class="step-bar-fill" style="width:100%"></div></div></div></div><div class="content"><div class="result-card"><div class="result-emoji">${moodEmoji}</div><h2>ваш эмоциональный снимок</h2><p><strong>номер:</strong> ${userNumber}</p><p><strong>${s}</strong></p><p>😊 эмоции ${e}/10 &nbsp;|&nbsp; 😰 тревога ${a}/10</p><p>😴 сон ${sl}/10 &nbsp;|&nbsp; ⚡ энергия ${en}/10 &nbsp;|&nbsp; 👥 общение ${soc}/10</p><p>🧘 физика ${p}/10 ${isAfter && after !== null ? `&nbsp;|&nbsp; 📈 после консультации ${after}/10` : ''}</p><p>${moodDesc}</p><hr/><div style="text-align:left;"><p><strong>💭 преобладающие эмоции:</strong> ${f}</p><p><strong>${label}</strong><br>${n}</p></div>${resp || ''}<button class="primary telegram-btn" id="sendBtn">📤 отправить администратору</button><button class="secondary" id="resetBtn">📝 заполнить заново</button></div><p style="text-align:center; font-size:0.75rem; margin-top:20px;">нажмите — откроется telegram с готовым текстом</p></div></div>`;
-            document.getElementById('settBtn')?.addEventListener('click', () => this.showChangeNumberModal());
-            document.getElementById('sendBtn')?.addEventListener('click', () => this.sendToTelegram());
-            document.getElementById('resetBtn')?.addEventListener('click', () => this.reset());
+        renderStars(value) {
+            const fullStars = Math.floor(value);
+            const hasHalf = value % 1 !== 0;
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= fullStars) starsHtml += '<span class="star active" data-val="' + i + '">★</span>';
+                else if (hasHalf && i === fullStars + 1) starsHtml += '<span class="star active" data-val="' + (fullStars + 0.5) + '">½</span>';
+                else starsHtml += '<span class="star" data-val="' + i + '">★</span>';
+            }
+            return `<div class="star-rating" id="starRating">${starsHtml}</div><div style="text-align:center; font-size:0.8rem; color:#b7a18a; margin-top:8px;">${value}/5</div>`;
+        }
+
+        attachStars() {
+            const stars = document.querySelectorAll('#starRating .star');
+            const updateRating = (newRating) => {
+                this.answers.rating = newRating;
+                this.renderQuestionScreen();
+            };
+            stars.forEach(star => {
+                star.style.cursor = 'pointer';
+                star.onclick = (e) => {
+                    e.stopPropagation();
+                    const val = parseFloat(star.dataset.val);
+                    updateRating(val);
+                };
+            });
         }
 
         renderQuestionScreen() {
@@ -600,12 +660,17 @@
                 if (q.id === 'afterTone') { minLabel = "0 — стало хуже"; maxLabel = "10 — стало намного лучше"; }
                 if (q.id === 'anxiety') { minLabel = "0 — нет тревоги"; maxLabel = "10 — очень сильная"; }
                 body = `<div class="emotion-scale"><div class="current-value" id="curVal">${val} / 10</div><input type="range" id="rangeSl" min="0" max="10" step="1" value="${val}"><div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.75rem; color:#b7a18a;"><span>${minLabel}</span><span>${maxLabel}</span></div></div>`;
+            } else if (q.type === 'stars') {
+                const val = this.answers.rating || 0;
+                body = this.renderStars(val);
+            } else if (q.type === 'admin') {
+                body = `<input type="text" id="adminInput" class="admin-select" placeholder="Например: Анна" value="${this.answers.adminName || ''}">`;
             } else if (q.type === 'multiselect') {
                 body = `<div class="check-group">${q.options.map(emo => `<div class="emotion-chip ${this.answers.feelings.includes(emo) ? 'selected' : ''}" data-emo="${emo}">${emo}</div>`).join('')}</div><p style="font-size:0.7rem; margin-top:8px; color:#b7a18a;">✓ выберите несколько</p>`;
             } else if (q.type === 'textarea') {
                 body = `<textarea id="notesTa" rows="4" placeholder="${q.placeholder}">${this.answers.notes || ''}</textarea>`;
             }
-            this.container.innerHTML = `<div class="settings-btn" id="settBtn">⚙️</div><div class="card"><div class="progress-area"><div class="progress-steps"><span class="step-badge">${userNumber} · ${this.currentStep+1}/${qs.length}</span><div class="step-bar-wrapper"><div class="step-bar-fill" style="width:${prog}%"></div></div></div></div><div class="content"><h2>${q.text}</h2><div class="subheading">${q.id === 'sessionType' ? 'выберите контекст' : (q.id === 'notes' ? (this.answers.sessionType === 'После консультации' ? 'поделитесь впечатлениями' : 'что важно обсудить?') : 'передвиньте ползунок')}</div><div class="question">${body}</div><div class="actions"><button class="secondary" id="prevBtn" ${isFirst ? 'disabled' : ''}>← назад</button><button class="primary" id="nextBtn">${isLast ? 'завершить' : 'далее →'}</button></div></div></div>`;
+            this.container.innerHTML = `<div class="settings-btn" id="settBtn">⚙️</div><div class="card"><div class="progress-area"><div class="progress-steps"><span class="step-badge">${userNumber} · ${this.currentStep+1}/${qs.length}</span><div class="step-bar-wrapper"><div class="step-bar-fill" style="width:${prog}%"></div></div></div></div><div class="content"><h2>${q.text}</h2><div class="subheading">${q.id === 'sessionType' ? 'выберите контекст' : (q.id === 'notes' ? (this.answers.sessionType === 'После консультации' ? 'поделитесь впечатлениями' : 'что важно обсудить?') : 'передвиньте ползунок / выберите')}</div><div class="question">${body}</div><div class="actions"><button class="secondary" id="prevBtn" ${isFirst ? 'disabled' : ''}>← назад</button><button class="primary" id="nextBtn">${isLast ? 'завершить' : 'далее →'}</button></div></div></div>`;
             document.getElementById('settBtn')?.addEventListener('click', () => this.showChangeNumberModal());
             if (q.type === 'segment') {
                 document.querySelectorAll('.segment-option').forEach(opt => { opt.onclick = () => { this.setAnswer('sessionType', opt.dataset.val); if (this.currentStep > 0) this.currentStep = 1; this.renderQuestionScreen(); }; });
@@ -621,6 +686,13 @@
                 sl.oninput = update;
                 update();
             }
+            if (q.type === 'stars') {
+                this.attachStars();
+            }
+            if (q.type === 'admin') {
+                const inp = document.getElementById('adminInput');
+                inp.oninput = (e) => this.answers.adminName = e.target.value;
+            }
             if (q.type === 'multiselect') {
                 document.querySelectorAll('.emotion-chip').forEach(ch => {
                     ch.onclick = () => {
@@ -635,6 +707,30 @@
             if (q.type === 'textarea') document.getElementById('notesTa').oninput = (e) => this.answers.notes = e.target.value;
             document.getElementById('nextBtn').onclick = () => this.nextStep();
             if (!isFirst) document.getElementById('prevBtn').onclick = () => this.prevStep();
+        }
+
+        renderResultScreen() {
+            const e = this.answers.emotionIntensity || 5;
+            const p = this.answers.physicalState || 5;
+            const a = this.answers.anxiety || 5;
+            const sl = this.answers.sleep || 5;
+            const en = this.answers.energy || 5;
+            const soc = this.answers.social || 5;
+            const after = this.answers.afterTone || null;
+            const rating = this.answers.rating || 0;
+            const admin = this.answers.adminName?.trim() || "—";
+            const s = this.answers.sessionType || "консультации";
+            const f = this.answers.feelings.join(", ") || "не указаны";
+            const n = this.answers.notes?.trim() || "—";
+            const moodEmoji = this.getMoodEmoji();
+            const moodDesc = this.getMoodDescription();
+            const isAfter = s === "После консультации";
+            const label = isAfter ? "💡 Инсайты после консультации:" : "📝 Заметки перед консультацией:";
+            const resp = this.getResponseCard();
+            this.container.innerHTML = `<div class="settings-btn" id="settBtn">⚙️</div><div class="card"><div class="progress-area"><div class="progress-steps"><span class="step-badge">дневник готов</span><div class="step-bar-wrapper"><div class="step-bar-fill" style="width:100%"></div></div></div></div><div class="content"><div class="result-card"><div class="result-emoji">${moodEmoji}</div><h2>ваш эмоциональный снимок</h2><p><strong>номер:</strong> ${userNumber}</p><p><strong>${s}</strong></p><p>😊 эмоции ${e}/10 &nbsp;|&nbsp; 😰 тревога ${a}/10</p><p>😴 сон ${sl}/10 &nbsp;|&nbsp; ⚡ энергия ${en}/10 &nbsp;|&nbsp; 👥 общение ${soc}/10</p><p>🧘 физика ${p}/10 ${isAfter && after !== null ? `&nbsp;|&nbsp; 📈 после консультации ${after}/10` : ''}</p>${isAfter ? `<p>⭐ оценка консультации: ${rating}/5 &nbsp;|&nbsp; 👤 администратор: ${admin}</p>` : ''}<p>${moodDesc}</p><hr/><div style="text-align:left;"><p><strong>💭 преобладающие эмоции:</strong> ${f}</p><p><strong>${label}</strong><br>${n}</p></div>${resp || ''}<button class="primary telegram-btn" id="sendBtn">📤 отправить администратору</button><button class="secondary" id="resetBtn">📝 заполнить заново</button></div><p style="text-align:center; font-size:0.75rem; margin-top:20px;">нажмите — откроется telegram с готовым текстом</p></div></div>`;
+            document.getElementById('settBtn')?.addEventListener('click', () => this.showChangeNumberModal());
+            document.getElementById('sendBtn')?.addEventListener('click', () => this.sendToTelegram());
+            document.getElementById('resetBtn')?.addEventListener('click', () => this.reset());
         }
 
         init() { if (this.isRegistered) this.renderQuestionScreen(); else this.renderWelcome(); }
