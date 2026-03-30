@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Дневник эмоций | Отправка психологу</title>
+    <title>Дневник эмоций | Помощь психологу</title>
     <style>
         * {
             margin: 0;
@@ -92,6 +92,54 @@
             margin-bottom: 32px;
             border-left: 3px solid #cbd5e1;
             padding-left: 16px;
+        }
+
+        .register-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 32px;
+            padding: 32px;
+            text-align: center;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .register-number h3 {
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .register-number .number-display {
+            background: rgba(255,255,255,0.2);
+            border-radius: 60px;
+            padding: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 4px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+
+        .register-number input {
+            width: 100%;
+            padding: 16px;
+            border-radius: 60px;
+            border: none;
+            font-size: 1rem;
+            text-align: center;
+            background: white;
+            color: #333;
+        }
+
+        .register-number button {
+            background: white;
+            color: #667eea;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .register-number button:hover {
+            transform: scale(0.98);
+            background: #f0f0f0;
         }
 
         .segment-group {
@@ -226,11 +274,6 @@
             background: #e2e8f0;
         }
 
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         .result-card {
             background: #fefce8;
             border-radius: 32px;
@@ -262,27 +305,9 @@
             gap: 10px;
         }
 
-        .telegram-btn:hover:not(:disabled) {
+        .telegram-btn:hover {
             background: #0088cc;
-        }
-
-        .success-message {
-            background: #dcfce7;
-            color: #166534;
-            padding: 12px;
-            border-radius: 60px;
-            margin-top: 16px;
-            font-size: 0.9rem;
-        }
-
-        .error-message {
-            background: #fee2e2;
-            color: #991b1b;
-            padding: 12px;
-            border-radius: 60px;
-            margin-top: 16px;
-            font-size: 0.9rem;
-            white-space: pre-wrap;
+            transform: scale(0.98);
         }
 
         @media (max-width: 550px) {
@@ -314,6 +339,12 @@
 <div class="app-container" id="app"></div>
 
 <script>
+    // НАСТРОЙКИ
+    const BOT_USERNAME = "diaryemotionspsy_bot";  // username вашего бота (без @)
+    
+    // Сохраняем номер пользователя в localStorage
+    let userNumber = localStorage.getItem('userNumber') || null;
+
     class EmotionDiary {
         constructor(container) {
             this.container = container;
@@ -326,7 +357,7 @@
             };
             this.currentStep = 0;
             this.completed = false;
-            this.sending = false;
+            this.isRegistered = !!userNumber;
             this.init();
         }
 
@@ -360,7 +391,7 @@
 
         setAnswer(questionId, value) {
             this.answers[questionId] = value;
-            if (!this.completed) this.renderQuestionScreen();
+            if (!this.completed && this.isRegistered) this.renderQuestionScreen();
         }
 
         nextStep() {
@@ -415,68 +446,93 @@
             return "высокий эмоциональный ресурс";
         }
 
-        async sendToTelegram() {
-            if (this.sending) return;
+        formatMessage() {
+            const intensity = this.answers.emotionIntensity || 5;
+            const physical = this.answers.physicalState || 5;
+            const session = this.answers.sessionType || "консультации";
+            const feelings = this.answers.feelings.length ? this.answers.feelings.join(", ") : "не указаны";
+            const notes = this.answers.notes?.trim() || "—";
+            const moodEmoji = this.getEmotionMoodEmoji(intensity);
+            const moodDesc = this.getMoodDescription(intensity);
+            const isAfter = this.answers.sessionType === "После консультации";
+            const timestamp = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' });
+            const recordId = Date.now().toString().slice(-6);
             
-            this.sending = true;
-            const sendBtn = document.getElementById("sendToTelegramBtn");
-            const msgDiv = document.getElementById("telegramMessage");
+            return `📊 *ДНЕВНИК ЭМОЦИЙ* #${recordId}
+
+👤 *Номер клиента:* ${userNumber}
+🕐 *Время:* ${timestamp}
+📋 *Тип:* ${session}
+
+━━━━━━━━━━━━━━━━━━━━
+😊 *Эмоциональное состояние*
+${intensity}/10 ${moodEmoji} — ${moodDesc}
+
+💭 *Преобладающие эмоции*
+${feelings}
+
+🧘 *Физическое самочувствие*
+${physical}/10
+
+━━━━━━━━━━━━━━━━━━━━
+${isAfter ? '💡 *Инсайты после консультации*' : '🎯 *Ожидания и заметки*'}
+${notes}
+━━━━━━━━━━━━━━━━━━━━
+
+_Отправлено через Дневник эмоций_`;
+        }
+
+        sendToTelegram() {
+            const message = this.formatMessage();
+            const encodedMessage = encodeURIComponent(message);
+            const telegramUrl = `https://t.me/${BOT_USERNAME}?text=${encodedMessage}`;
+            window.open(telegramUrl, '_blank');
+        }
+
+        renderRegistration() {
+            const html = `
+                <div class="card fade-in">
+                    <div class="progress-area">
+                        <div class="progress-steps">
+                            <span class="step-badge">✨ Регистрация ✨</span>
+                        </div>
+                    </div>
+                    <div class="content">
+                        <div class="register-number">
+                            <h3>🌸 Добро пожаловать! 🌸</h3>
+                            <p style="margin-bottom: 16px; opacity: 0.9;">Введите ваш номер клиента</p>
+                            <div class="number-display" style="font-size: 1rem; background: rgba(255,255,255,0.15);">
+                                Формат: #1234567
+                            </div>
+                            <input type="text" id="userNumberInput" placeholder="Например: #1234567" value="${userNumber || ''}">
+                            <button class="primary" id="registerBtn" style="margin-top: 16px;">
+                                ✅ Продолжить
+                            </button>
+                        </div>
+                        <p style="text-align: center; font-size: 0.8rem; color: #666; margin-top: 16px;">
+                            💡 Номер выдается администратором при первом обращении<br>
+                            Если у вас нет номера — напишите <strong>@${BOT_USERNAME}</strong>
+                        </p>
+                    </div>
+                </div>
+            `;
             
-            if (sendBtn) {
-                sendBtn.disabled = true;
-                sendBtn.innerHTML = "📤 Отправка...";
-            }
+            this.container.innerHTML = html;
             
-            const data = {
-                sessionType: this.answers.sessionType,
-                emotionIntensity: this.answers.emotionIntensity,
-                feelings: this.answers.feelings,
-                physicalState: this.answers.physicalState,
-                notes: this.answers.notes,
-                timestamp: new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })
-            };
-            
-            try {
-                const response = await fetch('/api/send-to-telegram', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    if (msgDiv) {
-                        msgDiv.className = "success-message";
-                        msgDiv.innerHTML = "✅ Результаты успешно отправлены психологу в Telegram!";
-                    }
-                    if (sendBtn) {
-                        sendBtn.innerHTML = "✓ Отправлено!";
-                        setTimeout(() => {
-                            if (sendBtn) {
-                                sendBtn.innerHTML = "📤 Отправить психологу";
-                                sendBtn.disabled = false;
-                            }
-                        }, 3000);
-                    }
-                } else {
-                    throw new Error(result.error || "Ошибка отправки");
+            document.getElementById("registerBtn")?.addEventListener("click", () => {
+                let input = document.getElementById("userNumberInput").value.trim();
+                if (!input) {
+                    alert("Пожалуйста, введите ваш номер клиента");
+                    return;
                 }
-            } catch (error) {
-                console.error("Error:", error);
-                if (msgDiv) {
-                    msgDiv.className = "error-message";
-                    msgDiv.innerHTML = "❌ " + (error.message || "Ошибка отправки. Попробуйте позже.");
+                if (!input.startsWith('#')) {
+                    input = '#' + input;
                 }
-                if (sendBtn) {
-                    sendBtn.disabled = false;
-                    sendBtn.innerHTML = "📤 Отправить психологу";
-                }
-            } finally {
-                this.sending = false;
-            }
+                userNumber = input;
+                localStorage.setItem('userNumber', userNumber);
+                this.isRegistered = true;
+                this.renderQuestionScreen();
+            });
         }
 
         renderResultScreen() {
@@ -502,7 +558,8 @@
                         <div class="result-card">
                             <div class="result-emoji">${moodEmoji}</div>
                             <h2 style="font-size:1.5rem;">Ваш эмоциональный снимок</h2>
-                            <p style="margin: 12px 0;"><strong>${session}</strong> · Оценка: ${intensity}/10</p>
+                            <p style="margin: 8px 0;"><strong>👤 Номер клиента:</strong> ${userNumber}</p>
+                            <p><strong>${session}</strong> · Оценка: ${intensity}/10</p>
                             <p>${moodDesc}</p>
                             <hr />
                             <div style="text-align: left;">
@@ -511,22 +568,24 @@
                                 <p><strong>${notesLabel}</strong><br>${notes}</p>
                             </div>
                             
-                            <button class="primary telegram-btn" id="sendToTelegramBtn">
-                                📤 Отправить психологу
+                            <button class="primary telegram-btn" id="sendTelegramBtn">
+                                📤 Отправить психологу в Telegram
                             </button>
-                            <div id="telegramMessage"></div>
                             
                             <button class="secondary" id="restartBtn" style="margin-top: 12px; width:100%; background:#f1f5f9;">
                                 📝 Заполнить заново
                             </button>
                         </div>
+                        <p style="text-align: center; font-size: 0.75rem; color: #666; margin-top: 20px;">
+                            💡 Нажмите кнопку — откроется Telegram с готовым текстом
+                        </p>
                     </div>
                 </div>
             `;
             
             this.container.innerHTML = html;
             
-            document.getElementById("sendToTelegramBtn")?.addEventListener("click", () => this.sendToTelegram());
+            document.getElementById("sendTelegramBtn")?.addEventListener("click", () => this.sendToTelegram());
             document.getElementById("restartBtn")?.addEventListener("click", () => this.reset());
         }
 
@@ -585,7 +644,7 @@
                 <div class="card fade-in">
                     <div class="progress-area">
                         <div class="progress-steps">
-                            <span class="step-badge">Вопрос ${this.currentStep + 1} / ${questions.length}</span>
+                            <span class="step-badge">👤 ${userNumber} · Вопрос ${this.currentStep + 1} / ${questions.length}</span>
                             <div class="step-bar-wrapper"><div class="step-bar-fill" style="width:${progressPercent}%"></div></div>
                         </div>
                     </div>
@@ -663,7 +722,11 @@
         }
 
         init() {
-            this.renderQuestionScreen();
+            if (this.isRegistered) {
+                this.renderQuestionScreen();
+            } else {
+                this.renderRegistration();
+            }
         }
     }
 
