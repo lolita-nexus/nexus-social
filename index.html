@@ -287,19 +287,34 @@
         }
 
         .copy-section {
-            background: #f1f5f9;
-            border-radius: 16px;
-            padding: 16px;
-            margin-top: 16px;
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
             text-align: left;
+            border: 1px solid #e2e8f0;
         }
 
         .copy-btn {
             background: #4f46e5;
             color: white;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            margin-top: 8px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .telegram-link-btn {
+            background: #26A5E4;
+            color: white;
+            padding: 14px;
+            font-size: 1rem;
+            margin-top: 12px;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            border-radius: 50px;
         }
 
         @media (max-width: 550px) {
@@ -439,19 +454,7 @@
             return "высокий эмоциональный ресурс";
         }
 
-        // Функция отправки с альтернативными методами
-        async sendToTelegram() {
-            if (this.sending) return;
-            
-            this.sending = true;
-            const sendBtn = document.getElementById("sendToTelegramBtn");
-            const msgDiv = document.getElementById("telegramMessage");
-            
-            if (sendBtn) {
-                sendBtn.disabled = true;
-                sendBtn.innerHTML = "📤 Отправка...";
-            }
-            
+        formatMessage() {
             const intensity = this.answers.emotionIntensity || 5;
             const physical = this.answers.physicalState || 5;
             const session = this.answers.sessionType || "консультации";
@@ -463,102 +466,47 @@
             const timestamp = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' });
             const recordId = Date.now().toString().slice(-6);
             
-            const message = `📊 *Новая запись в дневнике эмоций* #${recordId}
-            
-🕐 *Время:* ${timestamp}
-📋 *Тип:* ${session}
+            return `📊 Новая запись в дневнике эмоций #${recordId}
 
-😊 *Эмоциональное состояние:* ${intensity}/10 ${moodEmoji}
-📝 *Описание:* ${moodDesc}
+🕐 Время: ${timestamp}
+📋 Тип: ${session}
 
-💭 *Преобладающие эмоции:* ${feelings}
+😊 Эмоциональное состояние: ${intensity}/10 ${moodEmoji}
+📝 Описание: ${moodDesc}
 
-🧘 *Физическое самочувствие:* ${physical}/10
+💭 Преобладающие эмоции: ${feelings}
 
-${isAfter ? '💡 *Инсайты после консультации:*' : '🎯 *Ожидания и заметки:*'} 
+🧘 Физическое самочувствие: ${physical}/10
+
+${isAfter ? '💡 Инсайты после консультации:' : '🎯 Ожидания и заметки:'} 
 ${notes}
 
 ---
-_Отправлено через Дневник эмоций_`;
-            
-            // Кодируем сообщение для URL
+Отправлено через Дневник эмоций`;
+        }
+
+        sendViaTelegramLink() {
+            const message = this.formatMessage();
             const encodedMessage = encodeURIComponent(message);
+            const telegramUrl = `https://t.me/${BOT_USERNAME}?text=${encodedMessage}`;
+            window.open(telegramUrl, '_blank');
             
-            // Способ 1: Через fetch с правильными заголовками
-            try {
-                const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodedMessage}&parse_mode=Markdown`;
-                
-                const response = await fetch(url, {
-                    method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Accept': 'application/json',
-                    }
-                });
-                
-                const data = await response.json();
-                
-                if (data.ok) {
-                    if (msgDiv) {
-                        msgDiv.className = "success-message";
-                        msgDiv.innerHTML = "✅ Отправлено успешно! Психолог получит уведомление в Telegram.";
-                    }
-                    if (sendBtn) {
-                        sendBtn.innerHTML = "✓ Отправлено!";
-                        setTimeout(() => {
-                            if (sendBtn) {
-                                sendBtn.innerHTML = "📤 Отправить психологу в Telegram";
-                                sendBtn.disabled = false;
-                            }
-                        }, 3000);
-                    }
-                    this.sending = false;
-                    return;
-                } else {
-                    throw new Error(data.description || "Ошибка отправки");
-                }
-            } catch (error) {
-                console.error("Fetch error:", error);
-                
-                // Способ 2: Открываем ссылку в новом окне (альтернативный метод)
-                const telegramUrl = `https://t.me/${BOT_USERNAME}?start=send_${recordId}`;
-                
-                if (msgDiv) {
-                    msgDiv.className = "error-message";
-                    msgDiv.innerHTML = `❌ Автоматическая отправка не удалась: ${error.message}<br><br>
-                    
-🔧 <strong>Альтернативный способ:</strong><br>
-1. Скопируйте текст ниже<br>
-2. Откройте Telegram<br>
-3. Найдите бота <strong>@${BOT_USERNAME}</strong><br>
-4. Отправьте ему этот текст<br><br>
-                    
-📋 <strong>Текст для отправки:</strong><br>
-<textarea id="copyText" rows="8" style="width:100%; margin-top:8px; font-size:12px; font-family:monospace;" readonly>${message.replace(/\*/g, '')}</textarea>
-<button id="copyBtn" class="copy-btn" style="margin-top:8px;">📋 Скопировать текст</button>`;
-                    
-                    setTimeout(() => {
-                        const copyBtn = document.getElementById("copyBtn");
-                        const copyText = document.getElementById("copyText");
-                        if (copyBtn) {
-                            copyBtn.onclick = () => {
-                                copyText.select();
-                                document.execCommand('copy');
-                                copyBtn.textContent = "✓ Скопировано!";
-                                setTimeout(() => {
-                                    copyBtn.textContent = "📋 Скопировать текст";
-                                }, 2000);
-                            };
-                        }
-                    }, 100);
-                }
-                
-                if (sendBtn) {
-                    sendBtn.disabled = false;
-                    sendBtn.innerHTML = "📤 Отправить психологу в Telegram";
-                }
-                this.sending = false;
+            const msgDiv = document.getElementById("telegramMessage");
+            if (msgDiv) {
+                msgDiv.className = "success-message";
+                msgDiv.innerHTML = "✅ Открыт Telegram! Отправьте сообщение боту. Если бот не открылся, нажмите кнопку ниже.";
             }
+        }
+
+        copyToClipboard() {
+            const message = this.formatMessage();
+            navigator.clipboard.writeText(message).then(() => {
+                const msgDiv = document.getElementById("telegramMessage");
+                if (msgDiv) {
+                    msgDiv.className = "success-message";
+                    msgDiv.innerHTML = "✅ Текст скопирован! Откройте Telegram и отправьте его боту.";
+                }
+            });
         }
 
         renderResultScreen() {
@@ -571,6 +519,7 @@ _Отправлено через Дневник эмоций_`;
             const moodDesc = this.getMoodDescription(intensity);
             const isAfter = this.answers.sessionType === "После консультации";
             const notesLabel = isAfter ? "📝 Инсайты после консультации:" : "📝 Заметки перед консультацией:";
+            const messageText = this.formatMessage();
 
             const html = `
                 <div class="card fade-in">
@@ -593,17 +542,32 @@ _Отправлено через Дневник эмоций_`;
                                 <p><strong>${notesLabel}</strong><br>${notes}</p>
                             </div>
                             
-                            <button class="primary telegram-btn" id="sendToTelegramBtn">
-                                📤 Отправить психологу в Telegram
+                            <button class="primary telegram-btn" id="sendTelegramBtn">
+                                📤 Отправить в Telegram
                             </button>
+                            
+                            <button class="secondary" id="copyBtn" style="margin-top: 12px; width:100%;">
+                                📋 Скопировать текст
+                            </button>
+                            
                             <div id="telegramMessage"></div>
                             
-                            <button class="secondary" id="restartBtn" style="margin-top: 12px; width:100%; background:#f1f5f9;">
+                            <div class="copy-section">
+                                <div style="font-weight: 600; margin-bottom: 12px;">📌 Как отправить психологу:</div>
+                                <div style="font-size: 0.85rem; color: #475569; margin-bottom: 12px;">
+                                    1. Нажмите "Отправить в Telegram" или скопируйте текст<br>
+                                    2. Найдите бота <strong>@${BOT_USERNAME}</strong> в Telegram<br>
+                                    3. Напишите боту команду <strong>/start</strong><br>
+                                    4. Вставьте текст и отправьте
+                                </div>
+                                <a href="https://t.me/${BOT_USERNAME}" target="_blank" class="telegram-link-btn">
+                                    🔗 Открыть бота в Telegram
+                                </a>
+                            </div>
+                            
+                            <button class="secondary" id="restartBtn" style="margin-top: 20px; width:100%; background:#f1f5f9;">
                                 📝 Заполнить заново
                             </button>
-                        </div>
-                        <div style="margin-top: 20px; text-align: center; font-size: 0.75rem; color: #666;">
-                            💡 <strong>Совет:</strong> Сначала напишите боту <strong>@${BOT_USERNAME}</strong> команду /start, затем отправляйте результаты
                         </div>
                     </div>
                 </div>
@@ -611,7 +575,8 @@ _Отправлено через Дневник эмоций_`;
             
             this.container.innerHTML = html;
             
-            document.getElementById("sendToTelegramBtn")?.addEventListener("click", () => this.sendToTelegram());
+            document.getElementById("sendTelegramBtn")?.addEventListener("click", () => this.sendViaTelegramLink());
+            document.getElementById("copyBtn")?.addEventListener("click", () => this.copyToClipboard());
             document.getElementById("restartBtn")?.addEventListener("click", () => this.reset());
         }
 
