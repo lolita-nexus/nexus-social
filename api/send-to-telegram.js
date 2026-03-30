@@ -1,12 +1,3 @@
-// api/send-to-telegram.js
-// Отправка результатов дневника эмоций в топик "Дневник эмоций"
-
-// ========== НАСТРОЙКИ ==========
-const BOT_TOKEN = "8716919048:AAFbHDZI2EmhN1sWAxd6fs9QVXsUMrXqitE";
-const CHAT_ID = -1003867368337;  // ID вашей группы (с минусом!)
-const TOPIC_ID = 7;              // ID топика "Дневник эмоций"
-// =================================
-
 export default async function handler(req, res) {
     // Разрешаем CORS
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,7 +18,12 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Нет данных' });
     }
     
-    // Формируем сообщение
+    // ВАШИ ДАННЫЕ
+    const BOT_TOKEN = "8716919048:AAFbHDZI2EmhN1sWAxd6fs9QVXsUMrXqitE";
+    const CHAT_ID = -1003867368337;
+    const TOPIC_ID = 7;
+    
+    // Форматируем сообщение
     const session = data.sessionType || 'консультации';
     const intensity = data.emotionIntensity || 5;
     const physical = data.physicalState || 5;
@@ -36,7 +32,6 @@ export default async function handler(req, res) {
     const timestamp = data.timestamp || new Date().toLocaleString('ru-RU');
     const recordId = Math.floor(Date.now() / 1000).toString().slice(-6);
     
-    // Эмодзи и описания
     const getMoodEmoji = (i) => {
         if (i <= 2) return "😔🌧️";
         if (i <= 4) return "😐🌥️";
@@ -56,34 +51,28 @@ export default async function handler(req, res) {
     const isAfter = session === "После консультации";
     const notesLabel = isAfter ? "💡 Инсайты после консультации:" : "🎯 Ожидания и заметки:";
     
-    const message = `📊 *Новая запись в дневнике эмоций* #${recordId}
+    const message = `📊 *Новая запись* #${recordId}
 
-🕐 *Время:* ${timestamp}
-📋 *Тип:* ${session}
+🕐 ${timestamp}
+📋 ${session}
 
-😊 *Эмоциональное состояние:* ${intensity}/10 ${moodEmoji}
-📝 *Описание:* ${moodDesc}
+😊 Эмоции: ${intensity}/10 ${moodEmoji}
+📝 ${moodDesc}
 
-💭 *Преобладающие эмоции:* ${feelings}
+💭 Чувства: ${feelings}
 
-🧘 *Физическое самочувствие:* ${physical}/10
+🧘 Физика: ${physical}/10
 
 ${notesLabel} 
-${notes}
-
----
-_Отправлено через Дневник эмоций_`;
+${notes}`;
     
     try {
-        // Отправляем сообщение в конкретный топик
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 chat_id: CHAT_ID,
-                message_thread_id: TOPIC_ID,  // ← ОТПРАВЛЯЕМ В ТОПИК
+                message_thread_id: TOPIC_ID,
                 text: message,
                 parse_mode: 'Markdown'
             })
@@ -94,11 +83,9 @@ _Отправлено через Дневник эмоций_`;
         if (result.ok) {
             return res.status(200).json({ success: true });
         } else {
-            console.error('Telegram API error:', result);
             return res.status(500).json({ success: false, error: result.description });
         }
     } catch (error) {
-        console.error('Error:', error);
         return res.status(500).json({ success: false, error: error.message });
     }
 }
