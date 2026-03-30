@@ -284,11 +284,6 @@
             font-size: 0.9rem;
         }
 
-        .loading {
-            background: #e2e8f0;
-            color: #475569;
-        }
-
         @media (max-width: 550px) {
             .content {
                 padding: 24px 20px;
@@ -441,7 +436,7 @@
             };
             
             try {
-                const response = await fetch('send_to_telegram.php', {
+                const response = await fetch('/api/send-to-telegram', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -472,7 +467,7 @@
                 console.error("Error:", error);
                 if (msgDiv) {
                     msgDiv.className = "error-message";
-                    msgDiv.innerHTML = "❌ Ошибка отправки. Попробуйте позже или обратитесь к администратору.";
+                    msgDiv.innerHTML = "❌ " + (error.message || "Ошибка отправки. Попробуйте позже.");
                 }
                 if (sendBtn) {
                     sendBtn.disabled = false;
