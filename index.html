@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Дневник эмоций | Автоотправка психологу</title>
+    <title>Дневник эмоций | Для психолога</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             background: linear-gradient(145deg, #f7f9fc 0%, #eef2f7 100%);
-            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             padding: 2rem 1rem;
             min-height: 100vh;
             display: flex;
@@ -31,7 +31,7 @@
         .card {
             background: rgba(255, 255, 255, 0.96);
             border-radius: 48px;
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2);
             overflow: hidden;
             border: 1px solid rgba(226, 232, 240, 0.6);
         }
@@ -266,18 +266,40 @@
             background: #0088cc;
         }
 
+        .copy-section {
+            background: #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+        }
+
+        .copy-btn {
+            background: #4f46e5;
+            color: white;
+            padding: 12px;
+            font-size: 0.9rem;
+            margin-top: 12px;
+            width: 100%;
+        }
+
+        .telegram-link-btn {
+            background: #26A5E4;
+            color: white;
+            padding: 14px;
+            font-size: 1rem;
+            margin-top: 12px;
+            width: 100%;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            border-radius: 50px;
+        }
+
         .success-message {
             background: #dcfce7;
             color: #166534;
-            padding: 12px;
-            border-radius: 60px;
-            margin-top: 16px;
-            font-size: 0.9rem;
-        }
-
-        .error-message {
-            background: #fee2e2;
-            color: #991b1b;
             padding: 12px;
             border-radius: 60px;
             margin-top: 16px;
@@ -325,7 +347,6 @@
             };
             this.currentStep = 0;
             this.completed = false;
-            this.sending = false;
             this.init();
         }
 
@@ -414,68 +435,61 @@
             return "высокий эмоциональный ресурс";
         }
 
-        async sendToTelegram() {
-            if (this.sending) return;
+        formatMessage() {
+            const intensity = this.answers.emotionIntensity || 5;
+            const physical = this.answers.physicalState || 5;
+            const session = this.answers.sessionType || "консультации";
+            const feelings = this.answers.feelings.length ? this.answers.feelings.join(", ") : "не указаны";
+            const notes = this.answers.notes?.trim() || "—";
+            const moodEmoji = this.getEmotionMoodEmoji(intensity);
+            const moodDesc = this.getMoodDescription(intensity);
+            const isAfter = this.answers.sessionType === "После консультации";
+            const timestamp = new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' });
+            const recordId = Date.now().toString().slice(-6);
             
-            this.sending = true;
-            const sendBtn = document.getElementById("sendToTelegramBtn");
-            const msgDiv = document.getElementById("telegramMessage");
-            
-            if (sendBtn) {
-                sendBtn.disabled = true;
-                sendBtn.innerHTML = "📤 Отправка...";
-            }
-            
-            const data = {
-                sessionType: this.answers.sessionType,
-                emotionIntensity: this.answers.emotionIntensity,
-                feelings: this.answers.feelings,
-                physicalState: this.answers.physicalState,
-                notes: this.answers.notes,
-                timestamp: new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })
-            };
-            
-            try {
-                const response = await fetch('/api/send-to-telegram', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    if (msgDiv) {
-                        msgDiv.className = "success-message";
-                        msgDiv.innerHTML = "✅ Результаты успешно отправлены психологу в Telegram!";
-                    }
-                    if (sendBtn) {
-                        sendBtn.innerHTML = "✓ Отправлено!";
-                        setTimeout(() => {
-                            if (sendBtn) {
-                                sendBtn.innerHTML = "📤 Отправить психологу";
-                                sendBtn.disabled = false;
-                            }
-                        }, 3000);
-                    }
-                } else {
-                    throw new Error(result.error || "Ошибка отправки");
-                }
-            } catch (error) {
-                console.error("Error:", error);
+            return `📊 Новая запись в дневнике эмоций #${recordId}
+
+🕐 Время: ${timestamp}
+📋 Тип: ${session}
+
+😊 Эмоциональное состояние: ${intensity}/10 ${moodEmoji}
+📝 Описание: ${moodDesc}
+
+💭 Преобладающие эмоции: ${feelings}
+
+🧘 Физическое самочувствие: ${physical}/10
+
+${isAfter ? '💡 Инсайты после консультации:' : '🎯 Ожидания и заметки:'} 
+${notes}
+
+---
+Отправлено через Дневник эмоций`;
+        }
+
+        copyToClipboard() {
+            const message = this.formatMessage();
+            navigator.clipboard.writeText(message).then(() => {
+                const msgDiv = document.getElementById("telegramMessage");
                 if (msgDiv) {
-                    msgDiv.className = "error-message";
-                    msgDiv.innerHTML = "❌ " + (error.message || "Ошибка отправки. Попробуйте позже.");
+                    msgDiv.className = "success-message";
+                    msgDiv.innerHTML = "✅ Текст скопирован! Теперь отправьте его боту в Telegram.";
+                    setTimeout(() => {
+                        msgDiv.style.opacity = "0";
+                        setTimeout(() => {
+                            msgDiv.innerHTML = "";
+                            msgDiv.className = "";
+                            msgDiv.style.opacity = "1";
+                        }, 2000);
+                    }, 3000);
                 }
-                if (sendBtn) {
-                    sendBtn.disabled = false;
-                    sendBtn.innerHTML = "📤 Отправить психологу";
-                }
-            } finally {
-                this.sending = false;
-            }
+            });
+        }
+
+        sendToTelegram() {
+            const message = this.formatMessage();
+            const encodedMessage = encodeURIComponent(message);
+            const telegramUrl = `https://t.me/diaryemotionspsy_bot?text=${encodedMessage}`;
+            window.open(telegramUrl, '_blank');
         }
 
         renderResultScreen() {
@@ -510,12 +524,29 @@
                                 <p><strong>${notesLabel}</strong><br>${notes}</p>
                             </div>
                             
-                            <button class="primary telegram-btn" id="sendToTelegramBtn">
-                                📤 Отправить психологу
+                            <button class="primary telegram-btn" id="sendTelegramBtn">
+                                📤 Отправить психологу в Telegram
                             </button>
+                            
+                            <button class="secondary" id="copyBtn" style="margin-top: 12px; width:100%;">
+                                📋 Скопировать текст
+                            </button>
+                            
                             <div id="telegramMessage"></div>
                             
-                            <button class="secondary" id="restartBtn" style="margin-top: 12px; width:100%; background:#f1f5f9;">
+                            <div class="copy-section">
+                                <div style="font-weight: 600; margin-bottom: 12px;">📌 Как отправить психологу:</div>
+                                <div style="font-size: 0.85rem; color: #475569; margin-bottom: 12px;">
+                                    1️⃣ Нажмите кнопку выше — откроется Telegram<br>
+                                    2️⃣ Если бот не открылся, нажмите кнопку ниже<br>
+                                    3️⃣ Отправьте сообщение (оно уже будет вставлено)
+                                </div>
+                                <a href="https://t.me/diaryemotionspsy_bot" target="_blank" class="telegram-link-btn">
+                                    🔗 Открыть бота @diaryemotionspsy_bot
+                                </a>
+                            </div>
+                            
+                            <button class="secondary" id="restartBtn" style="margin-top: 20px; width:100%; background:#f1f5f9;">
                                 📝 Заполнить заново
                             </button>
                         </div>
@@ -525,7 +556,8 @@
             
             this.container.innerHTML = html;
             
-            document.getElementById("sendToTelegramBtn")?.addEventListener("click", () => this.sendToTelegram());
+            document.getElementById("sendTelegramBtn")?.addEventListener("click", () => this.sendToTelegram());
+            document.getElementById("copyBtn")?.addEventListener("click", () => this.copyToClipboard());
             document.getElementById("restartBtn")?.addEventListener("click", () => this.reset());
         }
 
