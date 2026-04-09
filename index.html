@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <title>NEOBANK · Мобильный банк</title>
+  <title>NEOBANK · Чат и переводы</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   
@@ -37,7 +37,7 @@
       padding-bottom: max(100px, env(safe-area-inset-bottom, 20px) + 80px);
     }
     
-    /* Кнопки - адаптивные */
+    /* Кнопки */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -56,7 +56,6 @@
       font-size: clamp(1rem, 4vw, 1.1rem);
       white-space: nowrap;
       touch-action: manipulation;
-      border: 1px solid rgba(0, 255, 255, 0.4);
     }
     
     .btn-primary {
@@ -64,16 +63,21 @@
       border: 1px solid #6ee7ff;
     }
     
-    .btn-primary:active {
+    .btn-danger {
+      background: linear-gradient(145deg, #ff4444, #cc0000);
+      border: 1px solid #ff8888;
+    }
+    
+    .btn-small {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+    }
+    
+    .btn:active {
       transform: scale(0.98);
-      box-shadow: 0 0 30px #0ef;
     }
     
-    .btn-outline {
-      background: rgba(10, 30, 45, 0.7);
-    }
-    
-    /* Хедер - адаптивный */
+    /* Хедер */
     header {
       padding: clamp(12px, 4vw, 20px) 0;
       display: flex;
@@ -110,12 +114,40 @@
       display: block; 
     }
     
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* Табы */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      border-bottom: 1px solid #1e3a5f;
     }
     
-    /* Модалки - адаптивные */
+    .tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      color: #9bbdf0;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .tab.active {
+      color: #0ef;
+      border-bottom-color: #0ef;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    /* Модалки */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -143,7 +175,7 @@
       -webkit-overflow-scrolling: touch;
     }
     
-    .modal input {
+    .modal input, .modal textarea {
       width: 100%;
       padding: clamp(14px, 4vw, 16px);
       background: #0a1622;
@@ -171,13 +203,11 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      word-break: break-word;
     }
     
-    /* Карта с переворотом - адаптивная */
+    /* Карта */
     .card-flip-container {
       perspective: 1000px;
-      height: auto;
       min-height: 200px;
       cursor: pointer;
       margin-bottom: 20px;
@@ -206,19 +236,10 @@
       padding: clamp(20px, 4vw, 30px);
       background: linear-gradient(145deg, #0d1f2c, #030b12);
       border: 1px solid #0ef6;
-      overflow: hidden;
     }
     
-    .card-front {
-      transform: rotateY(0deg);
-    }
-    
-    .card-back {
-      transform: rotateY(180deg);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
+    .card-front { transform: rotateY(0deg); }
+    .card-back { transform: rotateY(180deg); display: flex; flex-direction: column; justify-content: center; }
     
     .magnetic-stripe {
       background: #1a1a1a;
@@ -247,7 +268,7 @@
       text-shadow: 0 0 15px #0ef;
     }
     
-    /* Сетка карточки и транзакций */
+    /* Сетка */
     .dashboard-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -274,6 +295,81 @@
       justify-content: space-between;
     }
     
+    /* Чат */
+    .chat-container {
+      background: rgba(15, 28, 40, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: clamp(20px, 5vw, 32px);
+      border: 1px solid #1e3a5f;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    .chat-message {
+      margin-bottom: 16px;
+      animation: messageAppear 0.3s;
+    }
+    
+    .chat-message-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    
+    .chat-message-sender {
+      font-weight: 600;
+      color: #0ef;
+    }
+    
+    .chat-message-time {
+      font-size: 0.75rem;
+      opacity: 0.6;
+    }
+    
+    .chat-message-text {
+      background: rgba(0, 200, 255, 0.1);
+      padding: 10px 16px;
+      border-radius: 20px;
+      display: inline-block;
+      max-width: 80%;
+      word-break: break-word;
+    }
+    
+    .chat-message.own .chat-message-text {
+      background: linear-gradient(145deg, #00c8ff, #0077ff);
+      margin-left: auto;
+    }
+    
+    .chat-message.own .chat-message-header {
+      justify-content: flex-end;
+    }
+    
+    .chat-input-container {
+      display: flex;
+      gap: 10px;
+      padding: 20px;
+      border-top: 1px solid #1e3a5f;
+    }
+    
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: #0a1622;
+      border: 1px solid #2c5777;
+      border-radius: 40px;
+      color: white;
+      font-size: 1rem;
+    }
+    
     /* Статус */
     .status-badge {
       position: fixed;
@@ -289,22 +385,14 @@
       z-index: 9999;
       font-size: clamp(0.8rem, 3vw, 0.9rem);
       backdrop-filter: blur(8px);
-      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     
     .status-badge.online { color: #00ff88; }
     .status-badge.offline { color: #ffaa00; }
     
-    /* Уведомления - адаптивные */
-    .notification-wrapper {
-      position: relative;
-    }
-    
-    .notification-bell {
-      position: relative;
-      cursor: pointer;
-      padding: 8px;
-    }
+    /* Уведомления */
+    .notification-wrapper { position: relative; }
+    .notification-bell { position: relative; cursor: pointer; padding: 8px; }
     
     .notification-badge {
       position: absolute;
@@ -337,25 +425,18 @@
       max-width: 400px;
       max-height: min(400px, 70vh);
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       z-index: 1000;
       display: none;
     }
     
-    .notifications-dropdown.show {
-      display: block;
-    }
+    .notifications-dropdown.show { display: block; }
     
     .notification-item {
       padding: clamp(12px, 3vw, 16px);
       border-bottom: 1px solid #1e3a5f;
       cursor: pointer;
       border-radius: 12px;
-    }
-    
-    .notification-item:active {
-      background: rgba(0, 200, 255, 0.15);
     }
     
     .user-badge {
@@ -366,7 +447,7 @@
       font-size: clamp(0.85rem, 3.5vw, 1rem);
     }
     
-    /* Кнопки действий */
+    /* Секция действий */
     .action-section {
       margin-top: clamp(30px, 6vw, 40px);
       padding: clamp(20px, 5vw, 30px);
@@ -389,18 +470,18 @@
       text-align: center;
     }
     
-    /* Заголовки */
-    h2 {
-      font-size: clamp(1.8rem, 7vw, 2.5rem);
-      margin: clamp(20px, 5vw, 30px) 0 clamp(15px, 4vw, 20px);
+    /* Настройки */
+    .settings-section {
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(255, 50, 50, 0.1);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 50, 50, 0.3);
     }
     
-    h3 {
-      font-size: clamp(1.2rem, 5vw, 1.5rem);
-      margin-bottom: clamp(15px, 4vw, 20px);
-    }
+    h2 { font-size: clamp(1.8rem, 7vw, 2.5rem); margin: clamp(20px, 5vw, 30px) 0 clamp(15px, 4vw, 20px); }
+    h3 { font-size: clamp(1.2rem, 5vw, 1.5rem); margin-bottom: clamp(15px, 4vw, 20px); }
     
-    /* Hero секция */
     .hero-title {
       font-size: clamp(2.5rem, 10vw, 4rem);
       background: linear-gradient(135deg, #fff, #a0f0ff);
@@ -416,71 +497,17 @@
     
     /* Мобильные адаптации */
     @media (max-width: 768px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-      }
-      
-      header {
-        flex-direction: row;
-        align-items: center;
-      }
-      
-      .header-right {
-        justify-content: flex-end;
-      }
-      
-      .btn {
-        white-space: normal;
-      }
-      
-      .notifications-dropdown {
-        right: -50px;
-      }
-      
-      .card-flip-container {
-        margin-bottom: 10px;
-      }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .header-right { justify-content: flex-end; }
+      .notifications-dropdown { right: -50px; }
     }
     
     @media (max-width: 480px) {
-      .container {
-        padding: 0 12px;
-        padding-bottom: 100px;
-      }
-      
-      .action-buttons .btn {
-        width: 100%;
-      }
-      
-      .notifications-dropdown {
-        position: fixed;
-        top: 80px;
-        left: 10px;
-        right: 10px;
-        min-width: auto;
-        max-width: none;
-      }
-      
-      .modal {
-        padding: 24px 20px;
-      }
-      
-      .header-right .btn {
-        padding: 10px 16px;
-        font-size: 0.9rem;
-      }
-      
-      .user-badge {
-        padding: 6px 12px;
-      }
-    }
-    
-    /* Touch оптимизации */
-    @media (hover: none) and (pointer: coarse) {
-      .btn, .notification-item, .card-flip-container {
-        cursor: default;
-      }
+      .container { padding: 0 12px 100px; }
+      .action-buttons .btn { width: 100%; }
+      .notifications-dropdown { position: fixed; top: 80px; left: 10px; right: 10px; min-width: auto; max-width: none; }
+      .modal { padding: 24px 20px; }
+      .tabs { overflow-x: auto; }
     }
     
     /* Toast */
@@ -503,14 +530,24 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      font-size: clamp(0.9rem, 3.5vw, 1rem);
     }
     
     .toast.success { border-left-color: #00ff88; }
+    .toast.error { border-left-color: #ff4444; }
     
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes messageAppear {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -527,11 +564,10 @@
   <div class="modal">
     <h2 style="margin-bottom:24px;" id="modalTitle">Вход в NEOBANK</h2>
     <div id="loginForm">
-      <input type="text" id="loginId" placeholder="Ваш ID (например alice)" inputmode="text" autocomplete="username">
+      <input type="text" id="loginId" placeholder="Ваш ID" inputmode="text" autocomplete="username">
       <input type="password" id="loginPassword" placeholder="Пароль" autocomplete="current-password">
       <button class="btn btn-primary" style="width:100%;" id="loginBtn">Войти</button>
       <p style="margin-top:20px; text-align:center;">Нет аккаунта? <a href="#" id="showRegisterLink" style="color:#0ef;">Создать</a></p>
-      <p style="margin-top:10px; opacity:0.7; font-size:0.9rem; text-align:center;">Тест: alice / 123 • bob / 123</p>
     </div>
     <div id="registerForm" style="display:none;">
       <input type="text" id="regId" placeholder="Придумайте ID" inputmode="text" autocomplete="off">
@@ -550,6 +586,7 @@
     <p>Ваш баланс: <span id="currentBalanceSpan">0</span> ₽</p>
     <input type="text" id="recipientId" placeholder="ID получателя" inputmode="text">
     <input type="number" id="transferAmount" placeholder="Сумма" inputmode="decimal" min="1" step="1">
+    <textarea id="transferMessageInput" placeholder="Сообщение (необязательно)" rows="2" style="resize:none;"></textarea>
     <button class="btn btn-primary" style="width:100%;" id="sendTransferBtn">Отправить</button>
     <p style="margin-top:20px; text-align:center;"><a href="#" id="closeTransferModal" style="color:#aaa;">Закрыть</a></p>
     <div id="transferMessage" style="margin-top:16px; text-align:center;"></div>
@@ -578,7 +615,7 @@
     </header>
     <div style="padding:clamp(40px, 10vw, 60px) 0; text-align:center;">
       <h1 class="hero-title">Облачный банк</h1>
-      <p class="hero-text">Синхронизация между всеми устройствами через Firebase</p>
+      <p class="hero-text">Переводы, чат и синхронизация между всеми устройствами</p>
       <a href="#" class="btn btn-primary" id="heroOpenAccount">Открыть счёт</a>
     </div>
   </div>
@@ -607,61 +644,97 @@
     
     <h2>👋 Добро пожаловать, <span id="dashboardName"></span></h2>
     
-    <div class="balance-card">
-      <div>Доступный баланс</div>
-      <div class="balance-amount"><span id="dashboardBalance">0</span> ₽</div>
+    <!-- Табы -->
+    <div class="tabs">
+      <button class="tab active" data-tab="overview">💰 Обзор</button>
+      <button class="tab" data-tab="chat">💬 Чат</button>
+      <button class="tab" data-tab="settings">⚙️ Настройки</button>
     </div>
     
-    <div class="dashboard-grid">
-      <!-- Карта с переворотом -->
-      <div class="card-flip-container" id="cardContainer" onclick="this.classList.toggle('flipped')">
-        <div class="card-flipper">
-          <div class="card-front">
-            <h3>💳 NEOBANK PLATINUM</h3>
-            <div class="card-number" id="userCardNumberFull">0000 0000 0000 0000</div>
-            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-              <span id="userCardName">CARDHOLDER</span>
-              <span id="userCardExpiry">12/29</span>
+    <!-- Обзор -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="balance-card">
+        <div>Доступный баланс</div>
+        <div class="balance-amount"><span id="dashboardBalance">0</span> ₽</div>
+      </div>
+      
+      <div class="dashboard-grid">
+        <div class="card-flip-container" id="cardContainer" onclick="this.classList.toggle('flipped')">
+          <div class="card-flipper">
+            <div class="card-front">
+              <h3>💳 NEOBANK PLATINUM</h3>
+              <div class="card-number" id="userCardNumberFull">0000 0000 0000 0000</div>
+              <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                <span id="userCardName">CARDHOLDER</span>
+                <span id="userCardExpiry">12/29</span>
+              </div>
+              <div style="margin-top: 20px; opacity: 0.6; font-size: 0.8rem;">
+                <i data-lucide="wifi"></i> Бесконтактная оплата
+              </div>
             </div>
-            <div style="margin-top: 20px; opacity: 0.6; font-size: 0.8rem;">
-              <i data-lucide="wifi"></i> Бесконтактная оплата
-            </div>
-          </div>
-          <div class="card-back">
-            <div class="magnetic-stripe"></div>
-            <div style="display: flex; justify-content: flex-end; margin: 20px 0;">
-              <div class="cvv-display" id="userCardCVV">•••</div>
-            </div>
-            <div style="opacity: 0.7; font-size: 0.9rem;">
-              <p>Служба поддержки: +7 (800) 555-35-35</p>
-              <p>Действительна до: <span id="backCardExpiry">12/29</span></p>
+            <div class="card-back">
+              <div class="magnetic-stripe"></div>
+              <div style="display: flex; justify-content: flex-end; margin: 20px 0;">
+                <div class="cvv-display" id="userCardCVV">•••</div>
+              </div>
+              <div style="opacity: 0.7; font-size: 0.9rem;">
+                <p>Служба поддержки: +7 (800) 555-35-35</p>
+                <p>Действительна до: <span id="backCardExpiry">12/29</span></p>
+              </div>
             </div>
           </div>
         </div>
+        
+        <div class="transactions">
+          <h3>📋 Операции</h3>
+          <div id="transactionsList"></div>
+        </div>
       </div>
       
-      <div class="transactions">
-        <h3>📋 Операции</h3>
-        <div id="transactionsList"></div>
+      <div class="action-section">
+        <div class="action-buttons">
+          <button class="btn btn-primary" id="transferBtn"><i data-lucide="send"></i> Перевести</button>
+          <button class="btn" id="clickerButton" style="background:linear-gradient(145deg,#7b2ff7,#4a00e0); border:2px solid #b86eff;">
+            <i data-lucide="cpu"></i> Кликер +100 ₽
+          </button>
+        </div>
+        <div class="stats-text">
+          Кликов: <span id="clickCount">0</span> | Заработано: <span id="totalClicked">0</span> ₽
+        </div>
       </div>
     </div>
     
-    <div class="action-section">
-      <div class="action-buttons">
-        <button class="btn btn-primary" id="transferBtn"><i data-lucide="send"></i> Перевести</button>
-        <button class="btn" id="clickerButton" style="background:linear-gradient(145deg,#7b2ff7,#4a00e0); border:2px solid #b86eff;">
-          <i data-lucide="cpu"></i> Кликер +100 ₽
-        </button>
+    <!-- Чат -->
+    <div class="tab-content" id="tab-chat">
+      <div class="chat-container">
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-container">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Введите сообщение...">
+          <button class="btn btn-primary btn-small" id="sendChatBtn"><i data-lucide="send"></i></button>
+        </div>
       </div>
-      <div class="stats-text">
-        Кликов: <span id="clickCount">0</span> | Заработано: <span id="totalClicked">0</span> ₽
+    </div>
+    
+    <!-- Настройки -->
+    <div class="tab-content" id="tab-settings">
+      <div class="balance-card" style="padding: 30px;">
+        <h3>👤 Профиль</h3>
+        <p><strong>ID:</strong> <span id="settingsUserId"></span></p>
+        <p><strong>Имя:</strong> <span id="settingsUserName"></span></p>
+        <p><strong>Баланс:</strong> <span id="settingsBalance"></span> ₽</p>
+      </div>
+      
+      <div class="settings-section">
+        <h3 style="color: #ff8888;">🗑️ Удаление аккаунта</h3>
+        <p style="margin-bottom: 20px; opacity: 0.8;">Это действие нельзя отменить. Все ваши данные будут удалены.</p>
+        <button class="btn btn-danger" id="deleteAccountBtn"><i data-lucide="trash-2"></i> Удалить аккаунт</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  // ========== ВАШ FIREBASE КОНФИГ ==========
+  // ========== FIREBASE КОНФИГ ==========
   const firebaseConfig = {
     apiKey: "AIzaSyDSuVbn9KNEJn8I8uX_q5sjecnaorzFmVk",
     authDomain: "neobank-3d210.firebaseapp.com",
@@ -672,13 +745,13 @@
     databaseURL: "https://neobank-3d210-default-rtdb.europe-west1.firebasedatabase.app"
   };
   
-  // Инициализация Firebase
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
   
   let currentUser = null;
   let clickStats = { total: 0, clicks: 0 };
   let userUnsubscribe = null;
+  let chatUnsubscribe = null;
   let notifications = [];
   let unreadCount = 0;
   
@@ -699,24 +772,6 @@
     }
     lucide.createIcons();
   });
-  
-  // Инициализация тестовых пользователей
-  async function initTestUsers() {
-    const snapshot = await database.ref("users").get();
-    if (!snapshot.exists()) {
-      await database.ref("users/alice").set({
-        id: "alice", name: "Алиса", password: "123", balance: 5000,
-        cardNumber: "4532 7812 9901 3456", cardExpiry: "08/28", cvv: "123",
-        transactions: [], clickStats: { total: 0, clicks: 0 }, notifications: []
-      });
-      await database.ref("users/bob").set({
-        id: "bob", name: "Боб", password: "123", balance: 3000,
-        cardNumber: "5378 3412 7765 1098", cardExpiry: "11/27", cvv: "456",
-        transactions: [], clickStats: { total: 0, clicks: 0 }, notifications: []
-      });
-      console.log("✅ Тестовые пользователи созданы");
-    }
-  }
   
   // Уведомления
   function addNotification(userId, notification) {
@@ -806,6 +861,7 @@
         <p><strong>От:</strong> ${notification.from}</p>
         <p><strong>Кому:</strong> ${notification.to}</p>
         <p><strong>Дата:</strong> ${new Date(notification.date).toLocaleString()}</p>
+        ${notification.chatMessage ? `<p><strong>Сообщение:</strong> "${notification.chatMessage}"</p>` : ''}
       </div>
     `;
     
@@ -844,7 +900,19 @@
     return user;
   }
   
-  // Подписка на изменения
+  // Удаление аккаунта
+  async function deleteAccount() {
+    if (!currentUser) return;
+    await database.ref("users/" + currentUser.id).remove();
+    if (userUnsubscribe) userUnsubscribe();
+    if (chatUnsubscribe) chatUnsubscribe();
+    currentUser = null;
+    document.getElementById("publicPage").classList.add("active");
+    document.getElementById("privatePage").classList.remove("active");
+    showToast("Аккаунт удалён", "info");
+  }
+  
+  // Подписка на пользователя
   function subscribeToUser(userId) {
     if (userUnsubscribe) userUnsubscribe();
     userUnsubscribe = database.ref("users/" + userId).on("value", (snapshot) => {
@@ -875,11 +943,50 @@
     });
   }
   
-  // Показать уведомление
+  // Чат
+  function subscribeToChat() {
+    if (chatUnsubscribe) chatUnsubscribe();
+    chatUnsubscribe = database.ref("messages").on("value", (snapshot) => {
+      const messages = snapshot.val() || [];
+      displayMessages(messages);
+    });
+  }
+  
+  function displayMessages(messages) {
+    const container = document.getElementById("chatMessages");
+    const messagesArray = Object.values(messages).sort((a, b) => a.timestamp - b.timestamp);
+    
+    container.innerHTML = messagesArray.map(msg => `
+      <div class="chat-message ${msg.senderId === currentUser?.id ? 'own' : ''}">
+        <div class="chat-message-header">
+          <span class="chat-message-sender">${msg.senderName}</span>
+          <span class="chat-message-time">${new Date(msg.timestamp).toLocaleTimeString()}</span>
+        </div>
+        <div class="chat-message-text">${msg.text}</div>
+      </div>
+    `).join("");
+    
+    container.scrollTop = container.scrollHeight;
+  }
+  
+  async function sendMessage(text) {
+    if (!text.trim() || !currentUser) return;
+    
+    const message = {
+      senderId: currentUser.id,
+      senderName: currentUser.name,
+      text: text.trim(),
+      timestamp: Date.now()
+    };
+    
+    await database.ref("messages").push(message);
+  }
+  
+  // Toast
   function showToast(message, type = "info") {
     const toast = document.createElement("div");
     toast.className = `toast ${type}`;
-    toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'info'}"></i> ${message}`;
+    toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : type === 'error' ? 'alert-circle' : 'info'}"></i> ${message}`;
     document.body.appendChild(toast);
     lucide.createIcons();
     
@@ -903,6 +1010,10 @@
     document.getElementById("clickCount").textContent = clickStats.clicks;
     document.getElementById("totalClicked").textContent = clickStats.total;
     document.getElementById("currentBalanceSpan").textContent = currentUser.balance.toFixed(2);
+    
+    document.getElementById("settingsUserId").textContent = currentUser.id;
+    document.getElementById("settingsUserName").textContent = currentUser.name;
+    document.getElementById("settingsBalance").textContent = currentUser.balance.toFixed(2);
     
     const txs = currentUser.transactions || [];
     document.getElementById("transactionsList").innerHTML = txs.slice(-5).reverse().map(tx => `
@@ -988,6 +1099,17 @@
     notificationsDropdown.classList.toggle("show");
   });
   
+  // Табы
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      tab.classList.add('active');
+      document.getElementById(`tab-${tab.dataset.tab}`).classList.add('active');
+    });
+  });
+  
   // Регистрация
   document.getElementById("registerBtn").addEventListener("click", async () => {
     const id = document.getElementById("regId").value.trim();
@@ -1004,12 +1126,13 @@
       publicPage.classList.remove("active");
       privatePage.classList.add("active");
       subscribeToUser(user.id);
+      subscribeToChat();
       loadNotifications();
       updateUI();
       
       authModal.style.visibility = "hidden";
       authModal.style.opacity = "0";
-      showToast("✅ Аккаунт создан! Данные в облаке", "success");
+      showToast("✅ Аккаунт создан! +1000 ₽ бонус", "success");
       lucide.createIcons();
     } catch (err) {
       alert("❌ " + err.message);
@@ -1029,6 +1152,7 @@
       publicPage.classList.remove("active");
       privatePage.classList.add("active");
       subscribeToUser(user.id);
+      subscribeToChat();
       loadNotifications();
       updateUI();
       
@@ -1045,9 +1169,17 @@
   document.getElementById("logoutBtn").addEventListener("click", (e) => {
     e.preventDefault();
     if (userUnsubscribe) userUnsubscribe();
+    if (chatUnsubscribe) chatUnsubscribe();
     currentUser = null;
     publicPage.classList.add("active");
     privatePage.classList.remove("active");
+  });
+  
+  // Удаление аккаунта
+  document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
+    if (confirm("Вы уверены? Это действие нельзя отменить!")) {
+      await deleteAccount();
+    }
   });
   
   // Кликер
@@ -1089,6 +1221,7 @@
   document.getElementById("sendTransferBtn").addEventListener("click", async () => {
     const toId = document.getElementById("recipientId").value.trim();
     const amount = parseFloat(document.getElementById("transferAmount").value);
+    const chatMessage = document.getElementById("transferMessageInput").value.trim();
     const msg = document.getElementById("transferMessage");
     
     if (!toId || amount <= 0) { msg.textContent = "❌ Некорректные данные"; return; }
@@ -1121,8 +1254,20 @@
       message: `+${amount} ₽`,
       amount: amount,
       from: currentUser.name,
-      to: recipient.name
+      to: recipient.name,
+      chatMessage: chatMessage || null
     });
+    
+    // Отправка сообщения в чат при переводе
+    if (chatMessage) {
+      await database.ref("messages").push({
+        senderId: currentUser.id,
+        senderName: currentUser.name,
+        text: `💰 Перевёл ${amount} ₽ для ${recipient.name}: "${chatMessage}"`,
+        timestamp: Date.now(),
+        type: 'transfer'
+      });
+    }
     
     msg.innerHTML = "✅ Перевод выполнен!";
     setTimeout(() => {
@@ -1130,15 +1275,28 @@
       transferModal.style.opacity = "0";
       document.getElementById("recipientId").value = "";
       document.getElementById("transferAmount").value = "";
+      document.getElementById("transferMessageInput").value = "";
       msg.textContent = "";
     }, 1500);
   });
   
+  // Чат отправка
+  document.getElementById("sendChatBtn").addEventListener("click", () => {
+    const input = document.getElementById("chatInput");
+    sendMessage(input.value);
+    input.value = "";
+  });
+  
+  document.getElementById("chatInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      const input = document.getElementById("chatInput");
+      sendMessage(input.value);
+      input.value = "";
+    }
+  });
+  
   // Запуск
-  (async () => {
-    await initTestUsers();
-    lucide.createIcons();
-  })();
+  lucide.createIcons();
 </script>
 </body>
 </html>
