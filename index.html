@@ -26,13 +26,15 @@
       font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       color: #eef2fb;
       min-height: 100vh;
-      padding-bottom: env(safe-area-inset-bottom, 20px);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     
     .container { 
       max-width: 1300px; 
       margin: 0 auto; 
       padding: 0 clamp(16px, 5vw, 28px);
+      padding-bottom: max(100px, env(safe-area-inset-bottom, 20px) + 80px);
     }
     
     /* Кнопки - адаптивные */
@@ -45,15 +47,16 @@
       backdrop-filter: blur(8px);
       border: 1px solid rgba(0, 255, 255, 0.4);
       color: #e0f7ff;
-      padding: clamp(10px, 3vw, 14px) clamp(20px, 5vw, 32px);
+      padding: clamp(12px, 3vw, 14px) clamp(24px, 5vw, 32px);
       border-radius: 60px;
       cursor: pointer;
       text-decoration: none;
       font-weight: 600;
       transition: all 0.25s;
-      font-size: clamp(0.9rem, 4vw, 1.1rem);
+      font-size: clamp(1rem, 4vw, 1.1rem);
       white-space: nowrap;
       touch-action: manipulation;
+      border: 1px solid rgba(0, 255, 255, 0.4);
     }
     
     .btn-primary {
@@ -64,6 +67,10 @@
     .btn-primary:active {
       transform: scale(0.98);
       box-shadow: 0 0 30px #0ef;
+    }
+    
+    .btn-outline {
+      background: rgba(10, 30, 45, 0.7);
     }
     
     /* Хедер - адаптивный */
@@ -133,17 +140,18 @@
       width: 100%;
       max-height: 90vh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
     
     .modal input {
       width: 100%;
-      padding: clamp(12px, 4vw, 16px);
+      padding: clamp(14px, 4vw, 16px);
       background: #0a1622;
       border: 1px solid #2c5777;
       border-radius: 40px;
       color: white;
       margin: 12px 0;
-      font-size: clamp(0.9rem, 4vw, 1rem);
+      font-size: clamp(1rem, 4vw, 1rem);
       -webkit-appearance: none;
     }
     
@@ -151,7 +159,7 @@
     .balance-card {
       background: linear-gradient(145deg, #0a1a2a, #030f1a);
       border-radius: clamp(24px, 6vw, 40px);
-      padding: clamp(20px, 5vw, 40px);
+      padding: clamp(24px, 5vw, 40px);
       border: 1px solid #0ef3;
       margin-bottom: clamp(20px, 5vw, 30px);
     }
@@ -169,15 +177,17 @@
     /* Карта с переворотом - адаптивная */
     .card-flip-container {
       perspective: 1000px;
-      height: clamp(180px, 40vw, 240px);
+      height: auto;
+      min-height: 200px;
       cursor: pointer;
-      margin-bottom: clamp(20px, 5vw, 0);
+      margin-bottom: 20px;
     }
     
     .card-flipper {
       position: relative;
       width: 100%;
       height: 100%;
+      min-height: 200px;
       transition: transform 0.6s;
       transform-style: preserve-3d;
     }
@@ -190,9 +200,10 @@
       position: absolute;
       width: 100%;
       height: 100%;
+      min-height: 200px;
       backface-visibility: hidden;
       border-radius: clamp(20px, 5vw, 32px);
-      padding: clamp(16px, 4vw, 30px);
+      padding: clamp(20px, 4vw, 30px);
       background: linear-gradient(145deg, #0d1f2c, #030b12);
       border: 1px solid #0ef6;
       overflow: hidden;
@@ -228,10 +239,10 @@
     
     .card-number {
       font-family: monospace;
-      font-size: clamp(1.1rem, 4vw, 1.6rem);
+      font-size: clamp(1.2rem, 4.5vw, 1.6rem);
       letter-spacing: clamp(2px, 1vw, 4px);
       color: #fff;
-      margin: clamp(12px, 4vw, 20px) 0;
+      margin: clamp(15px, 4vw, 20px) 0;
       word-break: break-all;
       text-shadow: 0 0 15px #0ef;
     }
@@ -241,7 +252,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: clamp(16px, 4vw, 30px);
-      margin-bottom: clamp(20px, 5vw, 30px);
+      margin-bottom: clamp(30px, 5vw, 40px);
     }
     
     .transactions {
@@ -250,15 +261,17 @@
       border-radius: clamp(20px, 5vw, 32px);
       padding: clamp(16px, 4vw, 24px);
       border: 1px solid #1e3a5f;
-      height: clamp(180px, 40vw, 240px);
+      max-height: 300px;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
     
     .transaction-item {
-      padding: clamp(8px, 2vw, 12px) 0;
+      padding: clamp(10px, 2.5vw, 12px) 0;
       border-bottom: 1px solid #1e3a5f;
-      font-size: clamp(0.85rem, 3.5vw, 1rem);
+      font-size: clamp(0.9rem, 3.5vw, 1rem);
+      display: flex;
+      justify-content: space-between;
     }
     
     /* Статус */
@@ -267,7 +280,7 @@
       bottom: max(16px, env(safe-area-inset-bottom, 16px));
       left: max(16px, env(safe-area-inset-left, 16px));
       padding: clamp(8px, 3vw, 12px) clamp(16px, 4vw, 20px);
-      background: rgba(18, 30, 45, 0.9);
+      background: rgba(18, 30, 45, 0.95);
       border-radius: 40px;
       border: 1px solid #0ef6;
       display: flex;
@@ -276,6 +289,7 @@
       z-index: 9999;
       font-size: clamp(0.8rem, 3vw, 0.9rem);
       backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
     
     .status-badge.online { color: #00ff88; }
@@ -323,6 +337,7 @@
       max-width: 400px;
       max-height: min(400px, 70vh);
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       z-index: 1000;
       display: none;
@@ -352,6 +367,15 @@
     }
     
     /* Кнопки действий */
+    .action-section {
+      margin-top: clamp(30px, 6vw, 40px);
+      padding: clamp(20px, 5vw, 30px);
+      background: rgba(18, 25, 35, 0.4);
+      backdrop-filter: blur(8px);
+      border-radius: clamp(24px, 6vw, 40px);
+      border: 1px solid rgba(0, 255, 255, 0.1);
+    }
+    
     .action-buttons {
       display: flex;
       justify-content: center;
@@ -360,19 +384,20 @@
     }
     
     .stats-text {
-      margin-top: clamp(16px, 4vw, 20px);
-      font-size: clamp(0.9rem, 3.5vw, 1rem);
+      margin-top: clamp(20px, 4vw, 25px);
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      text-align: center;
     }
     
     /* Заголовки */
     h2 {
-      font-size: clamp(1.5rem, 6vw, 2.2rem);
-      margin: clamp(20px, 5vw, 30px) 0;
+      font-size: clamp(1.8rem, 7vw, 2.5rem);
+      margin: clamp(20px, 5vw, 30px) 0 clamp(15px, 4vw, 20px);
     }
     
     h3 {
-      font-size: clamp(1.1rem, 4.5vw, 1.3rem);
-      margin-bottom: clamp(12px, 3vw, 16px);
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
+      margin-bottom: clamp(15px, 4vw, 20px);
     }
     
     /* Hero секция */
@@ -385,8 +410,8 @@
     }
     
     .hero-text {
-      font-size: clamp(1rem, 4vw, 1.3rem);
-      margin: clamp(16px, 5vw, 24px) 0;
+      font-size: clamp(1.1rem, 4.5vw, 1.3rem);
+      margin: clamp(20px, 5vw, 30px) 0;
     }
     
     /* Мобильные адаптации */
@@ -397,12 +422,12 @@
       }
       
       header {
-        flex-direction: column;
-        align-items: stretch;
+        flex-direction: row;
+        align-items: center;
       }
       
       .header-right {
-        justify-content: space-between;
+        justify-content: flex-end;
       }
       
       .btn {
@@ -412,11 +437,16 @@
       .notifications-dropdown {
         right: -50px;
       }
+      
+      .card-flip-container {
+        margin-bottom: 10px;
+      }
     }
     
     @media (max-width: 480px) {
       .container {
         padding: 0 12px;
+        padding-bottom: 100px;
       }
       
       .action-buttons .btn {
@@ -434,6 +464,15 @@
       
       .modal {
         padding: 24px 20px;
+      }
+      
+      .header-right .btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+      }
+      
+      .user-badge {
+        padding: 6px 12px;
       }
     }
     
@@ -516,7 +555,7 @@
     <div id="transferMessage" style="margin-top:16px; text-align:center;"></div>
     <div style="margin-top:30px;">
       <h4>👥 Пользователи</h4>
-      <div id="usersList" style="max-height:200px; overflow-y:auto;"></div>
+      <div id="usersList" style="max-height:200px; overflow-y:auto; -webkit-overflow-scrolling:touch;"></div>
     </div>
   </div>
 </div>
@@ -607,14 +646,16 @@
       </div>
     </div>
     
-    <div class="action-buttons">
-      <button class="btn btn-primary" id="transferBtn"><i data-lucide="send"></i> Перевести</button>
-      <button class="btn" id="clickerButton" style="background:linear-gradient(145deg,#7b2ff7,#4a00e0); border:2px solid #b86eff;">
-        <i data-lucide="cpu"></i> Кликер +100 ₽
-      </button>
-    </div>
-    <div class="stats-text" style="text-align:center;">
-      Кликов: <span id="clickCount">0</span> | Заработано: <span id="totalClicked">0</span> ₽
+    <div class="action-section">
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="transferBtn"><i data-lucide="send"></i> Перевести</button>
+        <button class="btn" id="clickerButton" style="background:linear-gradient(145deg,#7b2ff7,#4a00e0); border:2px solid #b86eff;">
+          <i data-lucide="cpu"></i> Кликер +100 ₽
+        </button>
+      </div>
+      <div class="stats-text">
+        Кликов: <span id="clickCount">0</span> | Заработано: <span id="totalClicked">0</span> ₽
+      </div>
     </div>
   </div>
 </div>
@@ -1027,7 +1068,6 @@
     
     await database.ref().update(updates);
     
-    // Тактильная обратная связь
     if (window.navigator && window.navigator.vibrate) {
       window.navigator.vibrate(10);
     }
@@ -1093,13 +1133,6 @@
       msg.textContent = "";
     }, 1500);
   });
-  
-  // Блокировка зума на мобильных
-  document.addEventListener('touchmove', (e) => {
-    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-      e.preventDefault();
-    }
-  }, { passive: false });
   
   // Запуск
   (async () => {
