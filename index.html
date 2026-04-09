@@ -1,741 +1,891 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Дневник эмоций | Тёплое пространство</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: #f5f3f0;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            padding: 2rem 1rem;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #2c2c2c;
-        }
-
-        .app-container {
-            max-width: 680px;
-            width: 100%;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .settings-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 42px;
-            height: 42px;
-            border-radius: 42px;
-            background: #ffffffcc;
-            backdrop-filter: blur(4px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.2rem;
-            z-index: 20;
-            border: 1px solid #e2ddd8;
-            transition: 0.2s;
-            color: #7c6e65;
-        }
-        .settings-btn:hover { background: white; transform: scale(1.02); }
-
-        .card {
-            background: #ffffffea;
-            border-radius: 40px;
-            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.06);
-            overflow: hidden;
-            border: 1px solid #eae6e1;
-        }
-
-        .progress-area {
-            padding: 20px 28px 12px 28px;
-            background: transparent;
-            border-bottom: 1px solid #f0ede8;
-        }
-        .progress-steps {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .step-badge {
-            font-size: 0.75rem;
-            font-weight: 500;
-            background: #f2efe9;
-            color: #8f7e72;
-            padding: 6px 14px;
-            border-radius: 40px;
-        }
-        .step-bar-wrapper {
-            flex: 1;
-            height: 4px;
-            background: #e8e3dd;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .step-bar-fill {
-            width: 0%;
-            height: 100%;
-            background: #b7a18a;
-            border-radius: 4px;
-            transition: width 0.3s;
-        }
-
-        .content {
-            padding: 28px 28px 36px;
-        }
-
-        h2 {
-            font-size: 1.7rem;
-            font-weight: 500;
-            margin-bottom: 12px;
-            color: #3d352e;
-            letter-spacing: -0.3px;
-        }
-
-        .subheading {
-            color: #9b8c7e;
-            font-size: 0.95rem;
-            margin-bottom: 28px;
-            border-left: 2px solid #ddd6cf;
-            padding-left: 14px;
-        }
-
-        .welcome-card {
-            background: #faf7f4;
-            border-radius: 36px;
-            padding: 40px 28px;
-            text-align: center;
-        }
-        .welcome-card h1 {
-            font-size: 1.9rem;
-            font-weight: 500;
-            color: #4a3f36;
-            margin-bottom: 12px;
-        }
-        .welcome-card p {
-            color: #9b8c7e;
-            margin-bottom: 28px;
-        }
-        .number-input-wrapper {
-            background: #ffffff;
-            border-radius: 60px;
-            padding: 4px;
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            border: 1px solid #e2ddd8;
-        }
-        .number-input-wrapper input {
-            flex: 1;
-            padding: 14px 20px;
-            border-radius: 60px;
-            border: none;
-            font-size: 0.95rem;
-            background: white;
-            color: #3d352e;
-            text-align: center;
-        }
-        .welcome-btn {
-            background: #e5dfd8;
-            color: #4a3f36;
-            padding: 14px 24px;
-            border-radius: 60px;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-top: 20px;
-            width: 100%;
-        }
-        .welcome-btn:hover { background: #dbd2c9; }
-
-        .segment-group {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-        .segment-option {
-            flex: 1;
-            background: #f2efe9;
-            border-radius: 60px;
-            padding: 12px 0;
-            text-align: center;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            color: #7c6e65;
-            border: 1px solid #e2ddd8;
-        }
-        .segment-option.selected {
-            background: #e5dfd8;
-            color: #4a3f36;
-            border-color: #cdc3b9;
-        }
-
-        .emotion-scale {
-            background: #faf8f6;
-            border-radius: 40px;
-            padding: 16px 20px;
-        }
-        .current-value {
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: 500;
-            color: #b7a18a;
-            margin: 8px 0;
-        }
-        input[type="range"] {
-            width: 100%;
-            height: 4px;
-            -webkit-appearance: none;
-            background: #e8e3dd;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.1s ease;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 22px;
-            height: 22px;
-            background: #ffffff;
-            border-radius: 50%;
-            border: 1px solid #cdc3b9;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-
-        .star-rating {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            font-size: 2rem;
-            cursor: pointer;
-            margin: 12px 0;
-        }
-        .star {
-            transition: transform 0.1s ease;
-            color: #ddd0c4;
-        }
-        .star.active {
-            color: #f5b042;
-        }
-        .star:hover {
-            transform: scale(1.1);
-        }
-
-        .admin-select {
-            width: 100%;
-            padding: 14px;
-            border-radius: 40px;
-            border: 1px solid #e2ddd8;
-            background: white;
-            font-size: 0.95rem;
-            color: #3d352e;
-            margin-top: 8px;
-        }
-
-        .check-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 8px;
-        }
-        .emotion-chip {
-            background: #f2efe9;
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 1px solid #e2ddd8;
-            color: #7c6e65;
-        }
-        .emotion-chip.selected {
-            background: #e5dfd8;
-            color: #4a3f36;
-            border-color: #cdc3b9;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 16px 18px;
-            border-radius: 28px;
-            border: 1px solid #e2ddd8;
-            font-family: inherit;
-            resize: vertical;
-            font-size: 0.95rem;
-            background: white;
-        }
-        textarea:focus {
-            outline: none;
-            border-color: #cdc3b9;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 32px;
-            gap: 12px;
-        }
-        button {
-            background: #f2efe9;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 60px;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: inherit;
-            font-size: 0.95rem;
-            transition: 0.2s;
-            color: #5e5146;
-        }
-        button.primary {
-            background: #e5dfd8;
-            color: #4a3f36;
-        }
-        button.primary:hover { background: #dbd2c9; }
-        button.secondary:hover { background: #e8e2db; }
-
-        .result-card {
-            background: #fefcf9;
-            border-radius: 32px;
-            padding: 28px;
-            text-align: center;
-            border: 1px solid #efe8e1;
-        }
-        .result-emoji {
-            font-size: 3rem;
-            margin-bottom: 12px;
-        }
-        hr {
-            margin: 20px 0;
-            border: 0;
-            height: 1px;
-            background: #eae3db;
-        }
-        .telegram-btn {
-            background: #e5dfd8;
-            color: #4a3f36;
-            margin-top: 16px;
-            width: 100%;
-        }
-        .telegram-btn:hover { background: #dbd2c9; }
-
-        .response-card {
-            background: #fefcf9;
-            border-radius: 28px;
-            padding: 20px;
-            margin-top: 20px;
-            text-align: center;
-            animation: slideUp 0.4s ease;
-            border-left: 4px solid;
-        }
-        .response-card.poor { border-left-color: #c9aa9a; background: #fefaf7; }
-        .response-card.medium { border-left-color: #d4bfa8; background: #fefaf7; }
-        .response-card.good { border-left-color: #b7be8f; background: #fefaf7; }
-        .response-card.excellent { border-left-color: #c0b38a; background: #fefaf7; }
-        .response-emoji { font-size: 2rem; margin-bottom: 8px; }
-        .response-title { font-size: 1.2rem; font-weight: 500; margin-bottom: 8px; color: #5e5146; }
-        .response-text { font-size: 0.9rem; color: #9b8c7e; }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(6px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: 0.2s;
-        }
-        .modal-overlay.active { opacity: 1; visibility: visible; }
-        .modal-card {
-            background: white;
-            border-radius: 36px;
-            padding: 28px;
-            max-width: 360px;
-            width: 90%;
-            text-align: center;
-        }
-        .modal-card input {
-            width: 100%;
-            padding: 14px;
-            border-radius: 60px;
-            border: 1px solid #e2ddd8;
-            margin: 16px 0;
-        }
-        .modal-buttons { display: flex; gap: 12px; }
-        .modal-save { background: #e5dfd8; color: #4a3f36; }
-        .modal-cancel { background: #f2efe9; }
-
-        @media (max-width: 550px) {
-            .content { padding: 24px 20px; }
-            h2 { font-size: 1.5rem; }
-            .star-rating { font-size: 1.5rem; gap: 4px; }
-        }
-        .fade-in { animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEOBANK · Облачная синхронизация</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0b0e14;
+      font-family: "Inter", sans-serif;
+      color: #eef2fb;
+    }
+    .container { max-width: 1300px; margin: 0 auto; padding: 0 28px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(10, 30, 45, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      color: #e0f7ff;
+      padding: 14px 32px;
+      border-radius: 60px;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.25s;
+    }
+    .btn-primary {
+      background: linear-gradient(145deg, #00c8ff, #0077ff);
+      border: 1px solid #6ee7ff;
+    }
+    .btn-primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 30px #0ef;
+    }
+    header {
+      padding: 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 0 15px cyan;
+    }
+    .page { display: none; }
+    .page.active { display: block; }
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: 0.2s;
+    }
+    .modal {
+      background: rgba(18, 30, 45, 0.98);
+      border: 1px solid #0ef6;
+      border-radius: 48px;
+      padding: 40px;
+      max-width: 480px;
+      width: 90%;
+    }
+    .modal input {
+      width: 100%;
+      padding: 16px;
+      background: #0a1622;
+      border: 1px solid #2c5777;
+      border-radius: 40px;
+      color: white;
+      margin: 12px 0;
+      font-size: 1rem;
+    }
+    .balance-card {
+      background: linear-gradient(145deg, #0a1a2a, #030f1a);
+      border-radius: 40px;
+      padding: 40px;
+      border: 1px solid #0ef3;
+      margin-bottom: 30px;
+    }
+    .balance-amount {
+      font-size: 4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #fff, #b5f0ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    /* Карта с переворотом */
+    .card-flip-container {
+      perspective: 1000px;
+      height: 240px;
+      cursor: pointer;
+    }
+    .card-flipper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .card-flip-container.flipped .card-flipper {
+      transform: rotateY(180deg);
+    }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 32px;
+      padding: 30px;
+      background: linear-gradient(145deg, #0d1f2c, #030b12);
+      border: 1px solid #0ef6;
+    }
+    .card-front {
+      transform: rotateY(0deg);
+    }
+    .card-back {
+      transform: rotateY(180deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .magnetic-stripe {
+      background: #1a1a1a;
+      height: 50px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    .cvv-display {
+      background: white;
+      color: black;
+      padding: 15px;
+      border-radius: 12px;
+      font-family: monospace;
+      font-size: 1.5rem;
+      text-align: right;
+    }
+    
+    .card-number {
+      font-family: monospace;
+      font-size: 1.6rem;
+      letter-spacing: 4px;
+      color: #fff;
+      margin: 20px 0;
+      word-break: break-all;
+      text-shadow: 0 0 15px #0ef;
+    }
+    
+    .transactions {
+      background: rgba(15, 28, 40, 0.5);
+      backdrop-filter: blur(8px);
+      border-radius: 32px;
+      padding: 24px;
+      border: 1px solid #1e3a5f;
+      height: 240px;
+      overflow-y: auto;
+    }
+    .transaction-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #1e3a5f;
+    }
+    .status-badge {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 12px 20px;
+      background: rgba(18, 30, 45, 0.9);
+      border-radius: 40px;
+      border: 1px solid #0ef6;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+    }
+    .status-badge.online { color: #00ff88; }
+    .status-badge.offline { color: #ffaa00; }
+    .user-badge {
+      background: #0a1e2c;
+      padding: 8px 20px;
+      border-radius: 40px;
+      border: 1px solid #0ef;
+    }
+    
+    /* Уведомления */
+    .notification-wrapper {
+      position: relative;
+      margin-right: 20px;
+    }
+    .notification-bell {
+      position: relative;
+      cursor: pointer;
+    }
+    .notification-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: #ff3366;
+      color: white;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 15px #ff3366;
+    }
+    .notifications-dropdown {
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: rgba(18, 30, 45, 0.98);
+      backdrop-filter: blur(20px);
+      border: 1px solid #0ef6;
+      border-radius: 24px;
+      padding: 16px;
+      min-width: 380px;
+      max-height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+    }
+    .notifications-dropdown.show {
+      display: block;
+    }
+    .notification-item {
+      padding: 16px;
+      border-bottom: 1px solid #1e3a5f;
+      cursor: pointer;
+      border-radius: 12px;
+    }
+    .notification-item:hover {
+      background: rgba(0, 200, 255, 0.1);
+    }
+    .notification-item.unread {
+      border-left: 4px solid #0ef;
+      background: rgba(0, 230, 250, 0.08);
+    }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+    }
+  </style>
 </head>
 <body>
-<div class="app-container" id="app"></div>
+<div style="position:fixed; inset:0; background:radial-gradient(circle at 30% 10%, rgba(0,230,250,0.12), transparent 35%), radial-gradient(circle at 80% 70%, rgba(150,80,255,0.15), transparent 40%), #0b0e14; z-index:-2;"></div>
+
+<div class="status-badge" id="statusBadge">
+  <i data-lucide="cloud"></i>
+  <span id="statusText">Подключение...</span>
+</div>
+
+<!-- Модалка входа -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <h2 style="margin-bottom:24px;" id="modalTitle">Вход в NEOBANK</h2>
+    <div id="loginForm">
+      <input type="text" id="loginId" placeholder="Ваш ID (например alice)">
+      <input type="password" id="loginPassword" placeholder="Пароль">
+      <button class="btn btn-primary" style="width:100%;" id="loginBtn">Войти</button>
+      <p style="margin-top:20px;">Нет аккаунта? <a href="#" id="showRegisterLink" style="color:#0ef;">Создать</a></p>
+      <p style="margin-top:10px; opacity:0.7; font-size:0.9rem;">Тест: alice / 123 • bob / 123</p>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <input type="text" id="regId" placeholder="Придумайте ID">
+      <input type="text" id="regName" placeholder="Ваше имя">
+      <input type="password" id="regPassword" placeholder="Пароль">
+      <button class="btn btn-primary" style="width:100%;" id="registerBtn">Зарегистрироваться</button>
+      <p style="margin-top:20px;"><a href="#" id="showLoginLink" style="color:#0ef;">← Назад</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка перевода -->
+<div class="modal-overlay" id="transferModal">
+  <div class="modal">
+    <h2>Перевод средств</h2>
+    <p>Ваш баланс: <span id="currentBalanceSpan">0</span> ₽</p>
+    <input type="text" id="recipientId" placeholder="ID получателя">
+    <input type="number" id="transferAmount" placeholder="Сумма">
+    <button class="btn btn-primary" style="width:100%;" id="sendTransferBtn">Отправить</button>
+    <p style="margin-top:20px;"><a href="#" id="closeTransferModal" style="color:#aaa;">Закрыть</a></p>
+    <div id="transferMessage" style="margin-top:16px;"></div>
+    <div style="margin-top:30px;">
+      <h4>👥 Пользователи</h4>
+      <div id="usersList" style="max-height:200px; overflow-y:auto;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка деталей уведомления -->
+<div class="modal-overlay" id="notificationDetailModal">
+  <div class="modal">
+    <h2>📨 Детали перевода</h2>
+    <div id="notificationDetailContent"></div>
+    <button class="btn btn-outline" style="width:100%; margin-top:20px;" id="closeNotificationDetail">Закрыть</button>
+  </div>
+</div>
+
+<!-- Главная -->
+<div id="publicPage" class="page active">
+  <div class="container">
+    <header>
+      <div class="logo"><i data-lucide="hexagon" style="color:#0ef;"></i> NEO·BANK</div>
+      <div><a href="#" class="btn btn-outline" id="openAuthBtn">Войти / Регистрация</a></div>
+    </header>
+    <div style="padding:60px 0; text-align:center;">
+      <h1 style="font-size:4rem; background:linear-gradient(135deg,#fff,#a0f0ff); -webkit-background-clip:text; background-clip:text; color:transparent;">Облачный банк</h1>
+      <p style="font-size:1.3rem; margin:24px 0;">Синхронизация между браузерами через Firebase</p>
+      <a href="#" class="btn btn-primary" id="heroOpenAccount">Открыть счёт</a>
+    </div>
+  </div>
+</div>
+
+<!-- Личный кабинет -->
+<div id="privatePage" class="page">
+  <div class="container">
+    <header>
+      <div class="logo"><i data-lucide="hexagon" style="color:#0ef;"></i> NEO·BANK</div>
+      <div class="header-right">
+        <div class="notification-wrapper">
+          <div class="notification-bell" id="notificationBell">
+            <i data-lucide="bell" size="24"></i>
+            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            <div class="notifications-dropdown" id="notificationsDropdown" onclick="event.stopPropagation()">
+              <h4 style="margin-bottom: 15px;">🔔 Уведомления</h4>
+              <div id="notificationsList"></div>
+            </div>
+          </div>
+        </div>
+        <span class="user-badge" id="userNameDisplay"></span>
+        <a href="#" class="btn btn-outline" id="logoutBtn" style="margin-left:16px;">Выйти</a>
+      </div>
+    </header>
+    
+    <h2 style="margin:30px 0;">👋 Добро пожаловать, <span id="dashboardName"></span></h2>
+    
+    <div class="balance-card">
+      <div>Доступный баланс</div>
+      <div class="balance-amount"><span id="dashboardBalance">0</span> ₽</div>
+    </div>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-bottom:30px;">
+      <!-- Карта с переворотом -->
+      <div class="card-flip-container" id="cardContainer" onclick="this.classList.toggle('flipped')">
+        <div class="card-flipper">
+          <div class="card-front">
+            <h3>💳 NEOBANK PLATINUM</h3>
+            <div class="card-number" id="userCardNumberFull">0000 0000 0000 0000</div>
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+              <span id="userCardName">CARDHOLDER</span>
+              <span id="userCardExpiry">12/29</span>
+            </div>
+            <div style="margin-top: 20px; opacity: 0.6; font-size: 0.8rem;">
+              <i data-lucide="wifi"></i> Бесконтактная оплата
+            </div>
+          </div>
+          <div class="card-back">
+            <div class="magnetic-stripe"></div>
+            <div style="display: flex; justify-content: flex-end; margin: 20px 0;">
+              <div class="cvv-display" id="userCardCVV">•••</div>
+            </div>
+            <div style="opacity: 0.7; font-size: 0.9rem;">
+              <p>Служба поддержки: +7 (800) 555-35-35</p>
+              <p>Действительна до: <span id="backCardExpiry">12/29</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="transactions">
+        <h3>📋 Операции</h3>
+        <div id="transactionsList"></div>
+      </div>
+    </div>
+    
+    <div style="text-align:center;">
+      <button class="btn btn-primary" id="transferBtn" style="margin-right:20px;"><i data-lucide="send"></i> Перевести</button>
+      <button class="btn" id="clickerButton" style="background:linear-gradient(145deg,#7b2ff7,#4a00e0); border:2px solid #b86eff;">
+        <i data-lucide="cpu"></i> Кликер +100 ₽
+      </button>
+      <div style="margin-top:20px;">Кликов: <span id="clickCount">0</span> | Заработано: <span id="totalClicked">0</span> ₽</div>
+    </div>
+  </div>
+</div>
 
 <script>
-    const BOT_USERNAME = "diaryemotionspsy_bot";
-    let userNumber = localStorage.getItem('userNumber') || null;
-
-    class EmotionDiary {
-        constructor(container) {
-            this.container = container;
-            this.answers = {
-                sessionType: null,
-                emotionIntensity: 5,
-                feelings: [],
-                physicalState: 5,
-                anxiety: 5,
-                sleep: 5,
-                energy: 5,
-                social: 5,
-                afterTone: 5,
-                rating: 0,
-                adminName: "",
-                notes: ""
-            };
-            this.currentStep = 0;
-            this.completed = false;
-            this.isRegistered = !!userNumber;
-            this.init();
-        }
-
-        getQuestions() {
-            const isAfter = this.answers.sessionType === "После консультации";
-            const baseQuestions = [
-                { id: "sessionType", text: "Когда вы проходите опрос?", type: "segment", options: ["До консультации", "После консультации"] },
-                { id: "emotionIntensity", text: "Как вы оцениваете своё общее эмоциональное состояние?", type: "range" },
-                { id: "feelings", text: "Какие эмоции преобладают сейчас?", type: "multiselect", options: ["Спокойствие", "Тревога", "Грусть", "Надежда", "Раздражение", "Благодарность", "Страх", "Интерес"] },
-                { id: "anxiety", text: "Какой сейчас уровень тревоги?", type: "range" },
-                { id: "sleep", text: "Как вы спали последнюю ночь?", type: "range" },
-                { id: "energy", text: "Как вы оцениваете свою энергию / усталость?", type: "range" },
-                { id: "social", text: "Насколько хочется общаться с другими?", type: "range" },
-                { id: "physicalState", text: "Как чувствуете себя физически?", type: "range" }
-            ];
-            if (isAfter) {
-                baseQuestions.push({ id: "afterTone", text: "Как изменилось ваше общее состояние после консультации?", type: "range" });
-                baseQuestions.push({ id: "rating", text: "Оцените консультацию", type: "stars" });
-                baseQuestions.push({ id: "adminName", text: "С каким администратором вы общались?", type: "admin" });
-            }
-            baseQuestions.push({ id: "notes", text: isAfter ? "Что для вас было самым важным на консультации?" : "О чём хотите сказать перед консультацией?", type: "textarea", placeholder: isAfter ? "Поделитесь впечатлениями..." : "Напишите, что хотите обсудить..." });
-            return baseQuestions;
-        }
-
-        getProgressPercent() {
-            if (this.completed) return 100;
-            const qs = this.getQuestions();
-            let a = 0;
-            if (this.answers.sessionType) a++;
-            if (this.answers.emotionIntensity !== undefined) a++;
-            if (this.answers.feelings.length) a++;
-            if (this.answers.anxiety !== undefined) a++;
-            if (this.answers.sleep !== undefined) a++;
-            if (this.answers.energy !== undefined) a++;
-            if (this.answers.social !== undefined) a++;
-            if (this.answers.physicalState !== undefined) a++;
-            if (this.answers.afterTone !== undefined) a++;
-            if (this.answers.rating !== undefined && this.answers.rating > 0) a++;
-            if (this.answers.adminName?.trim()) a++;
-            if (this.answers.notes?.trim()) a++;
-            return Math.min(100, Math.floor((a / qs.length) * 100));
-        }
-
-        setAnswer(id, val) { this.answers[id] = val; if (!this.completed && this.isRegistered) this.renderQuestionScreen(); }
-
-        nextStep() {
-            const qs = this.getQuestions();
-            const cur = qs[this.currentStep];
-            if (cur.id === "sessionType" && !this.answers.sessionType) { alert("Выберите: до или после консультации"); return; }
-            if (cur.id === "rating" && this.answers.rating === 0) { alert("Пожалуйста, поставьте оценку консультации ⭐"); return; }
-            if (cur.id === "adminName" && !this.answers.adminName?.trim()) { alert("Пожалуйста, укажите имя администратора"); return; }
-            if (this.currentStep < qs.length - 1) { this.currentStep++; this.renderQuestionScreen(); }
-            else { this.completed = true; this.renderResultScreen(); }
-        }
-
-        prevStep() { if (this.currentStep > 0) { this.currentStep--; this.renderQuestionScreen(); } }
-
-        reset() {
-            this.answers = {
-                sessionType: null,
-                emotionIntensity: 5,
-                feelings: [],
-                physicalState: 5,
-                anxiety: 5,
-                sleep: 5,
-                energy: 5,
-                social: 5,
-                afterTone: 5,
-                rating: 0,
-                adminName: "",
-                notes: ""
-            };
-            this.currentStep = 0;
-            this.completed = false;
-            this.renderQuestionScreen();
-        }
-
-        // ========== ИСПРАВЛЕННАЯ ЛОГИКА ==========
-        getMoodDescription() {
-            const e = this.answers.emotionIntensity || 5;
-            const p = this.answers.physicalState || 5;
-            const a = this.answers.anxiety || 5;
-
-            // Высокая тревога → сразу нужна поддержка
-            if (a >= 8) return "состояние нуждается в поддержке";
-
-            const avg = (e + p) / 2;
-            if (avg <= 3) return "состояние нуждается в поддержке";
-            if (avg <= 5) return "нейтрально-сниженный фон";
-            if (avg <= 7) return "умеренно позитивный настрой";
-            return "высокий эмоциональный ресурс";
-        }
-
-        getMoodEmoji() {
-            const e = this.answers.emotionIntensity || 5;
-            const p = this.answers.physicalState || 5;
-            const a = this.answers.anxiety || 5;
-
-            if (a >= 8) return "😔🌧️";
-
-            const avg = (e + p) / 2;
-            if (avg <= 3) return "😔🌧️";
-            if (avg <= 5) return "😐🌥️";
-            if (avg <= 7) return "🙂☀️";
-            return "😊🌈✨";
-        }
-        // ========================================
-
-        getResponseCard() {
-            const inten = this.answers.emotionIntensity || 5;
-            if (this.answers.sessionType !== "После консультации") return null;
-            let emoji, title, text, bg;
-            if (inten <= 3) { emoji='💔🌧️'; title='Нам искренне жаль…'; text='Мы видим, что вам сейчас непросто. Вы не одни. Администратор свяжется с вами. 💙'; bg='poor'; }
-            else if (inten <= 6) { emoji='🌤️🤝'; title='Спасибо, что делитесь'; text='Каждый шаг имеет значение. Мы рядом, чтобы помочь вам двигаться дальше. 🌱'; bg='medium'; }
-            else if (inten <= 8) { emoji='🌸✨'; title='Мы очень рады!'; text='Как здорово, что вам стало легче! Продолжайте в том же духе 💖'; bg='good'; }
-            else { emoji='🎉🌟🌺'; title='Восхитительно! ✨'; text='Вы проделали огромную работу! Спасибо за доверие! 💫'; bg='excellent'; }
-            return `<div class="response-card ${bg}"><div class="response-emoji">${emoji}</div><div class="response-title">${title}</div><div class="response-text">${text}</div></div>`;
-        }
-
-        formatMessage() {
-            const e = this.answers.emotionIntensity || 5;
-            const p = this.answers.physicalState || 5;
-            const a = this.answers.anxiety || 5;
-            const sl = this.answers.sleep || 5;
-            const en = this.answers.energy || 5;
-            const soc = this.answers.social || 5;
-            const after = this.answers.afterTone || null;
-            const rating = this.answers.rating || 0;
-            const admin = this.answers.adminName?.trim() || "—";
-            const s = this.answers.sessionType || "консультации";
-            const f = this.answers.feelings.join(", ") || "не указаны";
-            const n = this.answers.notes?.trim() || "—";
-            const moodEmoji = this.getMoodEmoji();
-            const moodDesc = this.getMoodDescription();
-            const isAfter = s === "После консультации";
-            const ts = new Date().toLocaleString('ru-RU');
-            const rec = Date.now().toString().slice(-6);
-            let afterLine = "";
-            let ratingLine = "";
-            let adminLine = "";
-            if (isAfter) {
-                if (after !== null) afterLine = `\n📈 Состояние после консультации: ${after}/10`;
-                ratingLine = `\n⭐ Оценка консультации: ${rating}/5`;
-                adminLine = `\n👤 Администратор: ${admin}`;
-            }
-            return `📊 *ДНЕВНИК ЭМОЦИЙ* #${rec}\n\n👤 *Номер:* ${userNumber}\n🕐 ${ts}\n📋 ${s}\n\n😊 Эмоции: ${e}/10\n😰 Тревога: ${a}/10\n😴 Сон: ${sl}/10\n⚡ Энергия: ${en}/10\n👥 Желание общаться: ${soc}/10\n🧘 Физика: ${p}/10${afterLine}${ratingLine}${adminLine}\n🌟 Общий фон: ${moodEmoji} — ${moodDesc}\n\n💭 Чувства: ${f}\n\n${isAfter ? '💡 Инсайты' : '🎯 Заметки'}:\n${n}\n\n_Отправлено через Дневник эмоций_`;
-        }
-
-        sendToTelegram() { window.open(`https://t.me/${BOT_USERNAME}?text=${encodeURIComponent(this.formatMessage())}`, '_blank'); }
-
-        showChangeNumberModal() {
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay';
-            modal.innerHTML = `<div class="modal-card"><h3>🔄 Изменить номер</h3><input id="newNum" placeholder="#1234567" value="${userNumber || ''}"><div class="modal-buttons"><button class="modal-cancel" id="cancelBtn">Отмена</button><button class="modal-save" id="saveBtn">Сохранить</button></div></div>`;
-            document.body.appendChild(modal);
-            setTimeout(() => modal.classList.add('active'), 10);
-            const close = () => { modal.classList.remove('active'); setTimeout(() => modal.remove(), 300); };
-            document.getElementById('cancelBtn').onclick = close;
-            document.getElementById('saveBtn').onclick = () => {
-                let val = document.getElementById('newNum').value.trim();
-                if (!val) return alert("Введите номер");
-                if (!val.startsWith('#')) val = '#' + val;
-                userNumber = val;
-                localStorage.setItem('userNumber', userNumber);
-                close();
-                alert(`✅ Номер изменён на ${userNumber}`);
-                if (this.completed) this.renderResultScreen();
-                else if (this.isRegistered) this.renderQuestionScreen();
-                else this.renderWelcome();
-            };
-        }
-
-        renderWelcome() {
-            this.container.innerHTML = `<div class="card fade-in"><div class="welcome-card"><h1>Дневник эмоций</h1><p>ваше безопасное пространство</p><div class="number-input-wrapper"><input id="userNum" placeholder="номер клиента"></div><button class="welcome-btn" id="regBtn">продолжить</button></div><div class="content" style="padding-top: 0;"><p style="text-align:center; font-size:0.8rem; color:#9b8c7e;">💡 Номер выдаёт администратор. Нет номера? Напишите <strong>@${BOT_USERNAME}</strong></p></div></div>`;
-            document.getElementById('regBtn').onclick = () => {
-                let val = document.getElementById('userNum').value.trim();
-                if (!val) return alert("Введите номер");
-                if (!val.startsWith('#')) val = '#' + val;
-                userNumber = val;
-                localStorage.setItem('userNumber', userNumber);
-                this.isRegistered = true;
-                this.renderQuestionScreen();
-            };
-        }
-
-        renderStars(value) {
-            const fullStars = Math.floor(value);
-            const hasHalf = value % 1 !== 0;
-            let starsHtml = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= fullStars) starsHtml += '<span class="star active" data-val="' + i + '">★</span>';
-                else if (hasHalf && i === fullStars + 1) starsHtml += '<span class="star active" data-val="' + (fullStars + 0.5) + '">½</span>';
-                else starsHtml += '<span class="star" data-val="' + i + '">★</span>';
-            }
-            return `<div class="star-rating" id="starRating">${starsHtml}</div><div style="text-align:center; font-size:0.8rem; color:#b7a18a; margin-top:8px;">${value}/5</div>`;
-        }
-
-        attachStars() {
-            const stars = document.querySelectorAll('#starRating .star');
-            const updateRating = (newRating) => {
-                this.answers.rating = newRating;
-                this.renderQuestionScreen();
-            };
-            stars.forEach(star => {
-                star.style.cursor = 'pointer';
-                star.onclick = (e) => {
-                    e.stopPropagation();
-                    const val = parseFloat(star.dataset.val);
-                    updateRating(val);
-                };
-            });
-        }
-
-        renderQuestionScreen() {
-            const qs = this.getQuestions();
-            const q = qs[this.currentStep];
-            const prog = this.getProgressPercent();
-            const isFirst = this.currentStep === 0;
-            const isLast = this.currentStep === qs.length - 1;
-            let body = '';
-            if (q.type === 'segment') {
-                body = `<div class="segment-group">${q.options.map(opt => `<div class="segment-option ${this.answers.sessionType === opt ? 'selected' : ''}" data-val="${opt}">${opt}</div>`).join('')}</div>`;
-            } else if (q.type === 'range') {
-                const val = this.answers[q.id] !== undefined ? this.answers[q.id] : 5;
-                let minLabel = "0 — минимум", maxLabel = "10 — максимум";
-                if (q.id === 'sleep') { minLabel = "0 — очень плохо"; maxLabel = "10 — отлично"; }
-                if (q.id === 'energy') { minLabel = "0 — полный упадок"; maxLabel = "10 — много энергии"; }
-                if (q.id === 'social') { minLabel = "0 — совсем не хочется"; maxLabel = "10 — очень хочется"; }
-                if (q.id === 'afterTone') { minLabel = "0 — стало хуже"; maxLabel = "10 — стало намного лучше"; }
-                if (q.id === 'anxiety') { minLabel = "0 — нет тревоги"; maxLabel = "10 — очень сильная"; }
-                body = `<div class="emotion-scale"><div class="current-value" id="curVal">${val} / 10</div><input type="range" id="rangeSl" min="0" max="10" step="1" value="${val}"><div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.75rem; color:#b7a18a;"><span>${minLabel}</span><span>${maxLabel}</span></div></div>`;
-            } else if (q.type === 'stars') {
-                const val = this.answers.rating || 0;
-                body = this.renderStars(val);
-            } else if (q.type === 'admin') {
-                body = `<input type="text" id="adminInput" class="admin-select" placeholder="Например: Анна" value="${this.answers.adminName || ''}">`;
-            } else if (q.type === 'multiselect') {
-                body = `<div class="check-group">${q.options.map(emo => `<div class="emotion-chip ${this.answers.feelings.includes(emo) ? 'selected' : ''}" data-emo="${emo}">${emo}</div>`).join('')}</div><p style="font-size:0.7rem; margin-top:8px; color:#b7a18a;">✓ выберите несколько</p>`;
-            } else if (q.type === 'textarea') {
-                body = `<textarea id="notesTa" rows="4" placeholder="${q.placeholder}">${this.answers.notes || ''}</textarea>`;
-            }
-            this.container.innerHTML = `<div class="settings-btn" id="settBtn">⚙️</div><div class="card"><div class="progress-area"><div class="progress-steps"><span class="step-badge">${userNumber} · ${this.currentStep+1}/${qs.length}</span><div class="step-bar-wrapper"><div class="step-bar-fill" style="width:${prog}%"></div></div></div></div><div class="content"><h2>${q.text}</h2><div class="subheading">${q.id === 'sessionType' ? 'выберите контекст' : (q.id === 'notes' ? (this.answers.sessionType === 'После консультации' ? 'поделитесь впечатлениями' : 'что важно обсудить?') : 'передвиньте ползунок / выберите')}</div><div class="question">${body}</div><div class="actions"><button class="secondary" id="prevBtn" ${isFirst ? 'disabled' : ''}>← назад</button><button class="primary" id="nextBtn">${isLast ? 'завершить' : 'далее →'}</button></div></div></div>`;
-            document.getElementById('settBtn')?.addEventListener('click', () => this.showChangeNumberModal());
-            if (q.type === 'segment') {
-                document.querySelectorAll('.segment-option').forEach(opt => { opt.onclick = () => { this.setAnswer('sessionType', opt.dataset.val); if (this.currentStep > 0) this.currentStep = 1; this.renderQuestionScreen(); }; });
-            }
-            if (q.type === 'range') {
-                const sl = document.getElementById('rangeSl');
-                const disp = document.getElementById('curVal');
-                const update = () => {
-                    const v = parseInt(sl.value);
-                    disp.innerText = `${v} / 10`;
-                    this.answers[q.id] = v;
-                };
-                sl.oninput = update;
-                update();
-            }
-            if (q.type === 'stars') {
-                this.attachStars();
-            }
-            if (q.type === 'admin') {
-                const inp = document.getElementById('adminInput');
-                inp.oninput = (e) => this.answers.adminName = e.target.value;
-            }
-            if (q.type === 'multiselect') {
-                document.querySelectorAll('.emotion-chip').forEach(ch => {
-                    ch.onclick = () => {
-                        const em = ch.dataset.emo;
-                        let arr = [...this.answers.feelings];
-                        if (arr.includes(em)) { arr = arr.filter(e => e !== em); ch.classList.remove('selected'); }
-                        else { arr.push(em); ch.classList.add('selected'); }
-                        this.answers.feelings = arr;
-                    };
-                });
-            }
-            if (q.type === 'textarea') document.getElementById('notesTa').oninput = (e) => this.answers.notes = e.target.value;
-            document.getElementById('nextBtn').onclick = () => this.nextStep();
-            if (!isFirst) document.getElementById('prevBtn').onclick = () => this.prevStep();
-        }
-
-        renderResultScreen() {
-            const e = this.answers.emotionIntensity || 5;
-            const p = this.answers.physicalState || 5;
-            const a = this.answers.anxiety || 5;
-            const sl = this.answers.sleep || 5;
-            const en = this.answers.energy || 5;
-            const soc = this.answers.social || 5;
-            const after = this.answers.afterTone || null;
-            const rating = this.answers.rating || 0;
-            const admin = this.answers.adminName?.trim() || "—";
-            const s = this.answers.sessionType || "консультации";
-            const f = this.answers.feelings.join(", ") || "не указаны";
-            const n = this.answers.notes?.trim() || "—";
-            const moodEmoji = this.getMoodEmoji();
-            const moodDesc = this.getMoodDescription();
-            const isAfter = s === "После консультации";
-            const label = isAfter ? "💡 Инсайты после консультации:" : "📝 Заметки перед консультацией:";
-            const resp = this.getResponseCard();
-            this.container.innerHTML = `<div class="settings-btn" id="settBtn">⚙️</div><div class="card"><div class="progress-area"><div class="progress-steps"><span class="step-badge">дневник готов</span><div class="step-bar-wrapper"><div class="step-bar-fill" style="width:100%"></div></div></div></div><div class="content"><div class="result-card"><div class="result-emoji">${moodEmoji}</div><h2>ваш эмоциональный снимок</h2><p><strong>номер:</strong> ${userNumber}</p><p><strong>${s}</strong></p><p>😊 эмоции ${e}/10 &nbsp;|&nbsp; 😰 тревога ${a}/10</p><p>😴 сон ${sl}/10 &nbsp;|&nbsp; ⚡ энергия ${en}/10 &nbsp;|&nbsp; 👥 общение ${soc}/10</p><p>🧘 физика ${p}/10 ${isAfter && after !== null ? `&nbsp;|&nbsp; 📈 после консультации ${after}/10` : ''}</p>${isAfter ? `<p>⭐ оценка консультации: ${rating}/5 &nbsp;|&nbsp; 👤 администратор: ${admin}</p>` : ''}<p>${moodDesc}</p><hr/><div style="text-align:left;"><p><strong>💭 преобладающие эмоции:</strong> ${f}</p><p><strong>${label}</strong><br>${n}</p></div>${resp || ''}<button class="primary telegram-btn" id="sendBtn">📤 отправить администратору</button><button class="secondary" id="resetBtn">📝 заполнить заново</button></div><p style="text-align:center; font-size:0.75rem; margin-top:20px;">нажмите — откроется telegram с готовым текстом</p></div></div>`;
-            document.getElementById('settBtn')?.addEventListener('click', () => this.showChangeNumberModal());
-            document.getElementById('sendBtn')?.addEventListener('click', () => this.sendToTelegram());
-            document.getElementById('resetBtn')?.addEventListener('click', () => this.reset());
-        }
-
-        init() { if (this.isRegistered) this.renderQuestionScreen(); else this.renderWelcome(); }
+  // ========== ВАШ FIREBASE КОНФИГ ==========
+  const firebaseConfig = {
+    apiKey: "AIzaSyDSuVbn9KNEJn8I8uX_q5sjecnaorzFmVk",
+    authDomain: "neobank-3d210.firebaseapp.com",
+    projectId: "neobank-3d210",
+    storageBucket: "neobank-3d210.firebasestorage.app",
+    messagingSenderId: "17949031863",
+    appId: "1:17949031863:web:aebc7bb4f3eb665cbefc32",
+    databaseURL: "https://neobank-3d210-default-rtdb.europe-west1.firebasedatabase.app"
+  };
+  
+  // Инициализация Firebase
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+  
+  let currentUser = null;
+  let clickStats = { total: 0, clicks: 0 };
+  let userUnsubscribe = null;
+  let notifications = [];
+  let unreadCount = 0;
+  
+  // Статус подключения
+  database.ref(".info/connected").on("value", (snap) => {
+    const badge = document.getElementById("statusBadge");
+    const text = document.getElementById("statusText");
+    if (snap.val() === true) {
+      badge.className = "status-badge online";
+      text.textContent = "Firebase Online · Синхронизация активна";
+    } else {
+      badge.className = "status-badge offline";
+      text.textContent = "Firebase Offline · Переподключение...";
     }
-    new EmotionDiary(document.getElementById('app'));
+  });
+  
+  // Инициализация тестовых пользователей
+  async function initTestUsers() {
+    const snapshot = await database.ref("users").get();
+    if (!snapshot.exists()) {
+      await database.ref("users/alice").set({
+        id: "alice", name: "Алиса", password: "123", balance: 5000,
+        cardNumber: "4532 7812 9901 3456", cardExpiry: "08/28", cvv: "123",
+        transactions: [], clickStats: { total: 0, clicks: 0 }, notifications: []
+      });
+      await database.ref("users/bob").set({
+        id: "bob", name: "Боб", password: "123", balance: 3000,
+        cardNumber: "5378 3412 7765 1098", cardExpiry: "11/27", cvv: "456",
+        transactions: [], clickStats: { total: 0, clicks: 0 }, notifications: []
+      });
+      console.log("✅ Тестовые пользователи созданы");
+    }
+  }
+  
+  // Уведомления
+  function addNotification(userId, notification) {
+    database.ref("users/" + userId).once("value").then(snap => {
+      const user = snap.val();
+      if (user) {
+        const notifs = user.notifications || [];
+        notifs.unshift({
+          ...notification,
+          id: Date.now() + Math.random(),
+          read: false,
+          date: new Date().toISOString()
+        });
+        database.ref("users/" + userId + "/notifications").set(notifs);
+      }
+    });
+  }
+  
+  function loadNotifications() {
+    if (!currentUser) return;
+    notifications = currentUser.notifications || [];
+    unreadCount = notifications.filter(n => !n.read).length;
+    updateNotificationUI();
+  }
+  
+  function updateNotificationUI() {
+    const badge = document.getElementById("notificationBadge");
+    const list = document.getElementById("notificationsList");
+    
+    if (unreadCount > 0) {
+      badge.style.display = "flex";
+      badge.textContent = unreadCount;
+    } else {
+      badge.style.display = "none";
+    }
+    
+    if (notifications.length === 0) {
+      list.innerHTML = '<div style="padding: 20px; text-align: center; opacity: 0.6;">Нет уведомлений</div>';
+    } else {
+      list.innerHTML = notifications.slice(0, 10).map(n => `
+        <div class="notification-item ${n.read ? '' : 'unread'}" data-id="${n.id}">
+          <div style="display: flex; gap: 12px;">
+            <i data-lucide="${n.type === 'in' ? 'arrow-down-left' : 'arrow-up-right'}" style="color: ${n.type === 'in' ? '#00ff88' : '#ff6b6b'};"></i>
+            <div style="flex: 1;">
+              <div style="font-weight: 600;">${n.title}</div>
+              <div style="font-size: 0.9rem; opacity: 0.8;">${n.message}</div>
+              <div style="font-size: 0.8rem; opacity: 0.5; margin-top: 5px;">${new Date(n.date).toLocaleString()}</div>
+            </div>
+          </div>
+        </div>
+      `).join("");
+      
+      list.querySelectorAll(".notification-item").forEach(item => {
+        item.addEventListener("click", (e) => {
+          e.stopPropagation();
+          showNotificationDetail(parseFloat(item.dataset.id));
+        });
+      });
+    }
+    lucide.createIcons();
+  }
+  
+  function showNotificationDetail(notificationId) {
+    const notification = notifications.find(n => n.id === notificationId);
+    if (!notification) return;
+    
+    if (!notification.read) {
+      notification.read = true;
+      database.ref("users/" + currentUser.id + "/notifications").set(notifications);
+      loadNotifications();
+    }
+    
+    const modal = document.getElementById("notificationDetailModal");
+    const content = document.getElementById("notificationDetailContent");
+    
+    content.innerHTML = `
+      <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 20px;">
+        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+          <i data-lucide="${notification.type === 'in' ? 'arrow-down-left' : 'arrow-up-right'}" size="48" style="color: ${notification.type === 'in' ? '#00ff88' : '#ff6b6b'};"></i>
+          <div>
+            <h3>${notification.title}</h3>
+            <p style="font-size: 1.2rem;">${notification.message}</p>
+          </div>
+        </div>
+        <hr style="border-color: #1e3a5f; margin: 20px 0;">
+        <p><strong>Сумма:</strong> ${notification.amount} ₽</p>
+        <p><strong>От:</strong> ${notification.from}</p>
+        <p><strong>Кому:</strong> ${notification.to}</p>
+        <p><strong>Дата:</strong> ${new Date(notification.date).toLocaleString()}</p>
+      </div>
+    `;
+    
+    modal.style.visibility = "visible";
+    modal.style.opacity = "1";
+    lucide.createIcons();
+  }
+  
+  // Регистрация
+  async function registerUser(id, name, password) {
+    const snapshot = await database.ref("users/" + id).get();
+    if (snapshot.exists()) throw new Error("Пользователь уже существует");
+    
+    const cardNum = "4" + Math.floor(Math.random()*1000).toString().padStart(3,'0') + " " +
+                    Math.floor(Math.random()*10000).toString().padStart(4,'0') + " " +
+                    Math.floor(Math.random()*10000).toString().padStart(4,'0') + " " +
+                    Math.floor(Math.random()*10000).toString().padStart(4,'0');
+    
+    const cvv = Math.floor(Math.random() * 900 + 100).toString();
+    
+    const user = { 
+      id, name: name || id, password, balance: 1000, 
+      cardNumber: cardNum, cardExpiry: "12/30", cvv: cvv,
+      transactions: [], clickStats: { total: 0, clicks: 0 }, notifications: []
+    };
+    await database.ref("users/" + id).set(user);
+    return user;
+  }
+  
+  // Вход
+  async function loginUser(id, password) {
+    const snapshot = await database.ref("users/" + id).get();
+    if (!snapshot.exists()) throw new Error("Пользователь не найден");
+    const user = snapshot.val();
+    if (user.password !== password) throw new Error("Неверный пароль");
+    return user;
+  }
+  
+  // Подписка на изменения
+  function subscribeToUser(userId) {
+    if (userUnsubscribe) userUnsubscribe();
+    userUnsubscribe = database.ref("users/" + userId).on("value", (snapshot) => {
+      const user = snapshot.val();
+      if (user) {
+        const oldBalance = currentUser?.balance || 0;
+        const oldNotifications = currentUser?.notifications || [];
+        currentUser = user;
+        clickStats = user.clickStats || { total: 0, clicks: 0 };
+        
+        // Проверка новых уведомлений
+        const newNotifications = (user.notifications || []).filter(n => 
+          !oldNotifications.find(on => on.id === n.id)
+        );
+        newNotifications.forEach(n => {
+          if (!n.read) {
+            showToast(`${n.title}: ${n.amount} ₽`, "info");
+          }
+        });
+        
+        loadNotifications();
+        updateUI();
+        
+        if (user.balance > oldBalance) {
+          const diff = user.balance - oldBalance;
+          showToast(`💰 Баланс пополнен на ${diff.toFixed(2)} ₽`, "success");
+        }
+      }
+    });
+  }
+  
+  // Показать уведомление
+  function showToast(message, type = "info") {
+    const toast = document.createElement("div");
+    toast.style.cssText = `
+      position: fixed; bottom: 30px; right: 30px;
+      background: rgba(18,30,45,0.98); border: 1px solid #0ef6;
+      border-left: 6px solid ${type === "success" ? "#00ff88" : "#0ef"};
+      border-radius: 20px; padding: 20px 30px; color: white;
+      z-index: 99999; animation: slideIn 0.3s;
+    `;
+    toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'info'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    lucide.createIcons();
+    setTimeout(() => toast.remove(), 4000);
+  }
+  
+  // Обновление UI
+  function updateUI() {
+    if (!currentUser) return;
+    document.getElementById("userNameDisplay").textContent = currentUser.name;
+    document.getElementById("dashboardName").textContent = currentUser.name;
+    document.getElementById("dashboardBalance").textContent = currentUser.balance.toFixed(2);
+    document.getElementById("userCardNumberFull").textContent = currentUser.cardNumber;
+    document.getElementById("userCardName").textContent = currentUser.name.toUpperCase();
+    document.getElementById("userCardExpiry").textContent = currentUser.cardExpiry;
+    document.getElementById("backCardExpiry").textContent = currentUser.cardExpiry;
+    document.getElementById("userCardCVV").textContent = currentUser.cvv || "•••";
+    document.getElementById("clickCount").textContent = clickStats.clicks;
+    document.getElementById("totalClicked").textContent = clickStats.total;
+    document.getElementById("currentBalanceSpan").textContent = currentUser.balance.toFixed(2);
+    
+    const txs = currentUser.transactions || [];
+    document.getElementById("transactionsList").innerHTML = txs.slice(-5).reverse().map(tx => `
+      <div class="transaction-item">
+        <span>${tx.desc}</span>
+        <span style="color:${tx.type==='in'?'#00ff88':'#ff6b6b'}">${tx.type==='in'?'+':'-'}${tx.amount} ₽</span>
+      </div>
+    `).join("") || "<div style='opacity:0.6; padding:10px;'>Нет операций</div>";
+  }
+  
+  // Обновление списка пользователей
+  async function updateUsersList() {
+    const snapshot = await database.ref("users").get();
+    const users = snapshot.val() || {};
+    const list = document.getElementById("usersList");
+    const usersArray = Object.values(users).filter(u => u.id !== currentUser?.id);
+    list.innerHTML = usersArray.map(u => `
+      <div style="padding:8px; border-bottom:1px solid #1e3a5f; display:flex; justify-content:space-between;">
+        <span><strong>${u.name}</strong> (${u.id})</span>
+        <span style="color:#7df0b0;">${u.balance.toFixed(2)} ₽</span>
+      </div>
+    `).join("") || "<div style='padding:10px;'>Нет других пользователей</div>";
+  }
+  
+  // UI элементы
+  const publicPage = document.getElementById("publicPage");
+  const privatePage = document.getElementById("privatePage");
+  const authModal = document.getElementById("authModal");
+  const transferModal = document.getElementById("transferModal");
+  const notificationBell = document.getElementById("notificationBell");
+  const notificationsDropdown = document.getElementById("notificationsDropdown");
+  
+  document.getElementById("openAuthBtn").addEventListener("click", (e) => { e.preventDefault(); openAuthModal("login"); });
+  document.getElementById("heroOpenAccount").addEventListener("click", (e) => { e.preventDefault(); openAuthModal("register"); });
+  
+  document.getElementById("showRegisterLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("loginForm").style.display = "none";
+    document.getElementById("registerForm").style.display = "block";
+    document.getElementById("modalTitle").textContent = "Регистрация";
+  });
+  
+  document.getElementById("showLoginLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("loginForm").style.display = "block";
+    document.getElementById("registerForm").style.display = "none";
+    document.getElementById("modalTitle").textContent = "Вход в NEOBANK";
+  });
+  
+  function openAuthModal(mode) {
+    authModal.style.visibility = "visible";
+    authModal.style.opacity = "1";
+    if (mode === "login") {
+      document.getElementById("loginForm").style.display = "block";
+      document.getElementById("registerForm").style.display = "none";
+      document.getElementById("modalTitle").textContent = "Вход в NEOBANK";
+    } else {
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("registerForm").style.display = "block";
+      document.getElementById("modalTitle").textContent = "Регистрация";
+    }
+  }
+  
+  window.addEventListener("click", (e) => {
+    if (e.target === authModal) { authModal.style.visibility = "hidden"; authModal.style.opacity = "0"; }
+    if (e.target === transferModal) { transferModal.style.visibility = "hidden"; transferModal.style.opacity = "0"; }
+    if (e.target === document.getElementById("notificationDetailModal")) { 
+      document.getElementById("notificationDetailModal").style.visibility = "hidden"; 
+      document.getElementById("notificationDetailModal").style.opacity = "0"; 
+    }
+    if (!notificationBell.contains(e.target)) {
+      notificationsDropdown.classList.remove("show");
+    }
+  });
+  
+  document.getElementById("closeNotificationDetail").addEventListener("click", () => {
+    document.getElementById("notificationDetailModal").style.visibility = "hidden";
+    document.getElementById("notificationDetailModal").style.opacity = "0";
+  });
+  
+  notificationBell.addEventListener("click", (e) => {
+    e.stopPropagation();
+    notificationsDropdown.classList.toggle("show");
+  });
+  
+  // Регистрация
+  document.getElementById("registerBtn").addEventListener("click", async () => {
+    const id = document.getElementById("regId").value.trim();
+    const name = document.getElementById("regName").value.trim();
+    const pass = document.getElementById("regPassword").value;
+    
+    if (!id || !pass) { alert("Заполните ID и пароль"); return; }
+    
+    try {
+      const user = await registerUser(id, name, pass);
+      currentUser = user;
+      clickStats = { total: 0, clicks: 0 };
+      
+      publicPage.classList.remove("active");
+      privatePage.classList.add("active");
+      subscribeToUser(user.id);
+      loadNotifications();
+      updateUI();
+      
+      authModal.style.visibility = "hidden";
+      authModal.style.opacity = "0";
+      showToast("✅ Аккаунт создан! Данные в облаке", "success");
+      lucide.createIcons();
+    } catch (err) {
+      alert("❌ " + err.message);
+    }
+  });
+  
+  // Вход
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    const id = document.getElementById("loginId").value.trim();
+    const pass = document.getElementById("loginPassword").value;
+    
+    try {
+      const user = await loginUser(id, pass);
+      currentUser = user;
+      clickStats = user.clickStats || { total: 0, clicks: 0 };
+      
+      publicPage.classList.remove("active");
+      privatePage.classList.add("active");
+      subscribeToUser(user.id);
+      loadNotifications();
+      updateUI();
+      
+      authModal.style.visibility = "hidden";
+      authModal.style.opacity = "0";
+      showToast(`С возвращением, ${user.name}!`, "success");
+      lucide.createIcons();
+    } catch (err) {
+      alert("❌ " + err.message);
+    }
+  });
+  
+  // Выход
+  document.getElementById("logoutBtn").addEventListener("click", (e) => {
+    e.preventDefault();
+    if (userUnsubscribe) userUnsubscribe();
+    currentUser = null;
+    publicPage.classList.add("active");
+    privatePage.classList.remove("active");
+  });
+  
+  // Кликер
+  document.getElementById("clickerButton").addEventListener("click", async () => {
+    if (!currentUser) return;
+    
+    const newBalance = currentUser.balance + 100;
+    clickStats.total += 100;
+    clickStats.clicks += 1;
+    
+    const updates = {};
+    updates["users/" + currentUser.id + "/balance"] = newBalance;
+    updates["users/" + currentUser.id + "/clickStats"] = clickStats;
+    updates["users/" + currentUser.id + "/transactions"] = [
+      ...(currentUser.transactions || []),
+      { type: "in", desc: "Кликер", amount: 100, date: new Date().toISOString().slice(0,10) }
+    ];
+    
+    await database.ref().update(updates);
+  });
+  
+  // Перевод
+  document.getElementById("transferBtn").addEventListener("click", () => {
+    transferModal.style.visibility = "visible";
+    transferModal.style.opacity = "1";
+    updateUsersList();
+  });
+  
+  document.getElementById("closeTransferModal").addEventListener("click", (e) => {
+    e.preventDefault();
+    transferModal.style.visibility = "hidden";
+    transferModal.style.opacity = "0";
+  });
+  
+  document.getElementById("sendTransferBtn").addEventListener("click", async () => {
+    const toId = document.getElementById("recipientId").value.trim();
+    const amount = parseFloat(document.getElementById("transferAmount").value);
+    const msg = document.getElementById("transferMessage");
+    
+    if (!toId || amount <= 0) { msg.textContent = "❌ Некорректные данные"; return; }
+    if (toId === currentUser.id) { msg.textContent = "❌ Нельзя перевести себе"; return; }
+    
+    const toSnapshot = await database.ref("users/" + toId).get();
+    if (!toSnapshot.exists()) { msg.textContent = "❌ Получатель не найден"; return; }
+    
+    const recipient = toSnapshot.val();
+    if (currentUser.balance < amount) { msg.textContent = "❌ Недостаточно средств"; return; }
+    
+    const date = new Date().toISOString().slice(0,10);
+    const updates = {};
+    updates["users/" + currentUser.id + "/balance"] = currentUser.balance - amount;
+    updates["users/" + toId + "/balance"] = recipient.balance + amount;
+    updates["users/" + currentUser.id + "/transactions"] = [
+      ...(currentUser.transactions || []),
+      { type: "out", desc: `Перевод ${recipient.name}`, amount, date }
+    ];
+    updates["users/" + toId + "/transactions"] = [
+      ...(recipient.transactions || []),
+      { type: "in", desc: `От ${currentUser.name}`, amount, date }
+    ];
+    
+    await database.ref().update(updates);
+    
+    // Добавляем уведомление получателю
+    addNotification(toId, {
+      type: "in",
+      title: `💰 Поступление от ${currentUser.name}`,
+      message: `+${amount} ₽`,
+      amount: amount,
+      from: currentUser.name,
+      to: recipient.name
+    });
+    
+    msg.innerHTML = "✅ Перевод выполнен!";
+    setTimeout(() => {
+      transferModal.style.visibility = "hidden";
+      transferModal.style.opacity = "0";
+      document.getElementById("recipientId").value = "";
+      document.getElementById("transferAmount").value = "";
+      msg.textContent = "";
+    }, 1500);
+  });
+  
+  // Запуск
+  (async () => {
+    await initTestUsers();
+    lucide.createIcons();
+  })();
 </script>
+
+<style>
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+</style>
 </body>
 </html>
