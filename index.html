@@ -2,8 +2,10 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NEOBANK · Облачная синхронизация</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>NEOBANK · Мобильный банк</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   
@@ -12,50 +14,101 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
   
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+    }
+    
     body {
       background: #0b0e14;
-      font-family: "Inter", sans-serif;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
       color: #eef2fb;
+      min-height: 100vh;
+      padding-bottom: env(safe-area-inset-bottom, 20px);
     }
-    .container { max-width: 1300px; margin: 0 auto; padding: 0 28px; }
+    
+    .container { 
+      max-width: 1300px; 
+      margin: 0 auto; 
+      padding: 0 clamp(16px, 5vw, 28px);
+    }
+    
+    /* Кнопки - адаптивные */
     .btn {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
+      gap: clamp(6px, 2vw, 10px);
       background: rgba(10, 30, 45, 0.7);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(0, 255, 255, 0.4);
       color: #e0f7ff;
-      padding: 14px 32px;
+      padding: clamp(10px, 3vw, 14px) clamp(20px, 5vw, 32px);
       border-radius: 60px;
       cursor: pointer;
       text-decoration: none;
       font-weight: 600;
       transition: all 0.25s;
+      font-size: clamp(0.9rem, 4vw, 1.1rem);
+      white-space: nowrap;
+      touch-action: manipulation;
     }
+    
     .btn-primary {
       background: linear-gradient(145deg, #00c8ff, #0077ff);
       border: 1px solid #6ee7ff;
     }
-    .btn-primary:hover {
-      transform: scale(1.02);
+    
+    .btn-primary:active {
+      transform: scale(0.98);
       box-shadow: 0 0 30px #0ef;
     }
+    
+    /* Хедер - адаптивный */
     header {
-      padding: 20px 0;
+      padding: clamp(12px, 4vw, 20px) 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
     }
+    
     .logo {
-      font-size: 1.9rem;
+      font-size: clamp(1.5rem, 6vw, 1.9rem);
       font-weight: 700;
       color: white;
       text-shadow: 0 0 15px cyan;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .page { display: none; }
-    .page.active { display: block; }
+    
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: clamp(8px, 3vw, 20px);
+      flex-wrap: wrap;
+    }
+    
+    /* Страницы */
+    .page { 
+      display: none; 
+      animation: fadeIn 0.3s ease;
+    }
+    
+    .page.active { 
+      display: block; 
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Модалки - адаптивные */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
@@ -68,47 +121,59 @@
       visibility: hidden;
       opacity: 0;
       transition: 0.2s;
+      padding: 16px;
     }
+    
     .modal {
       background: rgba(18, 30, 45, 0.98);
       border: 1px solid #0ef6;
-      border-radius: 48px;
-      padding: 40px;
+      border-radius: clamp(32px, 8vw, 48px);
+      padding: clamp(24px, 6vw, 40px);
       max-width: 480px;
-      width: 90%;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
     }
+    
     .modal input {
       width: 100%;
-      padding: 16px;
+      padding: clamp(12px, 4vw, 16px);
       background: #0a1622;
       border: 1px solid #2c5777;
       border-radius: 40px;
       color: white;
       margin: 12px 0;
-      font-size: 1rem;
+      font-size: clamp(0.9rem, 4vw, 1rem);
+      -webkit-appearance: none;
     }
+    
+    /* Баланс */
     .balance-card {
       background: linear-gradient(145deg, #0a1a2a, #030f1a);
-      border-radius: 40px;
-      padding: 40px;
+      border-radius: clamp(24px, 6vw, 40px);
+      padding: clamp(20px, 5vw, 40px);
       border: 1px solid #0ef3;
-      margin-bottom: 30px;
+      margin-bottom: clamp(20px, 5vw, 30px);
     }
+    
     .balance-amount {
-      font-size: 4rem;
+      font-size: clamp(2.5rem, 10vw, 4rem);
       font-weight: 700;
       background: linear-gradient(135deg, #fff, #b5f0ff);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+      word-break: break-word;
     }
     
-    /* Карта с переворотом */
+    /* Карта с переворотом - адаптивная */
     .card-flip-container {
       perspective: 1000px;
-      height: 240px;
+      height: clamp(180px, 40vw, 240px);
       cursor: pointer;
+      margin-bottom: clamp(20px, 5vw, 0);
     }
+    
     .card-flipper {
       position: relative;
       width: 100%;
@@ -116,150 +181,297 @@
       transition: transform 0.6s;
       transform-style: preserve-3d;
     }
+    
     .card-flip-container.flipped .card-flipper {
       transform: rotateY(180deg);
     }
+    
     .card-front, .card-back {
       position: absolute;
       width: 100%;
       height: 100%;
       backface-visibility: hidden;
-      border-radius: 32px;
-      padding: 30px;
+      border-radius: clamp(20px, 5vw, 32px);
+      padding: clamp(16px, 4vw, 30px);
       background: linear-gradient(145deg, #0d1f2c, #030b12);
       border: 1px solid #0ef6;
+      overflow: hidden;
     }
+    
     .card-front {
       transform: rotateY(0deg);
     }
+    
     .card-back {
       transform: rotateY(180deg);
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
+    
     .magnetic-stripe {
       background: #1a1a1a;
-      height: 50px;
-      margin-bottom: 20px;
+      height: clamp(35px, 8vw, 50px);
+      margin-bottom: clamp(12px, 4vw, 20px);
       border-radius: 8px;
     }
+    
     .cvv-display {
       background: white;
       color: black;
-      padding: 15px;
+      padding: clamp(10px, 3vw, 15px);
       border-radius: 12px;
       font-family: monospace;
-      font-size: 1.5rem;
+      font-size: clamp(1.2rem, 5vw, 1.5rem);
       text-align: right;
     }
     
     .card-number {
       font-family: monospace;
-      font-size: 1.6rem;
-      letter-spacing: 4px;
+      font-size: clamp(1.1rem, 4vw, 1.6rem);
+      letter-spacing: clamp(2px, 1vw, 4px);
       color: #fff;
-      margin: 20px 0;
+      margin: clamp(12px, 4vw, 20px) 0;
       word-break: break-all;
       text-shadow: 0 0 15px #0ef;
+    }
+    
+    /* Сетка карточки и транзакций */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(16px, 4vw, 30px);
+      margin-bottom: clamp(20px, 5vw, 30px);
     }
     
     .transactions {
       background: rgba(15, 28, 40, 0.5);
       backdrop-filter: blur(8px);
-      border-radius: 32px;
-      padding: 24px;
+      border-radius: clamp(20px, 5vw, 32px);
+      padding: clamp(16px, 4vw, 24px);
       border: 1px solid #1e3a5f;
-      height: 240px;
+      height: clamp(180px, 40vw, 240px);
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
+    
     .transaction-item {
-      padding: 12px 0;
+      padding: clamp(8px, 2vw, 12px) 0;
       border-bottom: 1px solid #1e3a5f;
+      font-size: clamp(0.85rem, 3.5vw, 1rem);
     }
+    
+    /* Статус */
     .status-badge {
       position: fixed;
-      bottom: 20px;
-      left: 20px;
-      padding: 12px 20px;
+      bottom: max(16px, env(safe-area-inset-bottom, 16px));
+      left: max(16px, env(safe-area-inset-left, 16px));
+      padding: clamp(8px, 3vw, 12px) clamp(16px, 4vw, 20px);
       background: rgba(18, 30, 45, 0.9);
       border-radius: 40px;
       border: 1px solid #0ef6;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       z-index: 9999;
-    }
-    .status-badge.online { color: #00ff88; }
-    .status-badge.offline { color: #ffaa00; }
-    .user-badge {
-      background: #0a1e2c;
-      padding: 8px 20px;
-      border-radius: 40px;
-      border: 1px solid #0ef;
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+      backdrop-filter: blur(8px);
     }
     
-    /* Уведомления */
+    .status-badge.online { color: #00ff88; }
+    .status-badge.offline { color: #ffaa00; }
+    
+    /* Уведомления - адаптивные */
     .notification-wrapper {
       position: relative;
-      margin-right: 20px;
     }
+    
     .notification-bell {
       position: relative;
       cursor: pointer;
+      padding: 8px;
     }
+    
     .notification-badge {
       position: absolute;
-      top: -8px;
-      right: -8px;
+      top: 0;
+      right: 0;
       background: #ff3366;
       color: white;
       border-radius: 50%;
-      width: 22px;
-      height: 22px;
+      min-width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 12px;
       font-weight: bold;
       box-shadow: 0 0 15px #ff3366;
+      padding: 0 4px;
     }
+    
     .notifications-dropdown {
       position: absolute;
-      top: 40px;
-      right: 0;
+      top: 45px;
+      right: -10px;
       background: rgba(18, 30, 45, 0.98);
       backdrop-filter: blur(20px);
       border: 1px solid #0ef6;
       border-radius: 24px;
       padding: 16px;
-      min-width: 380px;
-      max-height: 400px;
+      min-width: min(380px, 85vw);
+      max-width: 400px;
+      max-height: min(400px, 70vh);
       overflow-y: auto;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       z-index: 1000;
       display: none;
     }
+    
     .notifications-dropdown.show {
       display: block;
     }
+    
     .notification-item {
-      padding: 16px;
+      padding: clamp(12px, 3vw, 16px);
       border-bottom: 1px solid #1e3a5f;
       cursor: pointer;
       border-radius: 12px;
     }
-    .notification-item:hover {
-      background: rgba(0, 200, 255, 0.1);
-    }
-    .notification-item.unread {
-      border-left: 4px solid #0ef;
-      background: rgba(0, 230, 250, 0.08);
+    
+    .notification-item:active {
+      background: rgba(0, 200, 255, 0.15);
     }
     
-    .header-right {
+    .user-badge {
+      background: #0a1e2c;
+      padding: clamp(6px, 2vw, 8px) clamp(16px, 4vw, 20px);
+      border-radius: 40px;
+      border: 1px solid #0ef;
+      font-size: clamp(0.85rem, 3.5vw, 1rem);
+    }
+    
+    /* Кнопки действий */
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: clamp(12px, 4vw, 20px);
+      flex-wrap: wrap;
+    }
+    
+    .stats-text {
+      margin-top: clamp(16px, 4vw, 20px);
+      font-size: clamp(0.9rem, 3.5vw, 1rem);
+    }
+    
+    /* Заголовки */
+    h2 {
+      font-size: clamp(1.5rem, 6vw, 2.2rem);
+      margin: clamp(20px, 5vw, 30px) 0;
+    }
+    
+    h3 {
+      font-size: clamp(1.1rem, 4.5vw, 1.3rem);
+      margin-bottom: clamp(12px, 3vw, 16px);
+    }
+    
+    /* Hero секция */
+    .hero-title {
+      font-size: clamp(2.5rem, 10vw, 4rem);
+      background: linear-gradient(135deg, #fff, #a0f0ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    
+    .hero-text {
+      font-size: clamp(1rem, 4vw, 1.3rem);
+      margin: clamp(16px, 5vw, 24px) 0;
+    }
+    
+    /* Мобильные адаптации */
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      .header-right {
+        justify-content: space-between;
+      }
+      
+      .btn {
+        white-space: normal;
+      }
+      
+      .notifications-dropdown {
+        right: -50px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 0 12px;
+      }
+      
+      .action-buttons .btn {
+        width: 100%;
+      }
+      
+      .notifications-dropdown {
+        position: fixed;
+        top: 80px;
+        left: 10px;
+        right: 10px;
+        min-width: auto;
+        max-width: none;
+      }
+      
+      .modal {
+        padding: 24px 20px;
+      }
+    }
+    
+    /* Touch оптимизации */
+    @media (hover: none) and (pointer: coarse) {
+      .btn, .notification-item, .card-flip-container {
+        cursor: default;
+      }
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: max(80px, calc(env(safe-area-inset-bottom, 20px) + 60px));
+      right: 16px;
+      left: 16px;
+      max-width: 400px;
+      margin-left: auto;
+      background: rgba(18, 30, 45, 0.98);
+      border: 1px solid #0ef6;
+      border-left: 6px solid #0ef;
+      border-radius: 20px;
+      padding: clamp(16px, 4vw, 20px);
+      color: white;
+      z-index: 99999;
+      animation: slideIn 0.3s;
+      backdrop-filter: blur(8px);
       display: flex;
       align-items: center;
+      gap: 12px;
+      font-size: clamp(0.9rem, 3.5vw, 1rem);
+    }
+    
+    .toast.success { border-left-color: #00ff88; }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
   </style>
 </head>
@@ -276,18 +488,18 @@
   <div class="modal">
     <h2 style="margin-bottom:24px;" id="modalTitle">Вход в NEOBANK</h2>
     <div id="loginForm">
-      <input type="text" id="loginId" placeholder="Ваш ID (например alice)">
-      <input type="password" id="loginPassword" placeholder="Пароль">
+      <input type="text" id="loginId" placeholder="Ваш ID (например alice)" inputmode="text" autocomplete="username">
+      <input type="password" id="loginPassword" placeholder="Пароль" autocomplete="current-password">
       <button class="btn btn-primary" style="width:100%;" id="loginBtn">Войти</button>
-      <p style="margin-top:20px;">Нет аккаунта? <a href="#" id="showRegisterLink" style="color:#0ef;">Создать</a></p>
-      <p style="margin-top:10px; opacity:0.7; font-size:0.9rem;">Тест: alice / 123 • bob / 123</p>
+      <p style="margin-top:20px; text-align:center;">Нет аккаунта? <a href="#" id="showRegisterLink" style="color:#0ef;">Создать</a></p>
+      <p style="margin-top:10px; opacity:0.7; font-size:0.9rem; text-align:center;">Тест: alice / 123 • bob / 123</p>
     </div>
     <div id="registerForm" style="display:none;">
-      <input type="text" id="regId" placeholder="Придумайте ID">
-      <input type="text" id="regName" placeholder="Ваше имя">
-      <input type="password" id="regPassword" placeholder="Пароль">
+      <input type="text" id="regId" placeholder="Придумайте ID" inputmode="text" autocomplete="off">
+      <input type="text" id="regName" placeholder="Ваше имя" autocomplete="name">
+      <input type="password" id="regPassword" placeholder="Пароль" autocomplete="new-password">
       <button class="btn btn-primary" style="width:100%;" id="registerBtn">Зарегистрироваться</button>
-      <p style="margin-top:20px;"><a href="#" id="showLoginLink" style="color:#0ef;">← Назад</a></p>
+      <p style="margin-top:20px; text-align:center;"><a href="#" id="showLoginLink" style="color:#0ef;">← Назад</a></p>
     </div>
   </div>
 </div>
@@ -297,11 +509,11 @@
   <div class="modal">
     <h2>Перевод средств</h2>
     <p>Ваш баланс: <span id="currentBalanceSpan">0</span> ₽</p>
-    <input type="text" id="recipientId" placeholder="ID получателя">
-    <input type="number" id="transferAmount" placeholder="Сумма">
+    <input type="text" id="recipientId" placeholder="ID получателя" inputmode="text">
+    <input type="number" id="transferAmount" placeholder="Сумма" inputmode="decimal" min="1" step="1">
     <button class="btn btn-primary" style="width:100%;" id="sendTransferBtn">Отправить</button>
-    <p style="margin-top:20px;"><a href="#" id="closeTransferModal" style="color:#aaa;">Закрыть</a></p>
-    <div id="transferMessage" style="margin-top:16px;"></div>
+    <p style="margin-top:20px; text-align:center;"><a href="#" id="closeTransferModal" style="color:#aaa;">Закрыть</a></p>
+    <div id="transferMessage" style="margin-top:16px; text-align:center;"></div>
     <div style="margin-top:30px;">
       <h4>👥 Пользователи</h4>
       <div id="usersList" style="max-height:200px; overflow-y:auto;"></div>
@@ -325,9 +537,9 @@
       <div class="logo"><i data-lucide="hexagon" style="color:#0ef;"></i> NEO·BANK</div>
       <div><a href="#" class="btn btn-outline" id="openAuthBtn">Войти / Регистрация</a></div>
     </header>
-    <div style="padding:60px 0; text-align:center;">
-      <h1 style="font-size:4rem; background:linear-gradient(135deg,#fff,#a0f0ff); -webkit-background-clip:text; background-clip:text; color:transparent;">Облачный банк</h1>
-      <p style="font-size:1.3rem; margin:24px 0;">Синхронизация между браузерами через Firebase</p>
+    <div style="padding:clamp(40px, 10vw, 60px) 0; text-align:center;">
+      <h1 class="hero-title">Облачный банк</h1>
+      <p class="hero-text">Синхронизация между всеми устройствами через Firebase</p>
       <a href="#" class="btn btn-primary" id="heroOpenAccount">Открыть счёт</a>
     </div>
   </div>
@@ -350,18 +562,18 @@
           </div>
         </div>
         <span class="user-badge" id="userNameDisplay"></span>
-        <a href="#" class="btn btn-outline" id="logoutBtn" style="margin-left:16px;">Выйти</a>
+        <a href="#" class="btn btn-outline" id="logoutBtn">Выйти</a>
       </div>
     </header>
     
-    <h2 style="margin:30px 0;">👋 Добро пожаловать, <span id="dashboardName"></span></h2>
+    <h2>👋 Добро пожаловать, <span id="dashboardName"></span></h2>
     
     <div class="balance-card">
       <div>Доступный баланс</div>
       <div class="balance-amount"><span id="dashboardBalance">0</span> ₽</div>
     </div>
     
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px; margin-bottom:30px;">
+    <div class="dashboard-grid">
       <!-- Карта с переворотом -->
       <div class="card-flip-container" id="cardContainer" onclick="this.classList.toggle('flipped')">
         <div class="card-flipper">
@@ -395,12 +607,14 @@
       </div>
     </div>
     
-    <div style="text-align:center;">
-      <button class="btn btn-primary" id="transferBtn" style="margin-right:20px;"><i data-lucide="send"></i> Перевести</button>
+    <div class="action-buttons">
+      <button class="btn btn-primary" id="transferBtn"><i data-lucide="send"></i> Перевести</button>
       <button class="btn" id="clickerButton" style="background:linear-gradient(145deg,#7b2ff7,#4a00e0); border:2px solid #b86eff;">
         <i data-lucide="cpu"></i> Кликер +100 ₽
       </button>
-      <div style="margin-top:20px;">Кликов: <span id="clickCount">0</span> | Заработано: <span id="totalClicked">0</span> ₽</div>
+    </div>
+    <div class="stats-text" style="text-align:center;">
+      Кликов: <span id="clickCount">0</span> | Заработано: <span id="totalClicked">0</span> ₽
     </div>
   </div>
 </div>
@@ -431,13 +645,18 @@
   database.ref(".info/connected").on("value", (snap) => {
     const badge = document.getElementById("statusBadge");
     const text = document.getElementById("statusText");
+    const icon = badge.querySelector('i');
+    
     if (snap.val() === true) {
       badge.className = "status-badge online";
-      text.textContent = "Firebase Online · Синхронизация активна";
+      text.textContent = "Онлайн · Синхронизация";
+      icon.setAttribute('data-lucide', 'cloud-check');
     } else {
       badge.className = "status-badge offline";
-      text.textContent = "Firebase Offline · Переподключение...";
+      text.textContent = "Офлайн · Переподключение";
+      icon.setAttribute('data-lucide', 'cloud-off');
     }
+    lucide.createIcons();
   });
   
   // Инициализация тестовых пользователей
@@ -488,7 +707,7 @@
     
     if (unreadCount > 0) {
       badge.style.display = "flex";
-      badge.textContent = unreadCount;
+      badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
     } else {
       badge.style.display = "none";
     }
@@ -595,7 +814,6 @@
         currentUser = user;
         clickStats = user.clickStats || { total: 0, clicks: 0 };
         
-        // Проверка новых уведомлений
         const newNotifications = (user.notifications || []).filter(n => 
           !oldNotifications.find(on => on.id === n.id)
         );
@@ -619,17 +837,15 @@
   // Показать уведомление
   function showToast(message, type = "info") {
     const toast = document.createElement("div");
-    toast.style.cssText = `
-      position: fixed; bottom: 30px; right: 30px;
-      background: rgba(18,30,45,0.98); border: 1px solid #0ef6;
-      border-left: 6px solid ${type === "success" ? "#00ff88" : "#0ef"};
-      border-radius: 20px; padding: 20px 30px; color: white;
-      z-index: 99999; animation: slideIn 0.3s;
-    `;
+    toast.className = `toast ${type}`;
     toast.innerHTML = `<i data-lucide="${type === 'success' ? 'check-circle' : 'info'}"></i> ${message}`;
     document.body.appendChild(toast);
     lucide.createIcons();
-    setTimeout(() => toast.remove(), 4000);
+    
+    setTimeout(() => {
+      toast.style.opacity = "0";
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
   }
   
   // Обновление UI
@@ -810,6 +1026,11 @@
     ];
     
     await database.ref().update(updates);
+    
+    // Тактильная обратная связь
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(10);
+    }
   });
   
   // Перевод
@@ -854,7 +1075,6 @@
     
     await database.ref().update(updates);
     
-    // Добавляем уведомление получателю
     addNotification(toId, {
       type: "in",
       title: `💰 Поступление от ${currentUser.name}`,
@@ -874,18 +1094,18 @@
     }, 1500);
   });
   
+  // Блокировка зума на мобильных
+  document.addEventListener('touchmove', (e) => {
+    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+    }
+  }, { passive: false });
+  
   // Запуск
   (async () => {
     await initTestUsers();
     lucide.createIcons();
   })();
 </script>
-
-<style>
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-</style>
 </body>
 </html>
